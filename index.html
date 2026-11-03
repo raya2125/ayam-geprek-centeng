@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayam Geprek Centeng | Pedasnya Nendang, Gurihnya Sampe ke Tulang!</title>
+  <meta name="description" content="Landing page resmi Ayam Geprek Centeng. Sensasi ayam crispy berpadu sambal ulek dadakan dengan preview menu 3D interaktif yang ringan dan cepat.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@800;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Three.js & OrbitControls for Ultra-lightweight 3D Preview -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Glow Accents -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Top Announcement Bar -->
+  <div class="promo-bar">
+    <div class="container promo-content">
+      <span>🔥 <strong>PROMO GRAND OPENING:</strong> Gratis Es Teh Jumbo + Ekstra Sambal untuk 50 Pembeli Pertama Setiap Hari!</span>
+      <a href="#menu-section" class="promo-link">Cek Promo <i class="fas fa-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="brand-logo">
+        <div class="logo-icon">
+          <i class="fas fa-fire-flame-curved"></i>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">AYAM GEPREK</span>
+          <span class="logo-brand">CENTENG</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" id="navMenu">
+        <a href="#hero" class="nav-link active">Beranda</a>
+        <a href="#preview3d" class="nav-link">Preview 3D</a>
+        <a href="#menu-section" class="nav-link">Daftar Menu</a>
+        <a href="#keunggulan" class="nav-link">Keunggulan</a>
+        <a href="#testimoni" class="nav-link">Ulasan</a>
+        <a href="#lokasi" class="nav-link">Lokasi</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-primary btn-sm" id="btnOrderWaNav" onclick="openOrderModal()">
+          <i class="fab fa-whatsapp"></i>
+          <span>Pesan Cepat</span>
+        </button>
+        <button class="mobile-toggle" id="mobileMenuBtn" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <i class="fas fa-award"></i>
+          <span>Ayam Geprek No. 1 Paling Juara</span>
+        </div>
+        <h1 class="hero-headline">
+          Pedasnya <span class="text-gradient">Nendang,</span><br>
+          Gurihnya Sampe ke Tulang!
+        </h1>
+        <p class="hero-subtext">
+          Dibuat dari ayam potong segar pilihan dengan bumbu marinasi rempah nusantara 12 jam, digoreng tepung crispy keemasan, dan diulek langsung dengan cabai rawit segar dadakan!
+        </p>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Cabai Segar Asli</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num">Level 0-10</span>
+            <span class="stat-label">Bebas Pilih Pedas</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-num">4.9 ★</span>
+            <span class="stat-label">2.800+ Pelanggan Puas</span>
+          </div>
+        </div>
+
+        <div class="hero-cta-group">
+          <a href="#preview3d" class="btn btn-primary btn-lg">
+            <i class="fas fa-cube"></i>
+            <span>Coba Preview 3D Menu</span>
+          </a>
+          <a href="#menu-section" class="btn btn-outline btn-lg">
+            <i class="fas fa-utensils"></i>
+            <span>Lihat Daftar Menu</span>
+          </a>
+        </div>
+
+        <div class="delivery-partners">
+          <span class="delivery-label">Tersedia juga di:</span>
+          <div class="partner-tags">
+            <span class="partner-tag"><i class="fas fa-motorcycle"></i> GoFood</span>
+            <span class="partner-tag"><i class="fas fa-bicycle"></i> GrabFood</span>
+            <span class="partner-tag"><i class="fas fa-bag-shopping"></i> ShopeeFood</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card-side">
+        <div class="hero-featured-card">
+          <div class="card-glow"></div>
+          <div class="featured-image-box">
+            <div class="pulsing-badge">
+              <i class="fas fa-pepper-hot"></i> Sambal Korek Dadakan
+            </div>
+            <!-- Interactive 3D Mini Teaser Canvas -->
+            <div id="heroTeaserCanvas" class="hero-teaser-viewport"></div>
+            <div class="hero-floating-tip">
+              <i class="fas fa-hand-pointer"></i> Klik & geser untuk memutar 3D
+            </div>
+          </div>
+          <div class="featured-info">
+            <div class="info-header">
+              <h3>Paket Geprek Centeng Signature</h3>
+              <span class="price-tag">Rp 18.000</span>
+            </div>
+            <p>Ayam crispy jumbo + sambal ulek korek bawang + nasi pulen hangat + timun segar.</p>
+            <div class="card-action-row">
+              <a href="#preview3d" class="link-action">Kustomisasi Menu 3D &rarr;</a>
+              <button class="btn btn-sm btn-accent" onclick="openOrderModal('Paket Geprek Centeng Signature')">
+                <i class="fab fa-whatsapp"></i> Pesan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3D INTERACTIVE PREVIEW SECTION (Ultra Lightweight & Interactive) -->
+  <section class="preview3d-section" id="preview3d">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag"><i class="fas fa-cube"></i> Eksplorasi Interaktif</span>
+        <h2 class="section-title">Preview 3D Menu <span class="text-gradient">Ayam Geprek Centeng</span></h2>
+        <p class="section-subtitle">
+          Rasakan pengalaman memilih menu masa depan. Putar 360°, atur level pedasmu, pilih varian sambal dan topping, dan lihat perubahannya secara real-time langsung di browser tanpa lag!
+        </p>
+      </div>
+
+      <div class="preview3d-container">
+        <!-- Canvas 3D Viewer -->
+        <div class="canvas-wrapper">
+          <div id="three3dCanvas" class="three-canvas"></div>
+          
+          <div class="viewer-overlay-tools">
+            <button class="tool-btn" id="btnResetCamera" title="Reset Sudut Kamera">
+              <i class="fas fa-sync-alt"></i> Reset View
+            </button>
+            <button class="tool-btn" id="btnToggleAutoRotate" title="Putar Otomatis">
+              <i class="fas fa-play" id="iconAutoRotate"></i> Auto-Rotate
+            </button>
+          </div>
+
+          <div class="viewer-hint">
+            <i class="fas fa-arrows-up-down-left-right"></i> Drag untuk rotasi 360° | Scroll untuk Zoom
+          </div>
+
+          <div class="live-status-pill" id="liveStatusPill">
+            <span class="status-dot"></span>
+            <span id="statusPillText">Sambal Korek Bawang • Level 3 (Sedang)</span>
+          </div>
+        </div>
+
+        <!-- 3D Customizer Sidebar Controls -->
+        <div class="customizer-panel">
+          <div class="panel-header">
+            <h3><i class="fas fa-sliders-h"></i> Customizer Menu 3D</h3>
+            <span class="badge-fast">⚡ Ultra-Light & Cepat</span>
+          </div>
+
+          <!-- Pilihan Varian Sambal -->
+          <div class="control-group">
+            <label class="control-label">
+              <i class="fas fa-pepper-hot"></i> 1. Pilihan Sambal Favorit
+            </label>
+            <div class="sambal-selector-grid">
+              <button class="sambal-btn active" data-sambal="korek">
+                <span class="sambal-color korek-color"></span>
+                <span class="sambal-name">Sambal Korek</span>
+                <small>Bawang Gurih</small>
+              </button>
+              <button class="sambal-btn" data-sambal="matah">
+                <span class="sambal-color matah-color"></span>
+                <span class="sambal-name">Sambal Matah</span>
+                <small>Segar Sereh</small>
+              </button>
+              <button class="sambal-btn" data-sambal="ijo">
+                <span class="sambal-color ijo-color"></span>
+                <span class="sambal-name">Sambal Ijo</span>
+                <small>Pedas Gurih</small>
+              </button>
+              <button class="sambal-btn" data-sambal="keju">
+                <span class="sambal-color keju-color"></span>
+                <span class="sambal-name">Saus Keju</span>
+                <small>Creamy Gurih</small>
+              </button>
+            </div>
+          </div>
+
+          <!-- Slider Level Pedas -->
+          <div class="control-group">
+            <div class="slider-header">
+              <label class="control-label">
+                <i class="fas fa-fire"></i> 2. Level Kepedasan
+              </label>
+              <span class="level-indicator" id="levelLabelText">Level 3 (Sedang)</span>
+            </div>
+            <input type="range" min="0" max="10" value="3" class="custom-slider" id="pedasSlider">
+            <div class="slider-ticks">
+              <span>0 (Aman)</span>
+              <span>3 (Pas)</span>
+              <span>5 (Nampol)</span>
+              <span>10 (Centeng Bar-bar)</span>
+            </div>
+          </div>
+
+          <!-- Extra Toppings 3D Toggles -->
+          <div class="control-group">
+            <label class="control-label">
+              <i class="fas fa-cheese"></i> 3. Topping & Tambahan (3D Live)
+            </label>
+            <div class="toggle-list">
+              <label class="toggle-item">
+                <input type="checkbox" id="toggleMozarella">
+                <span class="toggle-box"></span>
+                <span class="toggle-text">
+                  <strong>Mozarella Meleleh</strong>
+                  <small>Dilelehkan langsung di atas ayam panas (+Rp 5.000)</small>
+                </span>
+              </label>
+
+              <label class="toggle-item">
+                <input type="checkbox" id="toggleNasi" checked>
+                <span class="toggle-box"></span>
+                <span class="toggle-text">
+                  <strong>Nasi Putih Pulen</strong>
+                  <small>Disajikan hangat di cobek (+Rp 4.000)</small>
+                </span>
+              </label>
+
+              <label class="toggle-item">
+                <input type="checkbox" id="toggleLalapan" checked>
+                <span class="toggle-box"></span>
+                <span class="toggle-text">
+                  <strong>Lalapan Segar (Timun & Kemangi)</strong>
+                  <small>Penyegar alami gratis</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Order Summary and CTA from 3D -->
+          <div class="customizer-footer">
+            <div class="custom-price-box">
+              <span class="price-caption">Estimasi Harga:</span>
+              <span class="price-val" id="customPriceDisplay">Rp 19.000</span>
+            </div>
+            <button class="btn btn-primary btn-block" id="btnOrderFrom3d" onclick="orderFrom3dCustomizer()">
+              <i class="fab fa-whatsapp"></i> Pesan Racikan 3D Ini via WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU LIST SECTION (Modular & Easy to fill later) -->
+  <section class="menu-section" id="menu-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag"><i class="fas fa-book-open"></i> Pilihan Menu</span>
+        <h2 class="section-title">Daftar Menu <span class="text-gradient">Ayam Geprek Centeng</span></h2>
+        <p class="section-subtitle">
+          Semua menu disajikan dengan ayam goreng renyah berkualitas tinggi dan sambal ulek dadakan. Pilih kategori favoritmu di bawah ini!
+        </p>
+      </div>
+
+      <!-- Menu Category Tabs Filter -->
+      <div class="menu-filter-bar">
+        <button class="filter-tab active" data-category="all">
+          <i class="fas fa-utensils"></i> Semua Menu
+        </button>
+        <button class="filter-tab" data-category="geprek">
+          <i class="fas fa-drumstick-bite"></i> Paket Geprek
+        </button>
+        <button class="filter-tab" data-category="sambal">
+          <i class="fas fa-pepper-hot"></i> Aneka Sambal
+        </button>
+        <button class="filter-tab" data-category="camilan">
+          <i class="fas fa-cookie-bite"></i> Topping & Camilan
+        </button>
+        <button class="filter-tab" data-category="minuman">
+          <i class="fas fa-glass-water"></i> Minuman Segar
+        </button>
+      </div>
+
+      <!-- Notice for Placeholder Menu -->
+      <div class="menu-custom-notice">
+        <i class="fas fa-info-circle"></i>
+        <span>
+          <strong>Daftar Menu Fleksibel:</strong> Anda dapat dengan mudah menambahkan nama menu, foto, harga, dan deskripsi di file <code>menu-data.js</code> kapan saja.
+        </span>
+      </div>
+
+      <!-- Dynamic Menu Grid Container -->
+      <div class="menu-grid" id="menuGrid">
+        <!-- Rendered dynamically by app.js from menu-data.js -->
+      </div>
+
+      <div class="menu-bottom-cta">
+        <div class="cta-card">
+          <div class="cta-content">
+            <h3>Ingin Pesan Porsi Katering / Nasi Kotak untuk Acara?</h3>
+            <p>Dapatkan harga spesial untuk pesanan kantor, arisan, rapat, atau ulang tahun!</p>
+          </div>
+          <button class="btn btn-primary" onclick="openOrderModal('Katering / Pesanan Khusus')">
+            <i class="fab fa-whatsapp"></i> Hubungi Admin Katering
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEUNGGULAN / KENAPA CENTENG -->
+  <section class="features-section" id="keunggulan">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag"><i class="fas fa-star"></i> Kenapa Memilih Kami</span>
+        <h2 class="section-title">Rahasia Kelezatan <span class="text-gradient">Ayam Geprek Centeng</span></h2>
+        <p class="section-subtitle">
+          Kami tidak berkompromi soal rasa dan kualitas. Inilah alasan kenapa pelanggan kami selalu kembali lagi!
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-drumstick-bite"></i>
+          </div>
+          <h3>Ayam Segar & Potongan Jumbo</h3>
+          <p>Hanya menggunakan daging ayam pilihan dari peternakan terpercaya. Daging tebal, juicy, dan bumbu meresap sampai ke tulang.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-mortar-pestle"></i>
+          </div>
+          <h3>Ulek Sambal Dadakan</h3>
+          <p>Sambal tidak diblender atau disimpan lama! Diulek langsung satu per satu di cobek batu begitu ada pesanan agar aroma minyak panasnya meledak di lidah.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-pepper-hot"></i>
+          </div>
+          <h3>100% Cabai Asli Tanpa Bubuk</h3>
+          <p>Menggunakan kombinasi cabai rawit merah petik segar dan bawang merah Brebes asli tanpa campuran pengawet atau cabai bubuk instan.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <h3>Harga Ramah Kantong Pelajar</h3>
+          <p>Porsi kenyang maksimal dengan harga yang pas di kantong siswa, mahasiswa, maupun karyawan kantor.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section" id="testimoni">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag"><i class="fas fa-comments"></i> Kata Mereka</span>
+        <h2 class="section-title">Ulasan <span class="text-gradient">Sahabat Centeng</span></h2>
+        <p class="section-subtitle">Dengar langsung apa kata para pecinta pedas yang sudah ketagihan!</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Gila sih sambal koreknya bener-bener mantep! Bawangnya wangi, pedesnya nampol tapi bikin nagih terus. Ayamnya juga beneran gede dan crispy banget!"</p>
+          <div class="testi-author">
+            <div class="author-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <strong>Rian Pratama</strong>
+              <small>Mahasiswa & Pecinta Pedas</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Fitur preview 3D di webnya keren banget bisa atur level pedas! Pas dateng makanannya bener-bener fresh dan mozarella-nya melimpah ruah. Top recommended!"</p>
+          <div class="testi-author">
+            <div class="author-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <strong>Siti Rahmawati</strong>
+              <small>Food Enthusiast</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Langganan makan siang kantor tiap Jumat. Pesan lewat WhatsApp gampang banget, respon cepat dan packingnya rapi anti tumpah."</p>
+          <div class="testi-author">
+            <div class="author-avatar"><i class="fas fa-user"></i></div>
+            <div>
+              <strong>Dimas Anggara</strong>
+              <small>Karyawan Swasta</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOKASI & JAM OPERASIONAL -->
+  <section class="location-section" id="lokasi">
+    <div class="container">
+      <div class="location-card">
+        <div class="location-info">
+          <span class="section-tag"><i class="fas fa-map-marker-alt"></i> Outlet Kami</span>
+          <h2>Kunjungi Kedai <span class="text-gradient">Ayam Geprek Centeng</span></h2>
+          <p>Nikmati sensasi makan langsung di tempat dengan aroma sambal ulek hangat atau pesan via WhatsApp untuk delivery cepat.</p>
+
+          <div class="info-list">
+            <div class="info-item">
+              <i class="fas fa-clock"></i>
+              <div>
+                <strong>Jam Buka:</strong>
+                <p>Setiap Hari: 10.00 - 22.00 WIB (Buka Setiap Hari)</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-map-pin"></i>
+              <div>
+                <strong>Alamat Kedai:</strong>
+                <p>Jl. Kuliner Juara No. 12, Pusat Kuliner Nusantara (Siap Delivery ke Seluruh Area)</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fab fa-whatsapp"></i>
+              <div>
+                <strong>Kontak & WhatsApp Pesanan:</strong>
+                <p>+62 812-3456-7890 (Admin Centeng)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-buttons">
+            <button class="btn btn-primary" onclick="openOrderModal()">
+              <i class="fab fa-whatsapp"></i> Chat WhatsApp Sekarang
+            </button>
+            <a href="https://maps.google.com" target="_blank" class="btn btn-outline">
+              <i class="fas fa-directions"></i> Petunjuk Arah (Maps)
+            </a>
+          </div>
+        </div>
+
+        <div class="map-mockup">
+          <div class="map-inner">
+            <i class="fas fa-map-marked-alt map-bg-icon"></i>
+            <div class="map-pin-pulse">
+              <i class="fas fa-fire"></i>
+            </div>
+            <div class="map-label">
+              <strong>Ayam Geprek Centeng</strong>
+              <span>Area Pengiriman Aktif (Radius 10 km)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <div class="logo-icon"><i class="fas fa-fire-flame-curved"></i></div>
+          <div class="logo-text">
+            <span class="logo-title">AYAM GEPREK</span>
+            <span class="logo-brand">CENTENG</span>
+          </div>
+        </div>
+        <p>Ayam Geprek Centeng hadir menyajikan sensasi ayam geprek crispy berpadu sambal dadakan super nendang dengan harga bersahabat.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Navigasi Cepat</h4>
+        <ul>
+          <li><a href="#hero">Beranda</a></li>
+          <li><a href="#preview3d">3D Preview Menu</a></li>
+          <li><a href="#menu-section">Daftar Menu</a></li>
+          <li><a href="#keunggulan">Keunggulan Rasa</a></li>
+          <li><a href="#lokasi">Lokasi & Kontak</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Varian Sambal</h4>
+        <ul>
+          <li><a href="#preview3d">Sambal Korek Bawang</a></li>
+          <li><a href="#preview3d">Sambal Matah Bali</a></li>
+          <li><a href="#preview3d">Sambal Ijo Padang</a></li>
+          <li><a href="#preview3d">Saus Keju Mozarella</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Jam Buka</h4>
+        <p>Senin - Minggu<br><strong>10.00 - 22.00 WIB</strong></p>
+        <p class="footer-wa-note">Pemesanan online tetap dilayani setiap hari.</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <p>&copy; 2026 Ayam Geprek Centeng. Hak Cipta Dilindungi.</p>
+        <p>Dibuat untuk pecinta pedas nusantara.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WHATSAPP ORDER MODAL POPUP -->
+  <div class="modal-backdrop" id="orderModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <i class="fab fa-whatsapp"></i>
+          <div>
+            <h3>Form Pesan Cepat WhatsApp</h3>
+            <small>Langsung terkirim ke WhatsApp Resmi Centeng</small>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="orderForm" onsubmit="handleSendWaOrder(event)">
+          <div class="form-group">
+            <label for="orderName">Nama Pemesan</label>
+            <input type="text" id="orderName" class="form-control" placeholder="Contoh: Budi Santoso" required>
+          </div>
+
+          <div class="form-group">
+            <label for="orderMenu">Pilihan Menu</label>
+            <input type="text" id="orderMenu" class="form-control" placeholder="Pilih menu atau racikan 3D" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="orderLevel">Level Pedas</label>
+              <select id="orderLevel" class="form-control">
+                <option value="Level 0 (Original)">Level 0 (Original Tidak Pedas)</option>
+                <option value="Level 1">Level 1 (Sedikit Pedas)</option>
+                <option value="Level 2">Level 2 (Pedas Santai)</option>
+                <option value="Level 3" selected>Level 3 (Sedang - Rekomendasi)</option>
+                <option value="Level 5">Level 5 (Pedas Nampol)</option>
+                <option value="Level 7">Level 7 (Pedas Berkeringat)</option>
+                <option value="Level 10 (Centeng Bar-bar)">Level 10 (Centeng Bar-bar!)</option>
+              </select>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="orderQty">Jumlah Porsi</label>
+              <input type="number" id="orderQty" class="form-control" min="1" value="1" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="orderNotes">Catatan Tambahan / Alamat Pengiriman</label>
+            <textarea id="orderNotes" class="form-control" rows="2" placeholder="Contoh: Sambal dipisah, tambah nasi, antar ke Jl. Mawar No. 4..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg">
+            <i class="fab fa-whatsapp"></i> Kirim Pesanan ke WhatsApp Sekarang
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating WA Button -->
+  <a href="javascript:void(0)" onclick="openOrderModal()" class="floating-wa" title="Pesan via WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="floating-tooltip">Pesan Sekarang!</span>
+  </a>
+
+  <!-- Scripts -->
+  <script src="menu-data.js"></script>
+  <script src="three-viewer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
