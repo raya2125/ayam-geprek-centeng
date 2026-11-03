@@ -1,28 +1,37 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ayam Geprek Centeng | Sambal Ulek Dadakan Pedas Nendang</title>
-  <meta name="description" content="Menu resmi Ayam Geprek Centeng. Ayam goreng krispi renyah dengan sambal korek ulek dadakan, aneka pilihan sambal nusantara, dan harga bersahabat.">
+  <title>Ayam Geprek Centeng | Pesan di Tempat & Layar Antrean</title>
+  <meta name="description"
+    content="Menu resmi Ayam Geprek Centeng. Pesan makan di tempat atau takeaway dengan sistem antrean ala Burger King dan rekap kasir otomatis ke Excel.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@800;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@800;900&display=swap"
+    rel="stylesheet">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- SheetJS Library for Excel (.xlsx) Generation -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <!-- Top Announcement Bar -->
   <div class="announcement-bar">
     <div class="container announcement-inner">
-      <span>🌶️ <strong>Ayam Geprek Centeng:</strong> Sambal diulek dadakan satu per satu per porsi! Bebas pilih level pedas 0-10.</span>
-      <a href="#menu-katalog" class="announcement-link">Lihat Menu &rarr;</a>
+      <span>🍗 <strong>Ayam Geprek Centeng:</strong> Tersedia Opsi Pesan di Tempat (Dine-In) & Layar Antrean
+        Kiosk!</span>
+      <a href="#layar-antrean" class="announcement-link">Lihat Status Antrean &rarr;</a>
     </div>
   </div>
 
@@ -30,11 +39,11 @@
   <header class="site-header" id="siteHeader">
     <div class="container nav-wrap">
       <a href="#" class="brand">
-        <div class="brand-badge">
-          <i class="fas fa-fire"></i>
+        <div class="brand-badge-logo">
+          <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img">
         </div>
         <div class="brand-titles">
-          <span class="brand-sub">KULINER PEDAS</span>
+          <span class="brand-sub">SELERA NUSANTARA</span>
           <span class="brand-name">Ayam Geprek Centeng</span>
         </div>
       </a>
@@ -42,12 +51,21 @@
       <nav class="nav-menu" id="navMenu">
         <a href="#beranda" class="nav-item active">Beranda</a>
         <a href="#menu-katalog" class="nav-item">Menu & Harga</a>
-        <a href="#tentang-kami" class="nav-item">Kenapa Centeng?</a>
-        <a href="#testimoni" class="nav-item">Ulasan</a>
-        <a href="#lokasi-outlet" class="nav-item">Lokasi</a>
+        <a href="#pesan-tempat" class="nav-item">🍽️ Pesan di Tempat</a>
+        <a href="#layar-antrean" class="nav-item">📟 Layar Antrean</a>
+        <a href="javascript:void(0)" onclick="openExcelModal()" class="nav-item nav-item-highlight">
+          <i class="fas fa-file-excel"></i> Rekap Excel
+        </a>
       </nav>
 
       <div class="nav-right">
+        <!-- Excel Modal Button -->
+        <button class="excel-trigger-btn" onclick="openExcelModal()" title="Lihat Rekap Pesanan Excel">
+          <i class="fas fa-file-excel"></i>
+          <span class="excel-btn-text">Rekap Excel</span>
+          <span class="excel-badge-count" id="excelOrderCountBadge">0</span>
+        </button>
+
         <!-- Floating Cart Trigger Button -->
         <button class="cart-trigger-btn" id="openCartBtn" onclick="toggleCartDrawer()">
           <i class="fas fa-shopping-bag"></i>
@@ -67,38 +85,42 @@
     <div class="container hero-container">
       <div class="hero-content">
         <div class="pill-tag">
-          <i class="fas fa-pepper-hot"></i> 100% Cabai Rawit Asli Tanpa Campuran
+          <i class="fas fa-utensils"></i> Kiosk Mandiri & Pesan Langsung di Meja
         </div>
         <h1 class="hero-title">
-          Pedasnya <span class="highlight-text">Nendang,</span><br>
-          Ayamnya Renyah Sampe ke Tulang!
+          Renyah Gurihnya <span class="highlight-text">Ayam Juara,</span><br>
+          Pesan Nyaman Tanpa Ribet!
         </h1>
         <p class="hero-desc">
-          Dibuat dari ayam potong segar pilihan dengan bumbu rempah nusantara meresap, dibalut tepung krispi keemasan, dan diulek langsung di atas cobek batu bersama cabai rawit merah petik segar.
+          Nikmati racikan ayam goreng krispi dengan sambal cabai rawit asli. Pilih makan di tempat dengan nomor mejamu,
+          pantau nomor antrean langsung ala Burger King, dan rekap otomatis ke Excel!
         </p>
 
         <div class="hero-features-chips">
           <div class="chip-item">
             <i class="fas fa-check-circle"></i>
-            <span>Ulek Dadakan Per Porsi</span>
+            <span>Pesan Langsung di Meja (Dine-In)</span>
           </div>
           <div class="chip-item">
             <i class="fas fa-check-circle"></i>
-            <span>Bebas Pilih Level 0-10</span>
+            <span>Nomor Antrean Real-Time</span>
           </div>
           <div class="chip-item">
             <i class="fas fa-check-circle"></i>
-            <span>Ayam Segar & Halal</span>
+            <span>Rekap Kasir Masuk ke Excel</span>
           </div>
         </div>
 
         <div class="hero-buttons">
           <a href="#menu-katalog" class="btn btn-primary btn-lg">
-            <i class="fas fa-utensils"></i> Pilih Menu Sekarang
+            <i class="fas fa-drumstick-bite"></i> Pesan Sekarang
           </a>
-          <button class="btn btn-whatsapp btn-lg" onclick="openDirectOrderModal()">
-            <i class="fab fa-whatsapp"></i> Pesan Cepat via WA
-          </button>
+          <a href="#pesan-tempat" class="btn btn-outline btn-lg">
+            <i class="fas fa-chair"></i> Pilih Nomor Meja
+          </a>
+          <a href="#layar-antrean" class="btn btn-outline btn-lg">
+            <i class="fas fa-tv"></i> Layar Antrean
+          </a>
         </div>
 
         <div class="hero-meta">
@@ -116,15 +138,20 @@
 
       <div class="hero-media">
         <div class="food-hero-card">
-          <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=900&q=80" alt="Ayam Geprek Centeng Spesial" class="food-hero-img">
+          <div class="hero-mascot-pill">
+            <img src="assets/logo-chicken.jpg" alt="Mascot Centeng">
+            <span>Ayam Geprek Centeng</span>
+          </div>
+          <img src="assets/ayam-geprek.jpg" alt="Ayam Geprek Centeng Spesial" class="food-hero-img">
           <div class="hero-card-banner">
             <div class="banner-text">
               <span class="badge-mini">Best Seller</span>
-              <h3>Paket Geprek Centeng Juara</h3>
-              <p>Ayam Krispi Jumbo + Sambal Korek Bawang + Nasi Pulen</p>
+              <h3>Ayam Geprek Spesial</h3>
+              <p>Ayam Krispi Jumbo + Sambal
+                + Nasi Pulen</p>
             </div>
             <div class="banner-price">
-              <span>Rp 18.000</span>
+              <span>Rp 15.000</span>
               <button class="btn-quick-add" onclick="quickAddToCart(1)">+ Pesan</button>
             </div>
           </div>
@@ -133,14 +160,14 @@
     </div>
   </section>
 
-  <!-- MENU SECTION (Clean, Real Restaurant Menu with Search & Category Tabs) -->
+  <!-- MENU SECTION (Curated 2 Items: Ayam Geprek & Es Teh) -->
   <section class="menu-catalog-section" id="menu-katalog">
     <div class="container">
       <div class="section-title-wrap text-center">
-        <span class="tag-label">Daftar Menu Resmi</span>
+        <span class="tag-label"><i class="fas fa-bowl-food"></i> Menu Resmi</span>
         <h2 class="main-heading">Pilihan Menu <span class="highlight-text">Ayam Geprek Centeng</span></h2>
         <p class="sub-heading">
-          Pilih paket favoritmu, atur tingkat kepedasan sesuai selera, dan langsung checkout ke WhatsApp!
+          Menu spesial andalan yang dijamin lezat, higienis, dan pas untuk santapan makan siang atau makan malam Anda.
         </p>
       </div>
 
@@ -148,21 +175,15 @@
       <div class="menu-control-bar">
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" id="menuSearchInput" placeholder="Cari nama menu atau minuman..." oninput="handleMenuSearch()">
+          <input type="text" id="menuSearchInput" placeholder="Cari nama menu..." oninput="handleMenuSearch()">
         </div>
 
         <div class="category-tabs" id="categoryTabs">
           <button class="cat-btn active" data-cat="all">
-            <i class="fas fa-th-large"></i> Semua
+            <i class="fas fa-th-large"></i> Semua Menu
           </button>
           <button class="cat-btn" data-cat="geprek">
-            <i class="fas fa-drumstick-bite"></i> Paket Geprek
-          </button>
-          <button class="cat-btn" data-cat="sambal">
-            <i class="fas fa-pepper-hot"></i> Aneka Sambal
-          </button>
-          <button class="cat-btn" data-cat="camilan">
-            <i class="fas fa-cheese"></i> Topping & Tambahan
+            <i class="fas fa-drumstick-bite"></i> Ayam Geprek
           </button>
           <button class="cat-btn" data-cat="minuman">
             <i class="fas fa-glass-water"></i> Minuman Segar
@@ -174,21 +195,127 @@
       <div class="menu-cards-grid" id="menuCardsGrid">
         <!-- Injected dynamically from menu-data.js by app.js -->
       </div>
+    </div>
+  </section>
 
-      <!-- Catering / Bulk Order Card -->
-      <div class="catering-banner">
-        <div class="catering-content">
-          <div class="catering-icon">
-            <i class="fas fa-box"></i>
+  <!-- PESAN DI TEMPAT (DINE-IN KIOSK & TABLE PICKER) -->
+  <section class="dinein-section" id="pesan-tempat">
+    <div class="container">
+      <div class="section-title-wrap text-center">
+        <span class="tag-label"><i class="fas fa-chair"></i> Dine-In Experience</span>
+        <h2 class="main-heading">Pesan di Tempat <span class="highlight-text">(Makan di Meja)</span></h2>
+        <p class="sub-heading">
+          Duduk santai di meja restoran Anda, tentukan nomor meja, dan pesan tanpa perlu antre berdesakan di kasir.
+        </p>
+      </div>
+
+      <div class="dinein-card">
+        <div class="dinein-grid">
+          <div class="dinein-info">
+            <h3>Cara Mudah Pesan Dari Meja:</h3>
+            <p>
+              Sistem kiosk mandiri kami akan menerbitkan <strong>Nomor Antrean ala Burger King</strong> dan mengirimkan
+              pesanan Anda langsung ke dapur serta tercatat otomatis di buku rekap kasir Excel.
+            </p>
+
+            <div class="dinein-steps">
+              <div class="dinein-step-item">
+                <div class="step-num">1</div>
+                <div>Pilih nomor meja tempat Anda duduk di samping.</div>
+              </div>
+              <div class="dinein-step-item">
+                <div class="step-num">2</div>
+                <div>Tambahkan <strong>Ayam Geprek</strong> & <strong>Es Teh</strong> ke pesanan.</div>
+              </div>
+              <div class="dinein-step-item">
+                <div class="step-num">3</div>
+                <div>Tekan tombol pesan untuk mendapatkan nomor antrean digital Anda!</div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-lg" onclick="startDineInOrder()">
+              <i class="fas fa-utensils"></i> Mulai Pesan ke Meja Saya
+            </button>
           </div>
-          <div>
-            <h3>Butuh Nasi Kotak untuk Acara, Rapat, atau Syukuran?</h3>
-            <p>Melayani pesanan katering puluhan hingga ratusan porsi dengan packing rapi, tepat waktu, dan harga khusus.</p>
+
+          <!-- Table Picker Box -->
+          <div class="table-picker-box">
+            <div class="table-picker-title">
+              <strong>Pilih Meja Restoran:</strong>
+              <span id="selectedTableText">Meja belum dipilih</span>
+            </div>
+
+            <div class="tables-grid" id="tablesGrid">
+              <!-- Injected by app.js (Tables 1-12) -->
+            </div>
+
+            <div class="selected-table-banner">
+              <span>Status Pilihan:</span>
+              <strong id="activeTableBanner">Meja 01 (Terpilih)</strong>
+            </div>
           </div>
         </div>
-        <button class="btn btn-whatsapp" onclick="openDirectOrderModal('Pesanan Katering / Nasi Kotak')">
-          <i class="fab fa-whatsapp"></i> Hubungi Admin Katering
-        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAYAR MONITOR ANTREAN (BURGER KING STYLE) -->
+  <section class="queue-monitor-section" id="layar-antrean">
+    <div class="container">
+      <div class="section-title-wrap text-center">
+        <span class="tag-label"><i class="fas fa-tv"></i> Burger King Style Kiosk</span>
+        <h2 class="main-heading">Layar Antrean <span class="highlight-text">Pesanan Dapur</span></h2>
+        <p class="sub-heading">Pantau status pesananmu secara langsung. Ambil pesanan di kasir / tunggu di meja saat
+          nomormu dipanggil!</p>
+      </div>
+
+      <!-- Kiosk Monitor Board -->
+      <div class="bk-queue-board">
+        <div class="bk-board-header">
+          <div class="bk-brand-indicator">
+            <img src="assets/logo-chicken.jpg" alt="Logo" class="bk-mini-logo">
+            <span>LIVE ORDER STATUS MONITOR</span>
+          </div>
+          <div class="bk-live-clock" id="bkLiveClock">21:45:00 WIB</div>
+        </div>
+
+        <div class="bk-columns-wrap">
+          <!-- Kolom Sedang Disiapkan -->
+          <div class="bk-column bk-col-preparing">
+            <div class="bk-col-title">
+              <span class="status-pulse yellow-pulse"></span>
+              <h3>SEDANG DISIAPKAN</h3>
+              <small>PREPARING IN KITCHEN</small>
+            </div>
+            <div class="bk-number-list" id="queuePreparingList">
+              <!-- Injected by app.js -->
+            </div>
+          </div>
+
+          <!-- Kolom Siap Diambil -->
+          <div class="bk-column bk-col-ready">
+            <div class="bk-col-title">
+              <span class="status-pulse green-pulse"></span>
+              <h3>SIAP DIAMBIL / DIANTAR</h3>
+              <small>READY FOR COLLECTION</small>
+            </div>
+            <div class="bk-number-list" id="queueReadyList">
+              <!-- Injected by app.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Banner if user has placed an order -->
+        <div class="bk-customer-active-bar" id="bkCustomerActiveBar" style="display: none;">
+          <div class="bk-active-info">
+            <i class="fas fa-ticket-alt"></i>
+            <div>
+              <strong>Nomor Antrean Anda: <span id="myQueueNumberText">#---</span></strong>
+              <p id="myQueueStatusText">Pesanan Anda sedang dipersiapkan di dapur.</p>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-white" onclick="viewMyTicket()">Lihat Struk Digital</button>
+        </div>
       </div>
     </div>
   </section>
@@ -197,7 +324,7 @@
   <section class="usp-section" id="tentang-kami">
     <div class="container">
       <div class="section-title-wrap text-center">
-        <span class="tag-label">Keunggulan Rasa</span>
+        <span class="tag-label"><i class="fas fa-heart"></i> Keunggulan Rasa</span>
         <h2 class="main-heading">Kenapa Harus <span class="highlight-text">Ayam Geprek Centeng?</span></h2>
         <p class="sub-heading">Kami menjaga resep autentik dan kualitas bahan agar setiap gigitan terasa nikmat.</p>
       </div>
@@ -207,8 +334,10 @@
           <div class="usp-icon-wrap">
             <i class="fas fa-mortar-pestle"></i>
           </div>
-          <h3>Ulekan Dadakan Asli</h3>
-          <p>Sambal tidak pernah disimpan atau diblender! Diulek manual per porsi sesaat setelah dipesan agar minyak panasnya menyatu sempurna dengan cabai.</p>
+          <h3>sambal Asli</h3>
+          <p>Sambal tidak pernah disimpan atau diblender! Diulek
+            manual per porsi sesaat setelah dipesan agar minyak
+            panasnya menyatu sempurna dengan cabai.</p>
         </div>
 
         <div class="usp-card">
@@ -216,7 +345,8 @@
             <i class="fas fa-drumstick-bite"></i>
           </div>
           <h3>Ayam Segar Potongan Jumbo</h3>
-          <p>Menggunakan potongan ayam segar setiap hari dengan bumbu marinasi rempah gurih yang meresap hingga ke serat tulang terdalam.</p>
+          <p>Menggunakan potongan ayam segar setiap hari dengan bumbu marinasi rempah gurih yang meresap hingga ke serat
+            tulang terdalam.</p>
         </div>
 
         <div class="usp-card">
@@ -224,7 +354,8 @@
             <i class="fas fa-pepper-hot"></i>
           </div>
           <h3>100% Cabai Rawit Merah</h3>
-          <p>Bebas bahan pengawet, bebas cabai bubuk tiruan. Pedasnya murni dari cabai rawit merah segar yang dipetik langsung dari pasar induk.</p>
+          <p>Bebas bahan pengawet, bebas cabai bubuk tiruan. Pedasnya murni dari cabai rawit merah segar yang dipetik
+            langsung dari pasar induk.</p>
         </div>
 
         <div class="usp-card">
@@ -232,7 +363,8 @@
             <i class="fas fa-wallet"></i>
           </div>
           <h3>Porsi Kenyang, Harga Murah</h3>
-          <p>Cocok untuk makan siang kantor, makan malam santai bareng keluarga, maupun mahasiswa yang mencari makan enak porsi kenyang.</p>
+          <p>Hanya Rp 15.000 sudah dapat paket ayam krispi kenyang dan es teh manis segar Rp 5.000 yang pas di kantong.
+          </p>
         </div>
       </div>
     </div>
@@ -242,7 +374,7 @@
   <section class="reviews-section" id="testimoni">
     <div class="container">
       <div class="section-title-wrap text-center">
-        <span class="tag-label">Kata Pelanggan</span>
+        <span class="tag-label"><i class="fas fa-comment-dots"></i> Kata Pelanggan</span>
         <h2 class="main-heading">Apa Kata <span class="highlight-text">Pecinta Pedas?</span></h2>
         <p class="sub-heading">Ulasan jujur dari sahabat setia Ayam Geprek Centeng.</p>
       </div>
@@ -250,19 +382,21 @@
       <div class="reviews-grid">
         <div class="review-item">
           <div class="review-stars">★★★★★</div>
-          <p class="review-body">"Sambal koreknya beneran ulekan tangan asli, wangi bawang gorengnya bikin ngiler! Ayamnya crispy banget walau udah disiram sambal. Langganan tiap makan siang."</p>
+          <p class="review-body">"Sistem pesan di mejanya keren banget, langsung dapet nomor antrean kayak di Burger
+            King! Ayamnya renyah, sambal koreknya nampol banget."</p>
           <div class="review-user">
             <div class="user-avatar"><i class="fas fa-user"></i></div>
             <div>
               <strong>Reza Maulana</strong>
-              <span>Karyawan Swasta</span>
+              <span>Pelanggan Dine-In</span>
             </div>
           </div>
         </div>
 
         <div class="review-item">
           <div class="review-stars">★★★★★</div>
-          <p class="review-body">"Pesen lewat website ini gampang banget, tinggal pilih level pedas trus langsung ke-format rapi di WA adminnya. Pelayanan cepet dan ayamnya porsi gede."</p>
+          <p class="review-body">"Pesen lewat website ini gampang banget, datanya otomatis rekap ke Excel admin dan
+            terformat rapi di WA. Es tehnya dingin segar pereda pedas terbaik."</p>
           <div class="review-user">
             <div class="user-avatar"><i class="fas fa-user"></i></div>
             <div>
@@ -274,12 +408,13 @@
 
         <div class="review-item">
           <div class="review-stars">★★★★★</div>
-          <p class="review-body">"Kemarin pesen 40 kotak buat syukuran kantor, semua rekan bilang mantep. Sambalnya dipisah jadi yang gak kuat pedes tetep bisa nikmatin ayam krispinya."</p>
+          <p class="review-body">"Layar antreannya realtime dan akurat. Pas nomor antrean saya dipanggil, ayam gepreknya
+            masih panas mengepul dengan sambal dadakan super wangi."</p>
           <div class="review-user">
             <div class="user-avatar"><i class="fas fa-user"></i></div>
             <div>
               <strong>Hendro Prasetyo</strong>
-              <span>Manager Operasional</span>
+              <span>Karyawan Swasta</span>
             </div>
           </div>
         </div>
@@ -292,9 +427,9 @@
     <div class="container">
       <div class="outlet-box">
         <div class="outlet-info">
-          <span class="tag-label">Kunjungi Kami</span>
+          <span class="tag-label"><i class="fas fa-store"></i> Kunjungi Kami</span>
           <h2>Kedai <span class="highlight-text">Ayam Geprek Centeng</span></h2>
-          <p>Makan di tempat lebih seru dengan aroma sambal ulek hangat, atau pesan antar ke rumah/kantor kamu!</p>
+          <p>Makan di tempat lebih seru dengan aroma sambal hangat, atau pesan antar ke rumah/kantor kamu!</p>
 
           <div class="outlet-details">
             <div class="detail-row">
@@ -354,13 +489,16 @@
     <div class="container footer-grid">
       <div class="footer-col-main">
         <div class="brand">
-          <div class="brand-badge"><i class="fas fa-fire"></i></div>
+          <div class="brand-badge-logo">
+            <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img">
+          </div>
           <div class="brand-titles">
-            <span class="brand-sub">KULINER PEDAS</span>
+            <span class="brand-sub">SELERA NUSANTARA</span>
             <span class="brand-name">Ayam Geprek Centeng</span>
           </div>
         </div>
-        <p>Ayam Geprek Centeng menyajikan olahan ayam goreng renyah bumbu rempah dengan racikan sambal ulek dadakan istimewa.</p>
+        <p>Ayam Geprek Centeng menyajikan olahan ayam goreng renyah bumbu rempah dengan racikan sambal
+          istimewa.</p>
         <div class="social-icons">
           <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
@@ -371,39 +509,37 @@
       <div class="footer-col">
         <h4>Menu Populer</h4>
         <ul>
-          <li><a href="#menu-katalog">Paket Geprek Original</a></li>
-          <li><a href="#menu-katalog">Geprek Sambal Matah</a></li>
-          <li><a href="#menu-katalog">Geprek Mozarella Melt</a></li>
-          <li><a href="#menu-katalog">Es Teh Jumbo Segar</a></li>
+          <li><a href="#menu-katalog">Ayam Geprek (Rp 15.000)</a></li>
+          <li><a href="#menu-katalog">Es Teh Manis (Rp 5.000)</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>Informasi</h4>
+        <h4>Layanan Restoran</h4>
         <ul>
-          <li><a href="#beranda">Beranda</a></li>
-          <li><a href="#menu-katalog">Daftar Menu & Harga</a></li>
-          <li><a href="#tentang-kami">Kenapa Centeng</a></li>
+          <li><a href="#pesan-tempat">Pesan di Tempat (Dine-In)</a></li>
+          <li><a href="#layar-antrean">Layar Antrean Burger King Style</a></li>
+          <li><a href="javascript:void(0)" onclick="openExcelModal()">Rekap Kasir Excel</a></li>
           <li><a href="#lokasi-outlet">Lokasi & Jam Buka</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>Layanan Pesan Antar</h4>
+        <h4>Jam Buka Kedai</h4>
         <p>Senin s/d Minggu<br><strong>10.00 - 22.00 WIB</strong></p>
-        <p class="text-muted"><small>Menerima pesanan partai besar & katering.</small></p>
+        <p class="text-muted"><small>Menerima pesanan makan di tempat & takeaway.</small></p>
       </div>
     </div>
 
     <div class="footer-bar">
       <div class="container footer-bar-inner">
         <p>&copy; 2026 Ayam Geprek Centeng. Hak Cipta Dilindungi.</p>
-        <p>Dibuat untuk para pecinta pedas sejati.</p>
+        <p>Sistem Kiosk Mandiri & Rekap Kasir Excel Otomatis.</p>
       </div>
     </div>
   </footer>
 
-  <!-- SLIDE-OVER CART DRAWER (Modern Food Order Drawer) -->
+  <!-- SLIDE-OVER CART DRAWER -->
   <div class="cart-backdrop" id="cartBackdrop" onclick="toggleCartDrawer()"></div>
 
   <div class="cart-drawer" id="cartDrawer">
@@ -417,11 +553,6 @@
 
     <div class="cart-body" id="cartItemsContainer">
       <!-- Injected by app.js -->
-      <div class="empty-cart-state">
-        <i class="fas fa-utensils"></i>
-        <p>Keranjang pesanan masih kosong.</p>
-        <small>Silakan pilih menu favoritmu di katalog.</small>
-      </div>
     </div>
 
     <div class="cart-footer" id="cartFooter">
@@ -429,28 +560,76 @@
         <span>Total Pesanan:</span>
         <strong id="cartTotalPrice">Rp 0</strong>
       </div>
-      <button class="btn btn-whatsapp btn-block btn-lg" onclick="openCheckoutModal()">
-        <i class="fab fa-whatsapp"></i> Lanjut Pesan via WhatsApp
+      <button class="btn btn-primary btn-block btn-lg" onclick="openCheckoutModal()">
+        <i class="fas fa-check-circle"></i> Lanjut Checkout & Ambil Antrean
       </button>
     </div>
   </div>
 
-  <!-- CHECKOUT & QUICK ORDER MODAL -->
+  <!-- CHECKOUT & ORDER MODAL -->
   <div class="modal-backdrop" id="checkoutModal">
     <div class="modal-dialog">
       <div class="modal-header">
         <div class="modal-title-box">
-          <i class="fab fa-whatsapp"></i>
+          <i class="fas fa-cash-register"></i>
           <div>
-            <h3>Konfirmasi Pesanan WhatsApp</h3>
-            <small>Pesanan akan otomatis terformat rapi ke WhatsApp Centeng</small>
+            <h3>Konfirmasi Pesanan Baru</h3>
+            <small>Pesanan otomatis masuk ke Layar Antrean & Rekap Excel</small>
           </div>
         </div>
         <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
       </div>
 
       <div class="modal-body">
-        <form id="checkoutForm" onsubmit="handleSendWhatsApp(event)">
+        <form id="checkoutForm" onsubmit="handleProcessOrder(event)">
+          <!-- Tipe Pesanan Selector -->
+          <div class="form-group">
+            <label>Pilih Tipe Pesanan *</label>
+            <div class="order-type-picker">
+              <label>
+                <input type="radio" name="orderTypeChoice" value="Makan di Tempat" checked
+                  onchange="toggleTableInput(true)">
+                <span class="order-type-label">
+                  <i class="fas fa-chair"></i>
+                  <span>Dine-In (Meja)</span>
+                </span>
+              </label>
+              <label>
+                <input type="radio" name="orderTypeChoice" value="Bawa Pulang" onchange="toggleTableInput(false)">
+                <span class="order-type-label">
+                  <i class="fas fa-bag-shopping"></i>
+                  <span>Take Away</span>
+                </span>
+              </label>
+              <label>
+                <input type="radio" name="orderTypeChoice" value="Pesan Antar" onchange="toggleTableInput(false)">
+                <span class="order-type-label">
+                  <i class="fas fa-motorcycle"></i>
+                  <span>Delivery</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Nomor Meja (muncul jika Makan di Tempat) -->
+          <div class="form-group" id="tableInputGroup">
+            <label for="custTableNumber">Nomor Meja Restoran *</label>
+            <select id="custTableNumber" class="form-control">
+              <option value="Meja 01">Meja 01</option>
+              <option value="Meja 02">Meja 02</option>
+              <option value="Meja 03">Meja 03</option>
+              <option value="Meja 04">Meja 04</option>
+              <option value="Meja 05">Meja 05</option>
+              <option value="Meja 06">Meja 06</option>
+              <option value="Meja 07">Meja 07</option>
+              <option value="Meja 08">Meja 08</option>
+              <option value="Meja 09">Meja 09</option>
+              <option value="Meja 10">Meja 10</option>
+              <option value="Meja 11">Meja 11</option>
+              <option value="Meja 12">Meja 12</option>
+            </select>
+          </div>
+
           <div class="form-group">
             <label for="custName">Nama Pemesan *</label>
             <input type="text" id="custName" class="form-control" placeholder="Contoh: Budi Santoso" required>
@@ -461,33 +640,22 @@
             <textarea id="custOrderSummary" class="form-control" rows="3" readonly></textarea>
           </div>
 
-          <div class="form-row">
-            <div class="form-group col-half">
-              <label for="custSpicyLevel">Pilihan Level Pedas</label>
-              <select id="custSpicyLevel" class="form-control">
-                <option value="Level 0 (Original - Tidak Pedas)">Level 0 (Original Tidak Pedas)</option>
-                <option value="Level 1 (Pedas Santai)">Level 1 (Pedas Santai)</option>
-                <option value="Level 2 (Pedas Sedang)">Level 2 (Pedas Sedang)</option>
-                <option value="Level 3 (Sedang Mantap)" selected>Level 3 (Sedang - Rekomendasi)</option>
-                <option value="Level 5 (Pedas Nampol)">Level 5 (Pedas Nampol)</option>
-                <option value="Level 7 (Pedas Berkeringat)">Level 7 (Pedas Berkeringat)</option>
-                <option value="Level 10 (Centeng Bar-bar!)">Level 10 (Centeng Bar-bar! 🔥)</option>
-              </select>
-            </div>
-
-            <div class="form-group col-half">
-              <label for="custType">Tipe Pesanan</label>
-              <select id="custType" class="form-control">
-                <option value="Delivery / Antar ke Rumah" selected>Pesan Antar (Delivery)</option>
-                <option value="Bungkus / Take Away">Ambil Sendiri (Takeaway)</option>
-                <option value="Makan di Tempat (Dine In)">Makan di Tempat (Dine-in)</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label for="custSpicyLevel">Pilihan Level Pedas (Ayam Geprek)</label>
+            <select id="custSpicyLevel" class="form-control">
+              <option value="Level 0 (Original - Tidak Pedas)">Level 0 (Original Tidak Pedas)</option>
+              <option value="Level 1 (Pedas Santai)">Level 1 (Pedas Santai)</option>
+              <option value="Level 2 (Pedas Sedang)">Level 2 (Pedas Sedang)</option>
+              <option value="Level 3 (Sedang Mantap)" selected>Level 3 (Sedang - Rekomendasi)</option>
+              <option value="Level 5 (Pedas Nampol)">Level 5 (Pedas Nampol)</option>
+              <option value="Level 7 (Pedas Berkeringat)">Level 7 (Pedas Berkeringat)</option>
+              <option value="Level 10 (Centeng Bar-bar!)">Level 10 (Centeng Bar-bar! 🔥)</option>
+            </select>
           </div>
 
           <div class="form-group">
-            <label for="custNotes">Alamat Pengiriman / Catatan Khusus</label>
-            <textarea id="custNotes" class="form-control" rows="2" placeholder="Contoh: Jl. Mawar No. 5, sambal dipisah, minta sendok..."></textarea>
+            <label for="custNotes">Catatan Tambahan (Opsional)</label>
+            <input type="text" id="custNotes" class="form-control" placeholder="Contoh: Sambal dipisah, es sedikit...">
           </div>
 
           <div class="total-bar">
@@ -495,22 +663,189 @@
             <strong id="modalTotalPrice">Rp 0</strong>
           </div>
 
-          <button type="submit" class="btn btn-whatsapp btn-block btn-lg">
-            <i class="fab fa-whatsapp"></i> Kirim Pesanan ke WhatsApp Sekarang
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 10px;">
+            <i class="fas fa-ticket-alt"></i> Buat Pesanan & Dapatkan Nomor Antrean
+          </button>
+
+          <button type="button" class="btn btn-whatsapp btn-block" onclick="submitToWhatsAppDirectly()">
+            <i class="fab fa-whatsapp"></i> Atau Langsung Kirim ke WhatsApp Kasir
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Floating WA Support -->
-  <a href="javascript:void(0)" onclick="openDirectOrderModal()" class="floating-wa" title="Hubungi WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-    <span class="floating-tooltip">Pesan Sekarang!</span>
-  </a>
+  <!-- BURGER KING STYLE DIGITAL STRUK / RECEIPT MODAL -->
+  <div class="modal-backdrop" id="ticketModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <i class="fas fa-receipt"></i>
+          <div>
+            <h3>Struk Antrean Digital</h3>
+            <small>Pesanan Anda Resmi Tercatat</small>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeTicketModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="bk-receipt-card" id="bkReceiptCard">
+          <img src="assets/logo-chicken.jpg" alt="Logo Centeng" class="receipt-logo">
+          <div class="receipt-brand-title">AYAM GEPREK CENTENG</div>
+          <small style="color: var(--text-muted);">Sistem Kiosk Mandiri - Resmi Tercatat</small>
+
+          <div class="receipt-queue-box">
+            <div class="receipt-queue-label">NOMOR ANTREAN ANDA</div>
+            <div class="receipt-queue-number" id="ticketQueueNumber">#001</div>
+            <div class="receipt-order-type" id="ticketOrderType">Makan di Tempat - Meja 01</div>
+          </div>
+
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;" id="ticketTimestamp">
+            2026-11-03 21:45 WIB
+          </div>
+
+          <table class="receipt-items-table">
+            <thead>
+              <tr>
+                <th>Menu</th>
+                <th style="text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody id="ticketItemsBody">
+              <!-- Injected by app.js -->
+            </tbody>
+          </table>
+
+          <div class="receipt-total-row">
+            <span>Total Bayar:</span>
+            <span id="ticketTotalPrice">Rp 0</span>
+          </div>
+
+          <div
+            style="margin-top: 14px; padding: 8px; background: rgba(16, 124, 65, 0.1); border-radius: 8px; color: var(--excel-green); font-size: 0.8rem; font-weight: 700;">
+            <i class="fas fa-check-circle"></i> Otomatis Masuk ke Rekap Excel Kasir
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn btn-excel btn-block" onclick="downloadCurrentOrderExcel()">
+            <i class="fas fa-file-excel"></i> Download Excel (.xlsx) Pesanan Ini
+          </button>
+          <button class="btn btn-whatsapp btn-block" onclick="forwardCurrentOrderWhatsApp()">
+            <i class="fab fa-whatsapp"></i> Teruskan Struk ke WhatsApp Kasir
+          </button>
+          <button class="btn btn-outline btn-block" onclick="closeTicketModal(); location.href='#layar-antrean';">
+            <i class="fas fa-tv"></i> Pantau di Layar Antrean
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN REKAP EXCEL MODAL -->
+  <div class="modal-backdrop" id="excelModal">
+    <div class="modal-dialog modal-dialog-large">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <i class="fas fa-file-excel" style="color: var(--excel-green);"></i>
+          <div>
+            <h3>Rekap Kasir & Database Excel</h3>
+            <small>Setiap pesanan yang masuk otomatis tercatat di sini</small>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeExcelModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Stats summary -->
+        <div class="excel-stats-grid">
+          <div class="stat-box stat-primary">
+            <span>Total Pesanan</span>
+            <strong id="statTotalOrders">0</strong>
+          </div>
+          <div class="stat-box stat-primary">
+            <span>Total Omzet</span>
+            <strong id="statTotalRevenue">Rp 0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Makan di Tempat</span>
+            <strong id="statDineIn">0</strong>
+          </div>
+          <div class="stat-box">
+            <span>Takeaway/Delivery</span>
+            <strong id="statTakeaway">0</strong>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="excel-toolbar">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn btn-excel" onclick="exportToExcel()">
+              <i class="fas fa-download"></i> Download Rekap Excel (.xlsx)
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="addSampleOrderDemo()"
+              title="Tambah pesanan contoh untuk simulasi">
+              <i class="fas fa-plus"></i> + Simulasi Order
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="clearAllOrders()" style="color: #c92a2a;">
+              <i class="fas fa-trash"></i> Reset Data
+            </button>
+          </div>
+
+          <label
+            style="font-size: 0.82rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary);">
+            <input type="checkbox" id="autoDownloadExcelCheckbox" checked>
+            <span>Auto-download Excel tiap pesanan baru</span>
+          </label>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="excel-table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Antrean</th>
+                <th>Waktu</th>
+                <th>Pemesan</th>
+                <th>Tipe</th>
+                <th>Meja</th>
+                <th>Menu</th>
+                <th>Level</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="excelOrdersTableBody">
+              <!-- Injected by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toastNotice">
+    <i class="fas fa-bell"></i>
+    <span id="toastNoticeMsg">Pesanan baru berhasil dicatat!</span>
+  </div>
+
+  <!-- Floating Actions (Bottom Right) -->
+  <div class="floating-actions-wrap">
+    <button class="floating-btn-excel" onclick="openExcelModal()" title="Buka Rekap Excel Kasir">
+      <i class="fas fa-file-excel"></i>
+    </button>
+    <a href="javascript:void(0)" onclick="openDirectOrderModal()" class="floating-wa" title="Hubungi WhatsApp">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+  </div>
 
   <!-- Scripts -->
   <script src="menu-data.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

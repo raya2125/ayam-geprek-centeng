@@ -1,71 +1,68 @@
-# 🍗 Ayam Geprek Centeng - Official Website & Digital Menu
+# 🍗 Ayam Geprek Centeng - Digital Kiosk & Menu System
 
-Website resmi dan katalog menu digital untuk **Ayam Geprek Centeng**. Dirancang dengan tampilan modern, bersih, ramah pengguna (*clean & appetizing design*), fitur keranjang pesanan (*shopping cart drawer*), live search menu, filter kategori, serta integrasi pemesanan langsung ke **WhatsApp**.
+Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam Geprek Centeng**. Dirancang dengan tampilan hangat, ramah & humanis (*warm humanist dining aesthetic*), sistem **Pesan di Tempat (Dine-In)** dengan nomor meja, **Layar Antrean Real-Time ala Burger King**, serta integrasi pencatatan otomatis ke **Microsoft Excel (.xlsx)** dan **WhatsApp**.
 
 ---
 
 ## ✨ Fitur Utama
 
-1. **Desain Kuliner Autentik & Modern**
-   - Tampilan bersih tanpa elemen artifisial, cocok untuk branding UMKM / restoran kuliner ayam geprek profesional.
-   - Responsif di semua perangkat (smartphone, tablet, maupun laptop/komputer).
+1. **Logo & Maskot Ayam Resmi**
+   - Menggunakan maskot ayam jago jempolan khas kuliner nusantara yang ramah dan bersahabat di navbar, hero, struk digital, dan footer.
 
-2. **Katalog Menu Lengkap & Terkategori**
-   - Filter kategori interaktif: *Semua*, *Paket Geprek*, *Aneka Sambal*, *Topping & Tambahan*, *Minuman Segar*.
-   - Fitur pencarian cepat (*Real-time Live Search*) untuk menemukan menu favorit dengan instan.
-   - Pilihan level kepedasan dari Level 0 (Original) hingga Level 10 (Centeng Bar-bar).
+2. **Desain Hangat & Humanis (*Warm Appetite Palette*)**
+   - Menggantikan nuansa gelap/merah menyala yang agresif dengan palet hangat ala restoran santai: krem vanila lembut (`#FAF6EF`), aksen terracotta panggang (`#C84626`), emas mustard (`#E88C08`), dan teks espresso cokelat yang nyaman di mata.
 
-3. **Keranjang Pesanan Interaktif (*Slide-over Cart Drawer*)**
-   - Tombol `+ Tambah` pada tiap menu dengan drawer pesanan yang muncul dari samping.
-   - Tambah/kurang jumlah porsi secara langsung dengan kalkulasi total otomatis dalam Rupiah.
+3. **2 Pilihan Menu Utama Spesial**
+   - **Ayam Geprek** (Rp 15.000) – Pilihan level pedas 0 sampai 10 (Centeng Bar-bar).
+   - **Es Teh Manis** (Rp 5.000) – Es teh melati segar dingin pereda pedas terbaik.
 
-4. **Integrasi Checkout WhatsApp Otomatis**
-   - Modal konfirmasi pesanan: nama pemesan, ringkasan menu yang dipesan, pilihan level pedas, tipe pesanan (Delivery/Takeaway/Dine-in), dan alamat/catatan pengiriman.
-   - Format pesan WhatsApp terkirim secara terstruktur dan rapi ke admin.
+4. **🍽️ Pesan di Tempat (Dine-In Kiosk) & Pemilih Meja Interaktif**
+   - Pelanggan yang datang ke kedai dapat langsung memilih nomor meja mereka (Meja 01 s/d Meja 12).
+   - Pesanan langsung terhubung dengan nomor meja pelanggan tanpa perlu berdesakan di depan kasir.
+   - Pilihan fleksibel antara: **Makan di Tempat (Dine-In)**, **Bawa Pulang (Takeaway)**, atau **Pesan Antar (Delivery)**.
 
-5. **Informasi Bisnis Lengkap**
-   - Alamat lengkap kedai, jam operasional (10.00 - 22.00 WIB), metode pembayaran (QRIS, Tunai, Transfer Bank), dan ulasan pelanggan.
+5. **📟 Layar Monitor Antrean ala Burger King (*Live Order Board*)**
+   - Tampilan monitor antrean pesanan digital dengan 2 kolom terpisah:
+     - 🟡 **SEDANG DISIAPKAN (PREPARING IN KITCHEN)** dengan lampu indikator berkedip.
+     - 🟢 **SIAP DIAMBIL / DIANTAR (READY FOR COLLECTION)** dengan kartu hijau bercahaya.
+   - Dilengkapi tombol simulasi dapur/kasir (`✓ Siap` dan `✓ Selesai`) untuk menggerakkan status pesanan secara real-time.
+   - Jam digital realtime WIB di layar monitor.
+
+6. **🧾 Struk Digital Antrean (Burger King Style)**
+   - Menerbitkan struk digital instan setelah pemesanan dengan nomor antrean besar (contoh: `#001`), rincian menu, nomor meja, dan total harga.
+   - Tombol instan untuk download struk ke Excel maupun kirim ke WhatsApp kasir.
+
+7. **📊 Rekap Kasir & Database Excel Otomatis (.xlsx)**
+   - **Pencatatan Otomatis**: Setiap pesanan yang masuk otomatis tersimpan ke database browser (`localStorage`).
+   - **Download Excel (.xlsx)**: Menggunakan pustaka SheetJS untuk mengunduh rekap spreadsheet resmi berformat `.xlsx` lengkap dengan kolom No, Nomor Antrean, Waktu, Nama, Tipe, Meja, Menu, Level Pedas, Total, dan Status.
+   - **Auto-Download Toggle**: Pilihan otomatis download file Excel setiap kali pelanggan menyelesaikan pesanan.
+   - **Ringkasan Kasir**: Menampilkan total pesanan, total omset/pendapatan, jumlah pesanan dine-in, dan pesanan takeaway.
 
 ---
 
-## 📁 Struktur File
+## 📁 Struktur File Proyek
 
 ```
 tugas bkin web makanan/
-├── index.html       # Halaman utama landing page & layout keranjang
-├── style.css        # Desain visual, tipografi, dan responsive layout
-├── app.js           # Logika interaktif: keranjang, live search, filter & WhatsApp checkout
-├── menu-data.js     # Pusat konfigurasi data menu & nomor WhatsApp
-└── README.md        # Panduan penggunaan & kustomisasi
+├── index.html       # Struktur landing page, kiosk antrean, modal struk & modal excel
+├── style.css        # Desain visual hangat humanis, kartu menu, layar antrean & struk
+├── app.js           # Logika interaktif: keranjang, antrean BK, dine-in meja & generator Excel
+├── menu-data.js     # Data 2 menu utama (Ayam Geprek & Es Teh) dan nomor WhatsApp
+├── assets/
+│   ├── logo-chicken.jpg       # Foto maskot ayam resmi Centeng
+│   └── brand-reference.png   # Referensi logo brand
+└── README.md        # Panduan dokumentasi proyek
 ```
 
 ---
 
-## 🛠️ Cara Mengubah Nama Menu & Harga
+## 🛠️ Cara Menguji / Menjalankan
 
-Buka file [`menu-data.js`](menu-data.js). Anda dapat dengan bebas mengubah nama menu, kategori, harga, deskripsi, dan foto:
-
-```javascript
-{
-  id: 1,
-  name: "Geprek Centeng Krispi Jumbo", // Masukkan nama menu Anda
-  category: "geprek",                   // Kategori: 'geprek', 'sambal', 'camilan', 'minuman'
-  price: 18000,                         // Harga angka
-  formattedPrice: "Rp 18.000",          // Format tampilan harga
-  badge: "Best Seller",                 // Badge (opsional)
-  description: "Ayam crispy jumbo + sambal ulek dadakan + nasi pulen.",
-  image: "https://link-foto-makanan.jpg",
-  isSpicySelectable: true
-}
-```
-
-Untuk mengubah nomor WhatsApp tujuan pemesanan, ubah di baris atas [`menu-data.js`](menu-data.js):
-```javascript
-const WA_PHONE_NUMBER = "628xxxxxxxxxx"; // Ganti dengan nomor WhatsApp aktif Anda (awali dengan 62)
-```
-
----
-
-## 🚀 Live Demo & Repository
-* **Web Live (GitHub Pages):** [https://raya2125.github.io/ayam-geprek-centeng/](https://raya2125.github.io/ayam-geprek-centeng/)
-* **Repository GitHub:** [https://github.com/raya2125/ayam-geprek-centeng](https://github.com/raya2125/ayam-geprek-centeng)
+1. Buka file [`index.html`](index.html) langsung di peramban web (Google Chrome, Microsoft Edge, Mozilla Firefox).
+2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang pesanan.
+3. Klik tombol **Pesan di Tempat**, pilih **Nomor Meja**, lalu klik **Buat Pesanan & Dapatkan Nomor Antrean**.
+4. Anda akan langsung melihat:
+   - **Struk Digital Antrean** dengan nomor antrean (misal: `#001`).
+   - File Excel otomatis terunduh atau dapat diunduh melalui tombol **Download Rekap Excel (.xlsx)**.
+   - Nomor antrean Anda muncul di kolom **Sedang Disiapkan** pada bagian **Layar Antrean**.
+   - Klik tombol **Rekap Excel** di navbar atas untuk melihat tabel transaksi kasir dan total omzet secara langsung.

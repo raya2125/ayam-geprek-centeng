@@ -1,7 +1,8 @@
 /**
  * ============================================================
- * AYAM GEPREK CENTENG - APLIKASI WEB RESMI
- * Sistem Katalog Menu, Keranjang Pesanan & WhatsApp Checkout
+ * AYAM GEPREK CENTENG - OFFICIAL APP SCRIPT
+ * Sistem Kiosk, Pesan di Tempat, Layar Antrean Burger King,
+ * Keranjang Pesanan & Ekspor Excel Otomatis
  * ============================================================
  */
 
@@ -9,16 +10,27 @@
 let cart = [];
 let currentCategory = 'all';
 let searchQuery = '';
+let selectedTableNumber = 'Meja 01';
+let currentActiveOrder = null;
+
+// LocalStorage Keys
+const STORAGE_ORDERS_KEY = 'centeng_orders_db';
+const STORAGE_QUEUE_COUNTER_KEY = 'centeng_queue_counter';
 
 document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
   setupCategoryTabs();
   setupMobileNav();
-  setupScrollSpy();
+  setupTablePicker();
+  initQueueSystem();
+  startLiveClock();
+  updateExcelOrderBadge();
 });
 
 /**
- * Render menu cards based on category & search filter
+ * ============================================================
+ * 1. MENU RENDERING & LIVE FILTER
+ * ============================================================
  */
 function renderMenu() {
   const container = document.getElementById('menuCardsGrid');
@@ -45,9 +57,9 @@ function renderMenu() {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--text-muted);">
-        <i class="fas fa-search" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.3;"></i>
-        <p style="font-size: 1.05rem; color: #fff;">Menu tidak ditemukan</p>
-        <small>Coba gunakan kata kunci lain atau pilih kategori Semua.</small>
+        <i class="fas fa-search" style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4;"></i>
+        <p style="font-size: 1.05rem; color: var(--text-primary); font-weight: 700;">Menu tidak ditemukan</p>
+        <small>Coba gunakan kata kunci lain atau pilih Semua Menu.</small>
       </div>
     `;
     return;
@@ -83,9 +95,6 @@ function renderMenu() {
   });
 }
 
-/**
- * Filter tabs
- */
 function setupCategoryTabs() {
   const tabs = document.querySelectorAll('.cat-btn');
   tabs.forEach(tab => {
@@ -98,9 +107,6 @@ function setupCategoryTabs() {
   });
 }
 
-/**
- * Live search input
- */
 function handleMenuSearch() {
   const input = document.getElementById('menuSearchInput');
   if (input) {
@@ -110,7 +116,9 @@ function handleMenuSearch() {
 }
 
 /**
- * Cart System
+ * ============================================================
+ * 2. KERANJANG PESANAN (CART DRAWER)
+ * ============================================================
  */
 function addToCart(id) {
   const item = MENU_LIST.find(m => m.id === id);
@@ -130,8 +138,9 @@ function addToCart(id) {
   }
 
   updateCartUI();
+  showToast(`Ditambahkan: ${item.name}`);
 
-  // Show cart drawer automatically on first add
+  // Buka drawer secara otomatis
   const drawer = document.getElementById('cartDrawer');
   if (drawer && !drawer.classList.contains('active')) {
     toggleCartDrawer();
@@ -155,12 +164,10 @@ function changeQty(id, delta) {
 }
 
 function updateCartUI() {
-  // Update badge count
   const badge = document.getElementById('cartCountBadge');
   const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
   if (badge) badge.innerText = totalCount;
 
-  // Update Drawer list
   const container = document.getElementById('cartItemsContainer');
   const totalPriceEl = document.getElementById('cartTotalPrice');
   if (!container) return;
@@ -205,9 +212,6 @@ function updateCartUI() {
   }
 }
 
-/**
- * Toggle Slide-out Cart Drawer
- */
 function toggleCartDrawer() {
   const drawer = document.getElementById('cartDrawer');
   const backdrop = document.getElementById('cartBackdrop');
@@ -226,16 +230,84 @@ function toggleCartDrawer() {
 }
 
 /**
- * Open Checkout Confirmation Modal
+ * ============================================================
+ * 3. PESAN DI TEMPAT (TABLE PICKER & DINE-IN FLOW)
+ * ============================================================
+ */
+function setupTablePicker() {
+  const grid = document.getElementById('tablesGrid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+  for (let i = 1; i <= 12; i++) {
+    const tableNumStr = i < 10 ? `0${i}` : `${i}`;
+    const btn = document.createElement('div');
+    btn.className = `table-btn ${i === 1 ? 'selected' : ''}`;
+    btn.dataset.table = `Meja ${tableNumStr}`;
+    btn.innerHTML = `
+      <span class="table-label">Meja</span>
+      <strong class="table-num">${tableNumStr}</strong>
+    `;
+
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedTableNumber = `Meja ${tableNumStr}`;
+      
+      const banner = document.getElementById('activeTableBanner');
+      if (banner) banner.innerText = `${selectedTableNumber} (Terpilih)`;
+
+      const text = document.getElementById('selectedTableText');
+      if (text) text.innerText = `Terpilih: ${selectedTableNumber}`;
+
+      const modalTableSelect = document.getElementById('custTableNumber');
+      if (modalTableSelect) modalTableSelect.value = selectedTableNumber;
+    });
+
+    grid.appendChild(btn);
+  }
+}
+
+function startDineInOrder() {
+  if (cart.length === 0) {
+    // Tambahkan 1x Ayam Geprek dan 1x Es Teh secara instan sebagai rekomendasi
+    addToCart(1);
+    addToCart(2);
+  }
+
+  // Pre-set modal table number
+  const modalTableSelect = document.getElementById('custTableNumber');
+  if (modalTableSelect) {
+    modalTableSelect.value = selectedTableNumber;
+  }
+
+  toggleTableInput(true);
+  openCheckoutModal();
+}
+
+function toggleTableInput(isDineIn) {
+  const group = document.getElementById('tableInputGroup');
+  if (group) {
+    group.style.display = isDineIn ? 'block' : 'none';
+  }
+}
+
+/**
+ * ============================================================
+ * 4. CHECKOUT & ORDER CREATION
+ * ============================================================
  */
 function openCheckoutModal() {
   if (cart.length === 0) {
-    alert('Keranjang pesanan kamu masih kosong. Pilih menu dulu yuk!');
+    alert('Keranjang pesanan masih kosong. Pilih menu dulu yuk!');
     return;
   }
 
-  // Close cart drawer
-  toggleCartDrawer();
+  // Tutup drawer jika terbuka
+  const drawer = document.getElementById('cartDrawer');
+  if (drawer && drawer.classList.contains('active')) {
+    toggleCartDrawer();
+  }
 
   const modal = document.getElementById('checkoutModal');
   const summaryInput = document.getElementById('custOrderSummary');
@@ -267,20 +339,379 @@ function closeCheckoutModal() {
   }
 }
 
-/**
- * Open Direct Order Modal (e.g., from hero button or catering)
- */
 function openDirectOrderModal(defaultMenu = '') {
-  const modal = document.getElementById('checkoutModal');
-  const summaryInput = document.getElementById('custOrderSummary');
-  const totalModalEl = document.getElementById('modalTotalPrice');
-
-  if (summaryInput) {
-    summaryInput.value = defaultMenu || '1x Paket Geprek Centeng Juara (Rp 18.000)';
-    summaryInput.readOnly = false; // Allow manual edit if needed
+  if (cart.length === 0) {
+    addToCart(1); // Tambah Ayam Geprek
   }
-  if (totalModalEl) {
-    totalModalEl.innerText = 'Sesuai pesanan';
+  openCheckoutModal();
+}
+
+// Close checkout modal on backdrop click
+window.addEventListener('click', (e) => {
+  const checkoutModal = document.getElementById('checkoutModal');
+  const ticketModal = document.getElementById('ticketModal');
+  const excelModal = document.getElementById('excelModal');
+
+  if (e.target === checkoutModal) closeCheckoutModal();
+  if (e.target === ticketModal) closeTicketModal();
+  if (e.target === excelModal) closeExcelModal();
+});
+
+/**
+ * Handle form order submit:
+ * 1. Generate Queue Number (Burger King Style)
+ * 2. Save order to LocalStorage database
+ * 3. Auto-trigger Excel download if enabled
+ * 4. Show Digital Ticket Slip
+ */
+function handleProcessOrder(e) {
+  if (e) e.preventDefault();
+
+  const name = document.getElementById('custName').value.trim() || 'Pelanggan';
+  const spicy = document.getElementById('custSpicyLevel').value;
+  const notes = document.getElementById('custNotes').value.trim();
+
+  // Ambil tipe pesanan
+  const typeRadios = document.getElementsByName('orderTypeChoice');
+  let orderType = 'Makan di Tempat';
+  for (let r of typeRadios) {
+    if (r.checked) orderType = r.value;
+  }
+
+  let tableNum = '-';
+  if (orderType === 'Makan di Tempat') {
+    tableNum = document.getElementById('custTableNumber').value || selectedTableNumber;
+  }
+
+  // Hitung total
+  let grandTotal = 0;
+  let itemsList = [];
+  cart.forEach(item => {
+    grandTotal += (item.price * item.qty);
+    itemsList.push({
+      name: item.name,
+      qty: item.qty,
+      price: item.price,
+      subtotal: item.price * item.qty
+    });
+  });
+
+  if (grandTotal === 0 && itemsList.length === 0) {
+    alert('Silakan pilih minimal 1 menu.');
+    return;
+  }
+
+  // Generate Queue Number (e.g. #001)
+  const queueNum = getNextQueueNumber();
+
+  // Waktu
+  const now = new Date();
+  const timeFormatted = now.toLocaleDateString('id-ID', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }).replace(/\./g, ':');
+
+  const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
+
+  const newOrder = {
+    id: Date.now(),
+    queueNumber: queueNum,
+    timestamp: timeFormatted,
+    customerName: name,
+    orderType: orderType,
+    tableNumber: tableNum,
+    items: itemsList,
+    menuSummary: menuSummary,
+    spicyLevel: spicy,
+    notes: notes,
+    totalPrice: grandTotal,
+    status: 'Sedang Disiapkan'
+  };
+
+  // Simpan ke database
+  saveOrderToStorage(newOrder);
+  currentActiveOrder = newOrder;
+
+  // Reset cart
+  cart = [];
+  updateCartUI();
+  closeCheckoutModal();
+
+  // Update Layar Antrean
+  renderQueueBoard();
+  updateExcelOrderBadge();
+
+  // Update Banner Pelanggan Aktif
+  const activeBar = document.getElementById('bkCustomerActiveBar');
+  const myQueueNumText = document.getElementById('myQueueNumberText');
+  const myQueueStatusText = document.getElementById('myQueueStatusText');
+  if (activeBar && myQueueNumText) {
+    activeBar.style.display = 'flex';
+    myQueueNumText.innerText = queueNum;
+    myQueueStatusText.innerText = `Pesanan ${orderType} (${tableNum !== '-' ? tableNum : 'Counter'}) sedang disiapkan di dapur.`;
+  }
+
+  showToast(`Pesanan #${queueNum} berhasil dicatat & masuk ke Rekap Excel!`);
+
+  // Auto-download Excel jika checkbox aktif
+  const autoDownloadCheckbox = document.getElementById('autoDownloadExcelCheckbox');
+  if (autoDownloadCheckbox && autoDownloadCheckbox.checked) {
+    setTimeout(() => {
+      exportToExcel(false);
+    }, 500);
+  }
+
+  // Tampilkan Struk Digital Kiosk (Burger King Style)
+  showDigitalTicketModal(newOrder);
+}
+
+/**
+ * Langsung kirim ke WhatsApp Kasir sekaligus catat ke Excel & Antrean
+ */
+function submitToWhatsAppDirectly() {
+  const name = document.getElementById('custName').value.trim() || 'Pelanggan';
+  const spicy = document.getElementById('custSpicyLevel').value;
+  const notes = document.getElementById('custNotes').value.trim();
+
+  const typeRadios = document.getElementsByName('orderTypeChoice');
+  let orderType = 'Makan di Tempat';
+  for (let r of typeRadios) {
+    if (r.checked) orderType = r.value;
+  }
+
+  let tableNum = '-';
+  if (orderType === 'Makan di Tempat') {
+    tableNum = document.getElementById('custTableNumber').value || selectedTableNumber;
+  }
+
+  let grandTotal = 0;
+  let itemsList = [];
+  cart.forEach(item => {
+    grandTotal += (item.price * item.qty);
+    itemsList.push({
+      name: item.name,
+      qty: item.qty,
+      price: item.price,
+      subtotal: item.price * item.qty
+    });
+  });
+
+  const queueNum = getNextQueueNumber();
+  const now = new Date();
+  const timeFormatted = now.toLocaleDateString('id-ID', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }).replace(/\./g, ':');
+
+  const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
+
+  const newOrder = {
+    id: Date.now(),
+    queueNumber: queueNum,
+    timestamp: timeFormatted,
+    customerName: name,
+    orderType: orderType,
+    tableNumber: tableNum,
+    items: itemsList,
+    menuSummary: menuSummary,
+    spicyLevel: spicy,
+    notes: notes,
+    totalPrice: grandTotal,
+    status: 'Sedang Disiapkan'
+  };
+
+  saveOrderToStorage(newOrder);
+  currentActiveOrder = newOrder;
+
+  cart = [];
+  updateCartUI();
+  closeCheckoutModal();
+  renderQueueBoard();
+  updateExcelOrderBadge();
+
+  // Buka WhatsApp
+  forwardOrderToWhatsApp(newOrder);
+}
+
+/**
+ * ============================================================
+ * 5. BURGER KING STYLE QUEUE SYSTEM (LAYAR ANTREAN MONITOR)
+ * ============================================================
+ */
+function initQueueSystem() {
+  // Buat sample order awal jika belum ada data agar langsung terlihat keren
+  const existing = getStoredOrders();
+  if (existing.length === 0) {
+    const sampleOrders = [
+      {
+        id: 1001,
+        queueNumber: '#001',
+        timestamp: 'Hari ini 12:15',
+        customerName: 'Budi Santoso',
+        orderType: 'Makan di Tempat',
+        tableNumber: 'Meja 03',
+        items: [{ name: 'Ayam Geprek', qty: 2, price: 15000, subtotal: 30000 }, { name: 'Es Teh', qty: 2, price: 5000, subtotal: 10000 }],
+        menuSummary: '2x Ayam Geprek, 2x Es Teh',
+        spicyLevel: 'Level 3 (Sedang)',
+        notes: 'Sambal dipisah',
+        totalPrice: 40000,
+        status: 'Siap Diambil'
+      },
+      {
+        id: 1002,
+        queueNumber: '#002',
+        timestamp: 'Hari ini 12:20',
+        customerName: 'Siti Rahma',
+        orderType: 'Bawa Pulang',
+        tableNumber: '-',
+        items: [{ name: 'Ayam Geprek', qty: 1, price: 15000, subtotal: 15000 }, { name: 'Es Teh', qty: 1, price: 5000, subtotal: 5000 }],
+        menuSummary: '1x Ayam Geprek, 1x Es Teh',
+        spicyLevel: 'Level 5 (Pedas Nampol)',
+        notes: '-',
+        totalPrice: 20000,
+        status: 'Sedang Disiapkan'
+      }
+    ];
+    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(sampleOrders));
+    localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, '2');
+  }
+
+  renderQueueBoard();
+}
+
+function getNextQueueNumber() {
+  let counter = parseInt(localStorage.getItem(STORAGE_QUEUE_COUNTER_KEY) || '0', 10);
+  counter += 1;
+  localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, counter.toString());
+  const formatted = counter < 10 ? `#00${counter}` : counter < 100 ? `#0${counter}` : `#${counter}`;
+  return formatted;
+}
+
+function renderQueueBoard() {
+  const prepList = document.getElementById('queuePreparingList');
+  const readyList = document.getElementById('queueReadyList');
+  if (!prepList || !readyList) return;
+
+  prepList.innerHTML = '';
+  readyList.innerHTML = '';
+
+  const orders = getStoredOrders();
+  const preparingOrders = orders.filter(o => o.status === 'Sedang Disiapkan');
+  const readyOrders = orders.filter(o => o.status === 'Siap Diambil');
+
+  if (preparingOrders.length === 0) {
+    prepList.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
+        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 8px;"></i>
+        <p>Semua pesanan selesai disiapkan!</p>
+      </div>
+    `;
+  } else {
+    preparingOrders.forEach(o => {
+      const card = document.createElement('div');
+      card.className = 'bk-queue-card';
+      const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Takeaway';
+      card.innerHTML = `
+        <div class="bk-card-num">${o.queueNumber}</div>
+        <div class="bk-card-type">${dest}</div>
+        <div class="bk-card-time">${o.timestamp.split(' ')[1] || ''}</div>
+        <div class="bk-card-action">
+          <button class="btn-kiosk-action" onclick="updateOrderStatus(${o.id}, 'Siap Diambil')" title="Klik untuk tandai pesanan siap">
+            ✓ Siap
+          </button>
+        </div>
+      `;
+      prepList.appendChild(card);
+    });
+  }
+
+  if (readyOrders.length === 0) {
+    readyList.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
+        <i class="fas fa-bell" style="font-size: 2rem; margin-bottom: 8px;"></i>
+        <p>Belum ada nomor yang siap diambil.</p>
+      </div>
+    `;
+  } else {
+    readyOrders.forEach(o => {
+      const card = document.createElement('div');
+      card.className = 'bk-queue-card';
+      const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Siap Diambil';
+      card.innerHTML = `
+        <div class="bk-card-num">${o.queueNumber}</div>
+        <div class="bk-card-type">${dest}</div>
+        <div class="bk-card-time">Siap di Kasir / Diantar</div>
+        <div class="bk-card-action">
+          <button class="btn-kiosk-action" onclick="updateOrderStatus(${o.id}, 'Selesai')" title="Selesai & diserahkan ke pelanggan">
+            ✓ Selesai
+          </button>
+        </div>
+      `;
+      readyList.appendChild(card);
+    });
+  }
+}
+
+function updateOrderStatus(orderId, newStatus) {
+  let orders = getStoredOrders();
+  const target = orders.find(o => o.id === orderId);
+  if (target) {
+    target.status = newStatus;
+    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+    renderQueueBoard();
+    renderExcelModalTable();
+    showToast(`Pesanan ${target.queueNumber} diubah ke: ${newStatus}`);
+  }
+}
+
+function startLiveClock() {
+  const clockEl = document.getElementById('bkLiveClock');
+  if (!clockEl) return;
+
+  function update() {
+    const now = new Date();
+    const str = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
+    clockEl.innerText = `${str} WIB`;
+  }
+  update();
+  setInterval(update, 1000);
+}
+
+/**
+ * ============================================================
+ * 6. DIGITAL STRUK / RECEIPT MODAL (BURGER KING STYLE)
+ * ============================================================
+ */
+function showDigitalTicketModal(order) {
+  const modal = document.getElementById('ticketModal');
+  const qNum = document.getElementById('ticketQueueNumber');
+  const oType = document.getElementById('ticketOrderType');
+  const tTime = document.getElementById('ticketTimestamp');
+  const tBody = document.getElementById('ticketItemsBody');
+  const tPrice = document.getElementById('ticketTotalPrice');
+
+  if (qNum) qNum.innerText = order.queueNumber;
+  if (oType) {
+    oType.innerText = order.orderType === 'Makan di Tempat' 
+      ? `Makan di Tempat - ${order.tableNumber}` 
+      : order.orderType;
+  }
+  if (tTime) tTime.innerText = `${order.timestamp} WIB | Pemesan: ${order.customerName}`;
+
+  if (tBody) {
+    tBody.innerHTML = '';
+    order.items.forEach(it => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${it.qty}x ${escapeHtml(it.name)}</td>
+        <td style="text-align: right; font-weight: 700;">Rp ${(it.price * it.qty).toLocaleString('id-ID')}</td>
+      `;
+      tBody.appendChild(tr);
+    });
+  }
+
+  if (tPrice) {
+    tPrice.innerText = 'Rp ' + order.totalPrice.toLocaleString('id-ID');
   }
 
   if (modal) {
@@ -289,52 +720,369 @@ function openDirectOrderModal(defaultMenu = '') {
   }
 }
 
-// Close checkout modal on backdrop click
-window.addEventListener('click', (e) => {
-  const modal = document.getElementById('checkoutModal');
-  if (e.target === modal) {
-    closeCheckoutModal();
+function viewMyTicket() {
+  if (currentActiveOrder) {
+    showDigitalTicketModal(currentActiveOrder);
+  } else {
+    const orders = getStoredOrders();
+    if (orders.length > 0) {
+      showDigitalTicketModal(orders[orders.length - 1]);
+    } else {
+      alert('Belum ada pesanan aktif.');
+    }
   }
-});
+}
 
-/**
- * Handle form submit and redirect to WhatsApp
- */
-function handleSendWhatsApp(e) {
-  e.preventDefault();
-
-  const name = document.getElementById('custName').value.trim();
-  const summary = document.getElementById('custOrderSummary').value.trim();
-  const spicy = document.getElementById('custSpicyLevel').value;
-  const type = document.getElementById('custType').value;
-  const notes = document.getElementById('custNotes').value.trim();
-
-  let grandTotal = 0;
-  cart.forEach(item => { grandTotal += (item.price * item.qty); });
-
-  const totalFormatted = grandTotal > 0 ? 'Rp ' + grandTotal.toLocaleString('id-ID') : 'Sesuai pesanan';
-
-  let msg = `Halo Admin *Ayam Geprek Centeng*, saya mau pesan makanan nih:\n\n`;
-  msg += `📋 *DAFTAR PESANAN:*\n${summary}\n\n`;
-  msg += `🌶️ *Pilihan Level Pedas:* ${spicy}\n`;
-  msg += `🛵 *Tipe Pesanan:* ${type}\n`;
-  msg += `👤 *Nama Pemesan:* ${name}\n`;
-  if (notes) {
-    msg += `📝 *Catatan / Alamat:* ${notes}\n`;
+function closeTicketModal() {
+  const modal = document.getElementById('ticketModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
   }
-  msg += `\n💰 *Total Estimasi:* ${totalFormatted}\n`;
-  msg += `\nMohon info ketersediaan & nomor rekening/QRIS ya min. Terima kasih! 🙏`;
+}
+
+function downloadCurrentOrderExcel() {
+  if (!currentActiveOrder) {
+    const orders = getStoredOrders();
+    currentActiveOrder = orders[orders.length - 1];
+  }
+  if (!currentActiveOrder) return;
+  exportSingleOrderToExcel(currentActiveOrder);
+}
+
+function forwardCurrentOrderWhatsApp() {
+  if (!currentActiveOrder) {
+    const orders = getStoredOrders();
+    currentActiveOrder = orders[orders.length - 1];
+  }
+  if (!currentActiveOrder) return;
+  forwardOrderToWhatsApp(currentActiveOrder);
+}
+
+function forwardOrderToWhatsApp(order) {
+  let msg = `Halo Admin *Ayam Geprek Centeng*, pesanan baru masuk nih:\n\n`;
+  msg += `🎫 *NOMOR ANTREAN: ${order.queueNumber}*\n`;
+  msg += `🍽️ *Tipe Pesanan:* ${order.orderType} ${order.tableNumber !== '-' ? `(${order.tableNumber})` : ''}\n`;
+  msg += `👤 *Nama Pemesan:* ${order.customerName}\n`;
+  msg += `🕒 *Waktu Pesan:* ${order.timestamp} WIB\n\n`;
+  msg += `📋 *RINCIAN MENU:*\n`;
+  order.items.forEach((it, idx) => {
+    msg += `   ${idx + 1}. ${it.qty}x ${it.name} = Rp ${it.subtotal.toLocaleString('id-ID')}\n`;
+  });
+  msg += `\n🌶️ *Level Pedas:* ${order.spicyLevel}\n`;
+  if (order.notes && order.notes !== '-') {
+    msg += `📝 *Catatan:* ${order.notes}\n`;
+  }
+  msg += `\n💰 *TOTAL BAYAR:* Rp ${order.totalPrice.toLocaleString('id-ID')}\n`;
+  msg += `\nStatus: *${order.status}*\nMohon segera diproses ya min, terima kasih! 🙏`;
 
   const waNum = (typeof WA_PHONE_NUMBER !== 'undefined' && WA_PHONE_NUMBER) ? WA_PHONE_NUMBER : '6281234567890';
   const url = `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`;
-
-  closeCheckoutModal();
   window.open(url, '_blank');
 }
 
 /**
- * Mobile Navigation Toggle
+ * ============================================================
+ * 7. EXCEL EXPORT & DATABASE KASIR
+ * ============================================================
  */
+function getStoredOrders() {
+  try {
+    const raw = localStorage.getItem(STORAGE_ORDERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveOrderToStorage(order) {
+  const orders = getStoredOrders();
+  orders.push(order);
+  localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+}
+
+function updateExcelOrderBadge() {
+  const badge = document.getElementById('excelOrderCountBadge');
+  const orders = getStoredOrders();
+  if (badge) badge.innerText = orders.length;
+}
+
+function openExcelModal() {
+  renderExcelModalTable();
+  const modal = document.getElementById('excelModal');
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeExcelModal() {
+  const modal = document.getElementById('excelModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+function renderExcelModalTable() {
+  const orders = getStoredOrders();
+  const tbody = document.getElementById('excelOrdersTableBody');
+  const statOrders = document.getElementById('statTotalOrders');
+  const statRevenue = document.getElementById('statTotalRevenue');
+  const statDineIn = document.getElementById('statDineIn');
+  const statTakeaway = document.getElementById('statTakeaway');
+
+  let totalRev = 0;
+  let countDineIn = 0;
+  let countTakeaway = 0;
+
+  orders.forEach(o => {
+    totalRev += (o.totalPrice || 0);
+    if (o.orderType === 'Makan di Tempat') countDineIn++;
+    else countTakeaway++;
+  });
+
+  if (statOrders) statOrders.innerText = orders.length;
+  if (statRevenue) statRevenue.innerText = 'Rp ' + totalRev.toLocaleString('id-ID');
+  if (statDineIn) statDineIn.innerText = countDineIn;
+  if (statTakeaway) statTakeaway.innerText = countTakeaway;
+
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (orders.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="11" style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <i class="fas fa-file-excel" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px;"></i>
+          <p>Belum ada data pesanan di Excel database.</p>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // Tampilkan urutan terbaru di atas
+  const reversed = [...orders].reverse();
+  reversed.forEach((o, idx) => {
+    const tr = document.createElement('tr');
+    const statusClass = o.status === 'Siap Diambil' ? 'ready' : o.status === 'Selesai' ? 'completed' : 'preparing';
+    tr.innerHTML = `
+      <td>${reversed.length - idx}</td>
+      <td><strong>${o.queueNumber}</strong></td>
+      <td>${o.timestamp}</td>
+      <td>${escapeHtml(o.customerName)}</td>
+      <td>${escapeHtml(o.orderType)}</td>
+      <td>${escapeHtml(o.tableNumber)}</td>
+      <td>${escapeHtml(o.menuSummary)}</td>
+      <td>${escapeHtml(o.spicyLevel)}</td>
+      <td><strong>Rp ${(o.totalPrice).toLocaleString('id-ID')}</strong></td>
+      <td><span class="badge-status ${statusClass}">${o.status}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="deleteSingleOrder(${o.id})" title="Hapus pesanan" style="padding: 4px 8px; font-size: 0.75rem;">
+          <i class="fas fa-trash"></i>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteSingleOrder(id) {
+  if (!confirm('Yakin ingin menghapus baris pesanan ini?')) return;
+  let orders = getStoredOrders();
+  orders = orders.filter(o => o.id !== id);
+  localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+  renderExcelModalTable();
+  renderQueueBoard();
+  updateExcelOrderBadge();
+  showToast('Pesanan berhasil dihapus dari database.');
+}
+
+function clearAllOrders() {
+  if (!confirm('Hapus seluruh riwayat pesanan Excel? (Data antrean juga akan di-reset)')) return;
+  localStorage.removeItem(STORAGE_ORDERS_KEY);
+  localStorage.removeItem(STORAGE_QUEUE_COUNTER_KEY);
+  renderExcelModalTable();
+  renderQueueBoard();
+  updateExcelOrderBadge();
+  showToast('Seluruh data pesanan berhasil di-reset.');
+}
+
+function addSampleOrderDemo() {
+  const queueNum = getNextQueueNumber();
+  const tables = ['Meja 02', 'Meja 04', 'Meja 05', 'Meja 08', 'Meja 10'];
+  const names = ['Andi Pratama', 'Maya Safitri', 'Dimas Arya', 'Nadia Putri', 'Fajar Ramadhan'];
+  const randomTable = tables[Math.floor(Math.random() * tables.length)];
+  const randomName = names[Math.floor(Math.random() * names.length)];
+
+  const now = new Date();
+  const timeFormatted = now.toLocaleDateString('id-ID', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }).replace(/\./g, ':');
+
+  const demoOrder = {
+    id: Date.now(),
+    queueNumber: queueNum,
+    timestamp: timeFormatted,
+    customerName: randomName,
+    orderType: 'Makan di Tempat',
+    tableNumber: randomTable,
+    items: [
+      { name: 'Ayam Geprek', qty: 1, price: 15000, subtotal: 15000 },
+      { name: 'Es Teh', qty: 1, price: 5000, subtotal: 5000 }
+    ],
+    menuSummary: '1x Ayam Geprek, 1x Es Teh',
+    spicyLevel: 'Level 3 (Sedang Mantap)',
+    notes: 'Makan di tempat',
+    totalPrice: 20000,
+    status: 'Sedang Disiapkan'
+  };
+
+  saveOrderToStorage(demoOrder);
+  renderExcelModalTable();
+  renderQueueBoard();
+  updateExcelOrderBadge();
+  showToast(`Pesanan demo ${queueNum} berhasil ditambahkan!`);
+}
+
+/**
+ * EXPORT SEMUA PESANAN KE EXCEL (.XLSX / CSV FALLBACK)
+ */
+function exportToExcel(showPrompt = true) {
+  const orders = getStoredOrders();
+  if (orders.length === 0) {
+    if (showPrompt) alert('Belum ada pesanan yang tersimpan untuk di-download.');
+    return;
+  }
+
+  // Format dataset yang rapi untuk Excel
+  const excelData = orders.map((o, idx) => ({
+    "No": idx + 1,
+    "Nomor Antrean": o.queueNumber,
+    "Waktu Pesan": o.timestamp,
+    "Nama Pemesan": o.customerName,
+    "Tipe Pesanan": o.orderType,
+    "Nomor Meja": o.tableNumber || "-",
+    "Daftar Menu": o.menuSummary,
+    "Level Pedas": o.spicyLevel,
+    "Total Bayar (Rp)": o.totalPrice,
+    "Catatan": o.notes || "-",
+    "Status Pesanan": o.status
+  }));
+
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+  const filename = `Rekap_Pesanan_Ayam_Geprek_Centeng_${dateStr}.xlsx`;
+
+  if (typeof XLSX !== 'undefined') {
+    // Generate .xlsx dengan SheetJS
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    // Atur lebar kolom agar proporsional di Microsoft Excel
+    ws['!cols'] = [
+      { wch: 6 },  // No
+      { wch: 15 }, // Nomor Antrean
+      { wch: 18 }, // Waktu
+      { wch: 20 }, // Nama
+      { wch: 18 }, // Tipe
+      { wch: 12 }, // Meja
+      { wch: 32 }, // Menu
+      { wch: 22 }, // Level
+      { wch: 16 }, // Total
+      { wch: 24 }, // Catatan
+      { wch: 18 }  // Status
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Rekap Pesanan");
+    XLSX.writeFile(wb, filename);
+
+    if (showPrompt) showToast('File Excel Rekap (.xlsx) berhasil di-download!');
+  } else {
+    // Fallback CSV ber-BOM UTF-8 (membuka langsung di Excel tanpa masalah karakter)
+    exportToCsvFallback(excelData, `Rekap_Pesanan_Ayam_Geprek_Centeng_${dateStr}.csv`);
+  }
+}
+
+/**
+ * EXPORT 1 STRUK PESANAN TERTENTU KE EXCEL
+ */
+function exportSingleOrderToExcel(order) {
+  const singleData = [
+    { "Keterangan": "Nomor Antrean", "Nilai": order.queueNumber },
+    { "Keterangan": "Waktu Transaksi", "Nilai": order.timestamp + " WIB" },
+    { "Keterangan": "Nama Pemesan", "Nilai": order.customerName },
+    { "Keterangan": "Tipe Pesanan", "Nilai": order.orderType },
+    { "Keterangan": "Nomor Meja", "Nilai": order.tableNumber },
+    { "Keterangan": "Rincian Menu", "Nilai": order.menuSummary },
+    { "Keterangan": "Level Pedas", "Nilai": order.spicyLevel },
+    { "Keterangan": "Catatan", "Nilai": order.notes || "-" },
+    { "Keterangan": "Total Bayar (Rp)", "Nilai": order.totalPrice },
+    { "Keterangan": "Status", "Nilai": order.status }
+  ];
+
+  const filename = `Struk_Antrean_${order.queueNumber.replace('#', '')}_Centeng.xlsx`;
+
+  if (typeof XLSX !== 'undefined') {
+    const ws = XLSX.utils.json_to_sheet(singleData);
+    ws['!cols'] = [{ wch: 20 }, { wch: 40 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Struk Pesanan");
+    XLSX.writeFile(wb, filename);
+    showToast(`Struk Excel ${order.queueNumber} berhasil di-download!`);
+  } else {
+    exportToCsvFallback(singleData, filename.replace('.xlsx', '.csv'));
+  }
+}
+
+/**
+ * Fallback CSV dengan UTF-8 BOM
+ */
+function exportToCsvFallback(dataArray, filename) {
+  if (!dataArray || dataArray.length === 0) return;
+
+  const headers = Object.keys(dataArray[0]);
+  let csvContent = '\uFEFF'; // UTF-8 BOM agar Excel membacanya dengan tepat
+  csvContent += headers.map(h => `"${h}"`).join(';') + '\r\n';
+
+  dataArray.forEach(row => {
+    const rowValues = headers.map(h => {
+      let val = row[h] === null || row[h] === undefined ? '' : String(row[h]);
+      val = val.replace(/"/g, '""');
+      return `"${val}"`;
+    });
+    csvContent += rowValues.join(';') + '\r\n';
+  });
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('File CSV/Excel berhasil di-download!');
+}
+
+/**
+ * ============================================================
+ * 8. HELPER TOAST & UTILITIES
+ * ============================================================
+ */
+function showToast(msg) {
+  const toast = document.getElementById('toastNotice');
+  const msgEl = document.getElementById('toastNoticeMsg');
+  if (!toast || !msgEl) return;
+
+  msgEl.innerText = msg;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3500);
+}
+
 function setupMobileNav() {
   const btn = document.getElementById('mobileMenuBtn');
   const menu = document.getElementById('navMenu');
@@ -351,34 +1099,6 @@ function setupMobileNav() {
       });
     });
   }
-}
-
-/**
- * Scroll Spy
- */
-function setupScrollSpy() {
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-item');
-
-  window.addEventListener('scroll', () => {
-    let currentId = '';
-    const scrollPos = window.scrollY + 100;
-
-    sections.forEach(sec => {
-      const top = sec.offsetTop;
-      const height = sec.offsetHeight;
-      if (scrollPos >= top && scrollPos < top + height) {
-        currentId = sec.getAttribute('id');
-      }
-    });
-
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === `#${currentId}`) {
-        link.classList.add('active');
-      }
-    });
-  });
 }
 
 function escapeHtml(str) {
