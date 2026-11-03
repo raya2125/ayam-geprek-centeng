@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ayam Geprek Centeng | Pesan di Tempat & Layar Antrean</title>
-  <meta name="description"
-    content="Menu resmi Ayam Geprek Centeng. Pesan makan di tempat atau takeaway dengan sistem antrean ala Burger King dan rekap kasir otomatis ke Excel.">
+  <meta name="description" content="Menu resmi Ayam Geprek Centeng. Pesan makan di tempat atau takeaway dengan sistem antrean ala Burger King dan rekap kasir otomatis ke Excel.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@800;900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@800;900&display=swap" rel="stylesheet">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,7 +17,71 @@
   <!-- SheetJS Library for Excel (.xlsx) Generation -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <link rel="stylesheet" href="style.css">
+  <!-- External Stylesheet with Cache Busting -->
+  <link rel="stylesheet" href="style.css?v=20261103_3">
+
+  <style>
+    /* Anti-cache humanist override & logo constraints */
+    :root {
+      --bg-main: #FAF6EF !important;
+      --bg-surface: #FFFFFF !important;
+      --text-primary: #2C1A10 !important;
+      --primary-brand: #C84626 !important;
+      --border-subtle: #E8DFC8 !important;
+    }
+    body {
+      background-color: #FAF6EF !important;
+      color: #2C1A10 !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .site-header {
+      background: rgba(250, 246, 239, 0.96) !important;
+      border-bottom: 1px solid #E8DFC8 !important;
+    }
+    .brand-badge, .brand-badge-logo {
+      width: 48px !important;
+      height: 48px !important;
+      min-width: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 2px solid #E88C08 !important;
+      background: #FFFFFF !important;
+      flex-shrink: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .brand-badge img, .brand-badge-logo img, .brand-avatar-img {
+      width: 48px !important;
+      height: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      display: block !important;
+    }
+    .nav-item {
+      color: #6B5547 !important;
+    }
+    .nav-item:hover, .nav-item.active {
+      color: #C84626 !important;
+      background: #FFF4E6 !important;
+    }
+    .brand-name {
+      color: #2C1A10 !important;
+    }
+    .menu-cards-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+      max-width: 760px !important;
+      margin: 0 auto 48px auto !important;
+      gap: 24px !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -29,8 +89,7 @@
   <!-- Top Announcement Bar -->
   <div class="announcement-bar">
     <div class="container announcement-inner">
-      <span>🍗 <strong>Ayam Geprek Centeng:</strong> Tersedia Opsi Pesan di Tempat (Dine-In) & Layar Antrean
-        Kiosk!</span>
+      <span>🍗 <strong>Ayam Geprek Centeng:</strong> Tersedia Opsi Pesan di Tempat (Dine-In) & Layar Antrean Kiosk!</span>
       <a href="#layar-antrean" class="announcement-link">Lihat Status Antrean &rarr;</a>
     </div>
   </div>
@@ -39,8 +98,8 @@
   <header class="site-header" id="siteHeader">
     <div class="container nav-wrap">
       <a href="#" class="brand">
-        <div class="brand-badge-logo">
-          <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img">
+        <div class="brand-badge-logo" style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #E88C08;">
+          <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img" style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%; display: block;">
         </div>
         <div class="brand-titles">
           <span class="brand-sub">SELERA NUSANTARA</span>
@@ -139,7 +198,7 @@
       <div class="hero-media">
         <div class="food-hero-card">
           <div class="hero-mascot-pill">
-            <img src="assets/logo-chicken.jpg" alt="Mascot Centeng">
+            <img src="assets/logo-chicken.jpg" alt="Mascot Centeng" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
             <span>Ayam Geprek Centeng</span>
           </div>
           <img src="assets/ayam-geprek.jpg" alt="Ayam Geprek Centeng Spesial" class="food-hero-img">
@@ -147,8 +206,7 @@
             <div class="banner-text">
               <span class="badge-mini">Best Seller</span>
               <h3>Ayam Geprek Spesial</h3>
-              <p>Ayam Krispi Jumbo + Sambal
-                + Nasi Pulen</p>
+              <p>Ayam Krispi Jumbo + Sambal Korek Ulek Dadakan + Nasi Pulen</p>
             </div>
             <div class="banner-price">
               <span>Rp 15.000</span>
@@ -164,10 +222,10 @@
   <section class="menu-catalog-section" id="menu-katalog">
     <div class="container">
       <div class="section-title-wrap text-center">
-        <span class="tag-label"><i class="fas fa-bowl-food"></i> Menu Resmi</span>
+        <span class="tag-label"><i class="fas fa-bowl-food"></i> Menu Resmi (2 Pilihan)</span>
         <h2 class="main-heading">Pilihan Menu <span class="highlight-text">Ayam Geprek Centeng</span></h2>
         <p class="sub-heading">
-          Menu spesial andalan yang dijamin lezat, higienis, dan pas untuk santapan makan siang atau makan malam Anda.
+          Menu andalan spesial yang dijamin lezat, higienis, dan pas untuk santapan makan Anda.
         </p>
       </div>
 
@@ -191,9 +249,44 @@
         </div>
       </div>
 
-      <!-- Menu Grid Cards Container -->
+      <!-- Menu Grid Cards Container (Direct 2 items) -->
       <div class="menu-cards-grid" id="menuCardsGrid">
-        <!-- Injected dynamically from menu-data.js by app.js -->
+        <!-- Item 1: Ayam Geprek -->
+        <div class="menu-card" data-item-id="1">
+          <div class="menu-card-img-wrap">
+            <span class="card-badge-top">Best Seller</span>
+            <span class="card-spicy-pill"><i class="fas fa-pepper-hot"></i> Level 0-10</span>
+            <img src="assets/ayam-geprek.jpg" alt="Ayam Geprek" class="menu-card-img" loading="lazy">
+          </div>
+          <div class="menu-card-body">
+            <h3 class="menu-item-title">Ayam Geprek</h3>
+            <p class="menu-item-desc">Ayam goreng krispi renyah gurih dengan sambal korek ulek dadakan cabai rawit merah asli + nasi putih pulen hangat.</p>
+            <div class="menu-card-bottom">
+              <span class="menu-item-price">Rp 15.000</span>
+              <button class="btn-add-cart" onclick="addToCart(1)">
+                <i class="fas fa-plus"></i> Tambah
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2: Es Teh -->
+        <div class="menu-card" data-item-id="2">
+          <div class="menu-card-img-wrap">
+            <span class="card-badge-top">Segar Dingin</span>
+            <img src="assets/es-teh.jpg" alt="Es Teh" class="menu-card-img" loading="lazy">
+          </div>
+          <div class="menu-card-body">
+            <h3 class="menu-item-title">Es Teh</h3>
+            <p class="menu-item-desc">Es teh manis segar dingin racikan daun teh melati pilihan khas nusantara, penuntas dahaga & pereda pedas terbaik.</p>
+            <div class="menu-card-bottom">
+              <span class="menu-item-price">Rp 5.000</span>
+              <button class="btn-add-cart" onclick="addToCart(2)">
+                <i class="fas fa-plus"></i> Tambah
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -214,8 +307,7 @@
           <div class="dinein-info">
             <h3>Cara Mudah Pesan Dari Meja:</h3>
             <p>
-              Sistem kiosk mandiri kami akan menerbitkan <strong>Nomor Antrean ala Burger King</strong> dan mengirimkan
-              pesanan Anda langsung ke dapur serta tercatat otomatis di buku rekap kasir Excel.
+              Sistem kiosk mandiri kami akan menerbitkan <strong>Nomor Antrean ala Burger King</strong> dan mengirimkan pesanan Anda langsung ke dapur serta tercatat otomatis di buku rekap kasir Excel.
             </p>
 
             <div class="dinein-steps">
@@ -265,15 +357,14 @@
       <div class="section-title-wrap text-center">
         <span class="tag-label"><i class="fas fa-tv"></i> Burger King Style Kiosk</span>
         <h2 class="main-heading">Layar Antrean <span class="highlight-text">Pesanan Dapur</span></h2>
-        <p class="sub-heading">Pantau status pesananmu secara langsung. Ambil pesanan di kasir / tunggu di meja saat
-          nomormu dipanggil!</p>
+        <p class="sub-heading">Pantau status pesananmu secara langsung. Ambil pesanan di kasir / tunggu di meja saat nomormu dipanggil!</p>
       </div>
 
       <!-- Kiosk Monitor Board -->
       <div class="bk-queue-board">
         <div class="bk-board-header">
           <div class="bk-brand-indicator">
-            <img src="assets/logo-chicken.jpg" alt="Logo" class="bk-mini-logo">
+            <img src="assets/logo-chicken.jpg" alt="Logo" class="bk-mini-logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #FFD43B;">
             <span>LIVE ORDER STATUS MONITOR</span>
           </div>
           <div class="bk-live-clock" id="bkLiveClock">21:45:00 WIB</div>
@@ -334,10 +425,8 @@
           <div class="usp-icon-wrap">
             <i class="fas fa-mortar-pestle"></i>
           </div>
-          <h3>sambal Asli</h3>
-          <p>Sambal tidak pernah disimpan atau diblender! Diulek
-            manual per porsi sesaat setelah dipesan agar minyak
-            panasnya menyatu sempurna dengan cabai.</p>
+          <h3>Ulekan Dadakan Asli</h3>
+          <p>Sambal tidak pernah disimpan atau diblender! Diulek manual per porsi sesaat setelah dipesan agar minyak panasnya menyatu sempurna dengan cabai.</p>
         </div>
 
         <div class="usp-card">
@@ -345,8 +434,7 @@
             <i class="fas fa-drumstick-bite"></i>
           </div>
           <h3>Ayam Segar Potongan Jumbo</h3>
-          <p>Menggunakan potongan ayam segar setiap hari dengan bumbu marinasi rempah gurih yang meresap hingga ke serat
-            tulang terdalam.</p>
+          <p>Menggunakan potongan ayam segar setiap hari dengan bumbu marinasi rempah gurih yang meresap hingga ke serat tulang terdalam.</p>
         </div>
 
         <div class="usp-card">
@@ -354,8 +442,7 @@
             <i class="fas fa-pepper-hot"></i>
           </div>
           <h3>100% Cabai Rawit Merah</h3>
-          <p>Bebas bahan pengawet, bebas cabai bubuk tiruan. Pedasnya murni dari cabai rawit merah segar yang dipetik
-            langsung dari pasar induk.</p>
+          <p>Bebas bahan pengawet, bebas cabai bubuk tiruan. Pedasnya murni dari cabai rawit merah segar yang dipetik langsung dari pasar induk.</p>
         </div>
 
         <div class="usp-card">
@@ -363,8 +450,7 @@
             <i class="fas fa-wallet"></i>
           </div>
           <h3>Porsi Kenyang, Harga Murah</h3>
-          <p>Hanya Rp 15.000 sudah dapat paket ayam krispi kenyang dan es teh manis segar Rp 5.000 yang pas di kantong.
-          </p>
+          <p>Hanya Rp 15.000 sudah dapat paket ayam krispi kenyang dan es teh manis segar Rp 5.000 yang pas di kantong.</p>
         </div>
       </div>
     </div>
@@ -382,8 +468,7 @@
       <div class="reviews-grid">
         <div class="review-item">
           <div class="review-stars">★★★★★</div>
-          <p class="review-body">"Sistem pesan di mejanya keren banget, langsung dapet nomor antrean kayak di Burger
-            King! Ayamnya renyah, sambal koreknya nampol banget."</p>
+          <p class="review-body">"Sistem pesan di mejanya keren banget, langsung dapet nomor antrean kayak di Burger King! Ayamnya renyah, sambal koreknya nampol banget."</p>
           <div class="review-user">
             <div class="user-avatar"><i class="fas fa-user"></i></div>
             <div>
@@ -395,8 +480,7 @@
 
         <div class="review-item">
           <div class="review-stars">★★★★★</div>
-          <p class="review-body">"Pesen lewat website ini gampang banget, datanya otomatis rekap ke Excel admin dan
-            terformat rapi di WA. Es tehnya dingin segar pereda pedas terbaik."</p>
+          <p class="review-body">"Pesen lewat website ini gampang banget, datanya otomatis rekap ke Excel admin dan terformat rapi di WA. Es tehnya dingin segar pereda pedas terbaik."</p>
           <div class="review-user">
             <div class="user-avatar"><i class="fas fa-user"></i></div>
             <div>
@@ -408,8 +492,7 @@
 
         <div class="review-item">
           <div class="review-stars">★★★★★</div>
-          <p class="review-body">"Layar antreannya realtime dan akurat. Pas nomor antrean saya dipanggil, ayam gepreknya
-            masih panas mengepul dengan sambal dadakan super wangi."</p>
+          <p class="review-body">"Layar antreannya realtime dan akurat. Pas nomor antrean saya dipanggil, ayam gepreknya masih panas mengepul dengan sambal dadakan super wangi."</p>
           <div class="review-user">
             <div class="user-avatar"><i class="fas fa-user"></i></div>
             <div>
@@ -429,7 +512,7 @@
         <div class="outlet-info">
           <span class="tag-label"><i class="fas fa-store"></i> Kunjungi Kami</span>
           <h2>Kedai <span class="highlight-text">Ayam Geprek Centeng</span></h2>
-          <p>Makan di tempat lebih seru dengan aroma sambal hangat, atau pesan antar ke rumah/kantor kamu!</p>
+          <p>Makan di tempat lebih seru dengan aroma sambal ulek hangat, atau pesan antar ke rumah/kantor kamu!</p>
 
           <div class="outlet-details">
             <div class="detail-row">
@@ -489,16 +572,15 @@
     <div class="container footer-grid">
       <div class="footer-col-main">
         <div class="brand">
-          <div class="brand-badge-logo">
-            <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img">
+          <div class="brand-badge-logo" style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #E88C08;">
+            <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img" style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%; display: block;">
           </div>
           <div class="brand-titles">
             <span class="brand-sub">SELERA NUSANTARA</span>
             <span class="brand-name">Ayam Geprek Centeng</span>
           </div>
         </div>
-        <p>Ayam Geprek Centeng menyajikan olahan ayam goreng renyah bumbu rempah dengan racikan sambal
-          istimewa.</p>
+        <p>Ayam Geprek Centeng menyajikan olahan ayam goreng renyah bumbu rempah dengan racikan sambal ulek dadakan istimewa.</p>
         <div class="social-icons">
           <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
@@ -587,8 +669,7 @@
             <label>Pilih Tipe Pesanan *</label>
             <div class="order-type-picker">
               <label>
-                <input type="radio" name="orderTypeChoice" value="Makan di Tempat" checked
-                  onchange="toggleTableInput(true)">
+                <input type="radio" name="orderTypeChoice" value="Makan di Tempat" checked onchange="toggleTableInput(true)">
                 <span class="order-type-label">
                   <i class="fas fa-chair"></i>
                   <span>Dine-In (Meja)</span>
@@ -666,7 +747,7 @@
           <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 10px;">
             <i class="fas fa-ticket-alt"></i> Buat Pesanan & Dapatkan Nomor Antrean
           </button>
-
+          
           <button type="button" class="btn btn-whatsapp btn-block" onclick="submitToWhatsAppDirectly()">
             <i class="fab fa-whatsapp"></i> Atau Langsung Kirim ke WhatsApp Kasir
           </button>
@@ -691,7 +772,7 @@
 
       <div class="modal-body">
         <div class="bk-receipt-card" id="bkReceiptCard">
-          <img src="assets/logo-chicken.jpg" alt="Logo Centeng" class="receipt-logo">
+          <img src="assets/logo-chicken.jpg" alt="Logo Centeng" class="receipt-logo" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; border: 2px solid var(--accent-gold);">
           <div class="receipt-brand-title">AYAM GEPREK CENTENG</div>
           <small style="color: var(--text-muted);">Sistem Kiosk Mandiri - Resmi Tercatat</small>
 
@@ -722,8 +803,7 @@
             <span id="ticketTotalPrice">Rp 0</span>
           </div>
 
-          <div
-            style="margin-top: 14px; padding: 8px; background: rgba(16, 124, 65, 0.1); border-radius: 8px; color: var(--excel-green); font-size: 0.8rem; font-weight: 700;">
+          <div style="margin-top: 14px; padding: 8px; background: rgba(16, 124, 65, 0.1); border-radius: 8px; color: var(--excel-green); font-size: 0.8rem; font-weight: 700;">
             <i class="fas fa-check-circle"></i> Otomatis Masuk ke Rekap Excel Kasir
           </div>
         </div>
@@ -784,8 +864,7 @@
             <button class="btn btn-excel" onclick="exportToExcel()">
               <i class="fas fa-download"></i> Download Rekap Excel (.xlsx)
             </button>
-            <button class="btn btn-outline btn-sm" onclick="addSampleOrderDemo()"
-              title="Tambah pesanan contoh untuk simulasi">
+            <button class="btn btn-outline btn-sm" onclick="addSampleOrderDemo()" title="Tambah pesanan contoh untuk simulasi">
               <i class="fas fa-plus"></i> + Simulasi Order
             </button>
             <button class="btn btn-outline btn-sm" onclick="clearAllOrders()" style="color: #c92a2a;">
@@ -793,8 +872,7 @@
             </button>
           </div>
 
-          <label
-            style="font-size: 0.82rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary);">
+          <label style="font-size: 0.82rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary);">
             <input type="checkbox" id="autoDownloadExcelCheckbox" checked>
             <span>Auto-download Excel tiap pesanan baru</span>
           </label>
@@ -843,9 +921,8 @@
     </a>
   </div>
 
-  <!-- Scripts -->
-  <script src="menu-data.js"></script>
-  <script src="app.js"></script>
+  <!-- Scripts with cache buster -->
+  <script src="menu-data.js?v=20261103_3"></script>
+  <script src="app.js?v=20261103_3"></script>
 </body>
-
 </html>

@@ -17,6 +17,33 @@ let currentActiveOrder = null;
 const STORAGE_ORDERS_KEY = 'centeng_orders_db';
 const STORAGE_QUEUE_COUNTER_KEY = 'centeng_queue_counter';
 
+// Definisi Resmi 2 Menu Utama (Anti-Cache Override)
+const OFFICIAL_MENUS = [
+  {
+    id: 1,
+    name: "Ayam Geprek",
+    category: "geprek",
+    price: 15000,
+    formattedPrice: "Rp 15.000",
+    badge: "Best Seller",
+    description: "Ayam goreng krispi renyah gurih dengan sambal korek ulek dadakan cabai rawit merah asli + nasi putih pulen hangat.",
+    image: "assets/ayam-geprek.jpg",
+    isSpicySelectable: true
+  },
+  {
+    id: 2,
+    name: "Es Teh",
+    category: "minuman",
+    price: 5000,
+    formattedPrice: "Rp 5.000",
+    badge: "Segar Dingin",
+    description: "Es teh manis segar dingin racikan daun teh melati pilihan khas nusantara, penuntas dahaga & pereda pedas terbaik.",
+    image: "assets/es-teh.jpg",
+    isSpicySelectable: false
+  }
+];
+window.MENU_LIST = OFFICIAL_MENUS;
+
 document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
   setupCategoryTabs();
