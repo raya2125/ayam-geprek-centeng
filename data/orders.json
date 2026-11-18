@@ -1,0 +1,66 @@
+{
+  "updatedAt": "2026-11-18T03:25:30.718Z",
+  "queueCounter": 2,
+  "orders": [
+    {
+      "id": 1001,
+      "queueNumber": "#001",
+      "timestamp": "Hari ini 12:15",
+      "customerName": "Budi Santoso",
+      "orderType": "Makan di Tempat",
+      "tableNumber": "Meja 03",
+      "items": [
+        {
+          "name": "Ayam Geprek",
+          "qty": 2,
+          "price": 15000,
+          "subtotal": 30000
+        },
+        {
+          "name": "Es Teh",
+          "qty": 2,
+          "price": 5000,
+          "subtotal": 10000
+        }
+      ],
+      "menuSummary": "2x Ayam Geprek, 2x Es Teh",
+      "spicyLevel": "Level 3 (Sedang)",
+      "notes": "Sambal dipisah",
+      "totalPrice": 40000,
+      "status": "Siap Diambil",
+      "paymentMethod": "QRIS (kiki ramadhani)",
+      "paymentStatus": "LUNAS",
+      "transactionId": "TRX-20261118-84920"
+    },
+    {
+      "id": 1002,
+      "queueNumber": "#002",
+      "timestamp": "Hari ini 12:20",
+      "customerName": "Siti Rahma",
+      "orderType": "Bawa Pulang",
+      "tableNumber": "-",
+      "items": [
+        {
+          "name": "Ayam Geprek",
+          "qty": 1,
+          "price": 15000,
+          "subtotal": 15000
+        },
+        {
+          "name": "Es Teh",
+          "qty": 1,
+          "price": 5000,
+          "subtotal": 5000
+        }
+      ],
+      "menuSummary": "1x Ayam Geprek, 1x Es Teh",
+      "spicyLevel": "Level 5 (Pedas Nampol)",
+      "notes": "-",
+      "totalPrice": 20000,
+      "status": "Sedang Disiapkan",
+      "paymentMethod": "QRIS (kiki ramadhani)",
+      "paymentStatus": "LUNAS",
+      "transactionId": "TRX-20261118-93102"
+    }
+  ]
+}

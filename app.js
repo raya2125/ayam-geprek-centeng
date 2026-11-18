@@ -18,6 +18,21 @@ let pgCountdownTimer = null;
 
 // State (Konstanta database, OFFICIAL_MENUS, helper tanggal, & Ekspor Excel ada di shared-store.js)
 
+/** Menyegarkan tampilan antrean dan struk pelanggan aktif setelah sinkronisasi storage/backend. */
+function refreshBuyerOrderViews() {
+  renderQueueBoard();
+  if (currentActiveOrder) {
+    const latest = getStoredOrders().find(o => o.id === currentActiveOrder.id);
+    if (latest) {
+      currentActiveOrder = latest;
+      updateActiveOrderBanner(latest);
+      if (document.getElementById('ticketModal')?.classList.contains('active')) {
+        showDigitalTicketModal(latest);
+      }
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
   setupCategoryTabs();
@@ -25,30 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
   setupTablePicker();
   initQueueSystem();
   startLiveClock();
-  updateExcelOrderBadge();
+  loadOrdersFromBackend(refreshBuyerOrderViews);
 
-  // Sinkronisasi otomatis lintas tab dengan Halaman Penjual (kasir.html)
+  // Sinkronisasi otomatis lintas tab maupun antar perangkat (via server.js)
   window.addEventListener('storage', (event) => {
     if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
-      renderQueueBoard();
-      updateExcelOrderBadge();
-
-      if (currentActiveOrder) {
-        const latest = getStoredOrders().find(o => o.id === currentActiveOrder.id);
-        if (latest) {
-          currentActiveOrder = latest;
-          updateActiveOrderBanner(latest);
-          if (document.getElementById('ticketModal')?.classList.contains('active')) {
-            showDigitalTicketModal(latest);
-          }
-        }
-      }
-
-      if (document.getElementById('excelModal')?.classList.contains('active')) {
-        renderExcelModalTable();
-      }
+      refreshBuyerOrderViews();
     }
   });
+  window.addEventListener('focus', () => loadOrdersFromBackend(refreshBuyerOrderViews));
 });
 
 /**
@@ -383,12 +383,10 @@ function closeCheckoutModal() {
 window.addEventListener('click', (e) => {
   const checkoutModal = document.getElementById('checkoutModal');
   const ticketModal = document.getElementById('ticketModal');
-  const excelModal = document.getElementById('excelModal');
   const paymentModal = document.getElementById('paymentGatewayModal');
 
   if (e.target === checkoutModal) closeCheckoutModal();
   if (e.target === ticketModal) closeTicketModal();
-  if (e.target === excelModal) closeExcelModal();
   if (e.target === paymentModal) closePaymentGateway();
 });
 
@@ -648,20 +646,11 @@ function executePaymentProcess(methodType, isInstantPaid) {
 
       // Update Layar Antrean Monitor & Banner Pelanggan
       renderQueueBoard();
-      updateExcelOrderBadge();
       updateActiveOrderBanner(finalizedOrder);
 
       showToast(isInstantPaid
         ? `Pesanan ${finalizedOrder.queueNumber} [LUNAS] masuk dapur!`
         : `Antrean ${finalizedOrder.queueNumber} • Kode Kasir: ${paymentCode}`);
-
-      // Auto-download Excel jika checkbox aktif
-      const autoDownloadCheckbox = document.getElementById('autoDownloadExcelCheckbox');
-      if (autoDownloadCheckbox && autoDownloadCheckbox.checked) {
-        setTimeout(() => {
-          exportToExcel(false);
-        }, 500);
-      }
 
       // Tampilkan Struk Digital Kiosk
       showDigitalTicketModal(finalizedOrder);
@@ -693,8 +682,7 @@ function updateActiveOrderBanner(order) {
  * ============================================================
  */
 function initQueueSystem() {
-  const existing = getStoredOrders();
-  if (existing.length === 0) {
+  if (localStorage.getItem(STORAGE_ORDERS_KEY) === null) {
     const sampleOrders = [
       {
         id: 1001,
@@ -731,8 +719,8 @@ function initQueueSystem() {
         transactionId: 'TRX-20261118-93102'
       }
     ];
-    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(sampleOrders));
     localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, '2');
+    setStoredOrders(sampleOrders, 2);
   }
 
   renderQueueBoard();
@@ -838,9 +826,8 @@ function updateOrderStatus(orderId, newStatus) {
   const target = orders.find(o => o.id === orderId);
   if (target) {
     target.status = newStatus;
-    localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+    setStoredOrders(orders);
     renderQueueBoard();
-    renderExcelModalTable();
     showToast(`Pesanan ${target.queueNumber} diubah ke: ${newStatus}`);
   }
 }
@@ -949,180 +936,9 @@ function closeTicketModal() {
   }
 }
 
-function downloadCurrentOrderExcel() {
-  if (!currentActiveOrder) {
-    const orders = getStoredOrders();
-    currentActiveOrder = orders[orders.length - 1];
-  }
-  if (!currentActiveOrder) return;
-  exportSingleOrderToExcel(currentActiveOrder);
-}
-
 /**
  * ============================================================
- * 8. EXCEL MODAL UI & DATABASE KASIR (Helper di shared-store.js)
- * ============================================================
- */
-
-function updateExcelOrderBadge() {
-  const badge = document.getElementById('excelOrderCountBadge');
-  const orders = getStoredOrders();
-  if (badge) badge.innerText = orders.length;
-}
-
-function openExcelModal() {
-  renderExcelModalTable();
-  const modal = document.getElementById('excelModal');
-  if (modal) {
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-}
-
-function closeExcelModal() {
-  const modal = document.getElementById('excelModal');
-  if (modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-}
-
-function renderExcelModalTable() {
-  const orders = getStoredOrders();
-  const tbody = document.getElementById('excelOrdersTableBody');
-  const statOrders = document.getElementById('statTotalOrders');
-  const statRevenue = document.getElementById('statTotalRevenue');
-  const statPaid = document.getElementById('statPaidOrders');
-  const statCash = document.getElementById('statCashOrders');
-
-  let totalRev = 0;
-  let countPaid = 0;
-  let countCash = 0;
-
-  orders.forEach(o => {
-    totalRev += (o.totalPrice || 0);
-    if (o.paymentStatus === 'LUNAS') countPaid++;
-    else countCash++;
-  });
-
-  if (statOrders) statOrders.innerText = orders.length;
-  if (statRevenue) statRevenue.innerText = 'Rp ' + totalRev.toLocaleString('id-ID');
-  if (statPaid) statPaid.innerText = countPaid;
-  if (statCash) statCash.innerText = countCash;
-
-  if (!tbody) return;
-  tbody.innerHTML = '';
-
-  if (orders.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="11" style="text-align: center; padding: 40px; color: var(--text-muted);">
-          <i class="fas fa-file-excel" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px;"></i>
-          <p>Belum ada data pesanan di Excel database.</p>
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  // Tampilkan urutan terbaru di atas
-  const reversed = [...orders].reverse();
-  reversed.forEach((o, idx) => {
-    const tr = document.createElement('tr');
-    const isPaid = o.paymentStatus === 'LUNAS';
-    tr.innerHTML = `
-      <td>${reversed.length - idx}</td>
-      <td><strong>${o.queueNumber}</strong></td>
-      <td>${o.timestamp}</td>
-      <td>${escapeHtml(o.customerName)}</td>
-      <td>${escapeHtml(o.orderType)}</td>
-      <td>${escapeHtml(o.tableNumber)}</td>
-      <td>${escapeHtml(o.menuSummary)}</td>
-      <td><strong>Rp ${(o.totalPrice).toLocaleString('id-ID')}</strong></td>
-      <td>${escapeHtml(o.paymentMethod || 'QRIS')}</td>
-      <td>
-        <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}">
-          ${isPaid ? '✓ LUNAS' : 'KASIR'}
-        </span>
-      </td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="deleteSingleOrder(${o.id})" title="Hapus pesanan" style="padding: 4px 8px; font-size: 0.75rem;">
-          <i class="fas fa-trash"></i>
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function deleteSingleOrder(id) {
-  if (!confirm('Yakin ingin menghapus baris pesanan ini?')) return;
-  let orders = getStoredOrders();
-  orders = orders.filter(o => o.id !== id);
-  localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
-  renderExcelModalTable();
-  renderQueueBoard();
-  updateExcelOrderBadge();
-  showToast('Pesanan berhasil dihapus dari database.');
-}
-
-function clearAllOrders() {
-  if (!confirm('Hapus seluruh riwayat pesanan Excel? (Data antrean juga akan di-reset)')) return;
-  localStorage.removeItem(STORAGE_ORDERS_KEY);
-  localStorage.removeItem(STORAGE_QUEUE_COUNTER_KEY);
-  renderExcelModalTable();
-  renderQueueBoard();
-  updateExcelOrderBadge();
-  showToast('Seluruh data pesanan berhasil di-reset.');
-}
-
-function addSampleOrderDemo() {
-  const queueNum = getNextQueueNumber();
-  const tables = ['Meja 02', 'Meja 04', 'Meja 05', 'Meja 08', 'Meja 10'];
-  const names = ['Andi Pratama', 'Maya Safitri', 'Dimas Arya', 'Nadia Putri', 'Fajar Ramadhan'];
-  const methods = ['QRIS (kiki ramadhani)', 'Bayar di Tempat (Kasir)'];
-  const randomTable = tables[Math.floor(Math.random() * tables.length)];
-  const randomName = names[Math.floor(Math.random() * names.length)];
-  const randomMethod = methods[Math.floor(Math.random() * methods.length)];
-  const isPaid = randomMethod !== 'Bayar di Tempat (Kasir)';
-
-  const now = new Date();
-  const timeFormatted = formatOrderTimestamp(now);
-  const txId = generateTransactionId(isPaid ? 'TRX' : 'KASIR', now);
-  const paymentCode = isPaid ? null : String(Math.floor(1000 + Math.random() * 9000));
-
-  const demoOrder = {
-    id: Date.now(),
-    queueNumber: queueNum,
-    timestamp: timeFormatted,
-    customerName: randomName,
-    orderType: 'Makan di Tempat',
-    tableNumber: randomTable,
-    items: [
-      { name: 'Ayam Geprek', qty: 1, price: 15000, subtotal: 15000 },
-      { name: 'Es Teh', qty: 1, price: 5000, subtotal: 5000 }
-    ],
-    menuSummary: '1x Ayam Geprek, 1x Es Teh',
-    spicyLevel: 'Level 3 (Sedang Mantap)',
-    notes: 'Makan di tempat',
-    totalPrice: 20000,
-    status: isPaid ? 'Sedang Disiapkan' : 'Menunggu Pembayaran',
-    paymentMethod: randomMethod,
-    paymentStatus: isPaid ? 'LUNAS' : 'Belum Bayar',
-    paymentCode: paymentCode,
-    transactionId: txId
-  };
-
-  saveOrderToStorage(demoOrder);
-  renderExcelModalTable();
-  renderQueueBoard();
-  updateExcelOrderBadge();
-  showToast(`Pesanan demo ${queueNum} (${randomMethod}) berhasil ditambahkan!`);
-}
-
-/**
- * ============================================================
- * 9. HELPER TOAST & NAVIGASI MOBILE (escapeHtml di shared-store.js)
+ * 8. HELPER TOAST & NAVIGASI MOBILE (escapeHtml di shared-store.js)
  * ============================================================
  */
 function showToast(msg) {

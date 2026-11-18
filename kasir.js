@@ -19,13 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
   posRenderCart();
   posRenderOrdersTable();
   posStartClock();
+  loadOrdersFromBackend(posRenderOrdersTable);
 
-  // Sinkronisasi otomatis lintas tab jika pembeli order dari index.html
+  // Sinkronisasi otomatis lintas tab maupun antar perangkat (via server.js)
   window.addEventListener('storage', (event) => {
     if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
       posRenderOrdersTable();
     }
   });
+  window.addEventListener('focus', () => loadOrdersFromBackend(posRenderOrdersTable));
 
   window.addEventListener('click', (e) => {
     const receiptModal = document.getElementById('posReceiptModal');
@@ -613,11 +615,10 @@ function posDeleteOrder(orderId) {
   showToast('Pesanan berhasil dihapus.');
 }
 
-/** Menghapus seluruh data pesanan dan mengulang counter antrean. */
+/** Menghapus seluruh data pesanan dan mengulang counter antrean ke #001. */
 function posClearAllOrders() {
   if (!confirm('Hapus seluruh riwayat pesanan & reset nomor antrean ke #001?')) return;
-  localStorage.removeItem(STORAGE_ORDERS_KEY);
-  localStorage.removeItem(STORAGE_QUEUE_COUNTER_KEY);
+  clearStoredOrders();
   posRenderOrdersTable();
   showToast('Seluruh riwayat pesanan berhasil di-reset.');
 }

@@ -46,16 +46,70 @@ function getStoredOrders() {
   }
 }
 
-/** Menyimpan seluruh daftar pesanan ke localStorage. */
-function setStoredOrders(orders) {
+/** Menyimpan seluruh daftar pesanan ke localStorage & menyinkronkan ke server Excel/Sheets. */
+function setStoredOrders(orders, queueCounterOverride = null) {
   localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
+  const counter = queueCounterOverride !== null
+    ? queueCounterOverride
+    : (parseInt(localStorage.getItem(STORAGE_QUEUE_COUNTER_KEY) || '0', 10) || 0);
+  syncLedgerToBackend(orders, counter);
 }
 
-/** Menambahkan satu pesanan baru ke database localStorage. */
+/** Menghapus seluruh pesanan di localStorage & mereset catatan server/Excel. */
+function clearStoredOrders() {
+  localStorage.setItem(STORAGE_ORDERS_KEY, '[]');
+  localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, '0');
+  syncLedgerToBackend([], 0);
+}
+
+/** Menambahkan satu pesanan baru ke database localStorage & catatan otomatis. */
 function saveOrderToStorage(order) {
   const orders = getStoredOrders();
   orders.push(order);
   setStoredOrders(orders);
+}
+
+/** Mengirim pembaruan pesanan ke server Node.js (untuk menulis .xlsx lokal) & Google Apps Script. */
+function syncLedgerToBackend(orders, queueCounter) {
+  if (typeof fetch !== 'function' || typeof window === 'undefined' || !window.location) return;
+
+  const isLocalServer = window.location.protocol.startsWith('http') && !window.location.hostname.endsWith('github.io');
+  if (isLocalServer) {
+    fetch('/api/orders/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orders, queueCounter })
+    }).catch(() => {});
+  }
+
+  if (typeof GOOGLE_SHEETS_WEBHOOK_URL === 'string' && GOOGLE_SHEETS_WEBHOOK_URL.trim() !== '') {
+    fetch(GOOGLE_SHEETS_WEBHOOK_URL.trim(), {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({ orders })
+    }).catch(() => {});
+  }
+}
+
+/** Memuat pesanan terbaru dari server Node.js (jika aktif) dan menyinkronkan ke localStorage. */
+function loadOrdersFromBackend(onSynced) {
+  if (typeof fetch !== 'function' || typeof window === 'undefined' || !window.location) return;
+  const isLocalServer = window.location.protocol.startsWith('http') && !window.location.hostname.endsWith('github.io');
+  if (!isLocalServer) return;
+
+  fetch('/api/orders', { cache: 'no-store' })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (!data || !data.ok || !Array.isArray(data.orders)) return;
+      const serialized = JSON.stringify(data.orders);
+      const prev = localStorage.getItem(STORAGE_ORDERS_KEY);
+      if (serialized !== prev) {
+        localStorage.setItem(STORAGE_ORDERS_KEY, serialized);
+        localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, String(data.queueCounter || data.orders.length));
+        if (typeof onSynced === 'function') onSynced(data.orders);
+      }
+    })
+    .catch(() => {});
 }
 
 /** Menghasilkan nomor antrean berurutan format #001. */

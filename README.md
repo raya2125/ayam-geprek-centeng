@@ -38,13 +38,13 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 7. **🧾 Struk Digital Antrean & Stempel LUNAS**
    - Menerbitkan struk digital instan setelah pembayaran dengan nomor antrean besar (contoh: `#001`), stempel **LUNAS • PAID**, ID Transaksi resmi (`TRX-YYYYMMDD-XXXX`), rincian menu, nomor meja, dan total harga.
-   - Tombol instan untuk download struk ke Excel dan memantau status pesanan di layar antrean.
+   - Tombol instan untuk memantau status pesanan langsung di layar antrean.
 
-8. **📊 Rekap Kasir & Database Excel Otomatis (.xlsx)**
-   - **Pencatatan Otomatis**: Setiap pesanan yang masuk otomatis tersimpan ke database browser (`localStorage`).
-   - **Kolom Pembayaran**: Mencatat Metode Pembayaran (QRIS, VA Bank, E-Wallet, Tunai), Status Pembayaran (LUNAS / Kasir), dan ID Transaksi.
-   - **Download Excel (.xlsx)**: Menggunakan pustaka SheetJS untuk mengunduh rekap spreadsheet resmi berformat `.xlsx`.
-   - **Ringkasan Kasir**: Menampilkan total pesanan, total omset/pendapatan, jumlah pesanan lunas, dan pesanan bayar di kasir.
+8. **📊 Rekap Kasir, File Excel Otomatis & Google Spreadsheet (Khusus Halaman Kasir)**
+   - **Tersembunyi dari Pembeli**: Seluruh menu admin & tombol Excel hanya tampil di halaman penjual ([`kasir.html`](kasir.html)), sehingga tampilan pembeli tetap bersih.
+   - **File Excel Lokal Otomatis (`Catatan_Penjualan_Centeng.xlsx`)**: Saat dijalankan via `node server.js`, setiap pesanan & perubahan status otomatis dicatat langsung ke file Excel lokal di folder proyek (lengkap dengan sheet `Transaksi` dan `Ringkasan Omzet` berumus Excel).
+   - **Google Spreadsheet**: Terhubung ke Google Spreadsheet **Catatan Penjualan - Ayam Geprek Centeng** (dengan skrip [`google-apps-script.js`](google-apps-script.js) opsional untuk pencatatan langsung dari web online).
+   - **Download Excel (.xlsx)**: Tombol unduh cepat di [`kasir.html`](kasir.html) memakai SheetJS.
 
 ---
 
@@ -52,33 +52,46 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 ```
 tugas bkin web makanan/
-├── index.html          # Halaman Pembeli: katalog, pesan di tempat, bayar QRIS / Bayar di Tempat, antrean & struk
-├── kasir.html          # Halaman Khusus Penjual / Kasir Cash: input pesanan cepat, kalkulator kembalian, kelola antrean & omzet
-├── style.css           # Desain visual hangat humanis, payment gateway UI, halaman kasir POS, antrean & struk
-├── shared-store.js     # Modul database bersama (localStorage), generator antrean/ID, dan ekspor Excel (.xlsx / CSV)
-├── app.js              # Logika halaman pembeli: keranjang, payment gateway non-tunai & layar antrean Burger King
-├── kasir.js            # Logika halaman penjual/kasir: POS input menu cepat, hitung kembalian cash, struk cetak & kelola order
-├── menu-data.js        # Data 2 menu utama dan konfigurasi Payment Gateway (NMID, nomor VA)
+├── index.html                        # Halaman Pembeli: katalog, pesan di tempat, bayar QRIS / Bayar di Tempat, antrean & struk
+├── kasir.html                        # Halaman Khusus Penjual / Kasir: input cash, validasi bayar di tempat, rekap Excel & Google Sheet
+├── server.js                         # Server localhost Node.js + API sinkronisasi otomatis ke Catatan_Penjualan_Centeng.xlsx
+├── xlsx-writer.js                    # Modul Node.js pembuat file Excel (.xlsx) 2 sheet tanpa dependensi eksternal
+├── google-apps-script.js             # Skrip Web App opsional untuk sinkronisasi otomatis ke Google Spreadsheet
+├── Catatan_Penjualan_Centeng.xlsx    # Buku catatan penjualan Excel lokal yang otomatis ter-update saat server berjalan
+├── style.css                         # Desain visual hangat humanis, modal pembayaran, halaman kasir POS, antrean & struk
+├── shared-store.js                   # Modul database bersama (localStorage + sync server.js), generator antrean & ekspor Excel
+├── app.js                            # Logika halaman pembeli: keranjang, pembayaran QRIS / Bayar di Tempat & layar antrean
+├── kasir.js                          # Logika halaman penjual/kasir: POS input cepat, kalkulator cash, validasi kode & rekap
+├── menu-data.js                      # Data 2 menu utama, konfigurasi QRIS (kiki ramadhani) & URL Google Spreadsheet
 ├── assets/
-│   ├── ayam-geprek.jpg    # Foto resmi menu Ayam Geprek
-│   ├── es-teh.jpg         # Foto resmi menu Es Teh
-│   ├── logo-chicken.jpg   # Foto maskot ayam resmi Centeng
-│   ├── qrcode.min.js      # Library offline generator QR Code QRIS
-│   └── brand-reference.png# Referensi logo brand
-└── README.md           # Panduan dokumentasi proyek
+│   ├── ayam-geprek.jpg               # Foto resmi menu Ayam Geprek
+│   ├── es-teh.jpg                    # Foto resmi menu Es Teh
+│   ├── logo-chicken.jpg              # Foto maskot ayam resmi Centeng
+│   ├── qris-kiki-ramadhani.jpg       # Gambar QRIS resmi untuk pembayaran non-tunai
+│   └── brand-reference.png           # Referensi logo brand
+└── README.md                         # Panduan dokumentasi proyek
 ```
 
 ---
 
 ## 🛠️ Cara Menguji / Menjalankan
 
-### A. Alur Pembeli (Non-Tunai: QRIS / VA / E-Wallet)
-1. Buka [`index.html`](index.html) di peramban web.
-2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja, lalu klik **Lanjut ke Pembayaran (Payment Gateway)**.
-3. Pilih **QRIS** atau **Bayar di Tempat** (dapat Kode Bayar 4-digit lalu divalidasi lunas oleh kasir di `kasir.html`).
+### Menjalankan Server Lokal + Auto-Catat Excel
+```bash
+node server.js
+```
+Lalu buka:
+- **Halaman Pembeli:** `http://localhost:3000`
+- **Halaman Penjual / Kasir:** `http://localhost:3000/kasir.html`
+- **File Excel Lokal:** `Catatan_Penjualan_Centeng.xlsx` (ter-update otomatis setiap ada transaksi)
 
-### B. Alur Penjual / Kasir (Pembayaran Cash / Tunai)
-1. Buka [`kasir.html`](kasir.html) (atau klik tautan **Kasir (Penjual)** di navigasi atas).
-2. Klik menu yang dibeli pelanggan (**+ Tambah 1**, **+2**, **+5**), pilih **Makan di Tempat / Bawa Pulang**, nomor meja, serta level pedas.
-3. Masukkan uang tunai yang diterima (atau klik **Uang Pas** / nominal cepat) lalu klik **Simpan Pesanan & Terima Cash (LUNAS)**.
-4. Struk resmi kasir akan muncul beserta rincian kembalian, dan pesanan otomatis masuk ke layar antrean dapur serta rekap Excel (`.xlsx`).
+### A. Alur Pembeli
+1. Buka `http://localhost:3000` (atau [`index.html`](index.html)).
+2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja (atau Take Away), lalu klik **Lanjut ke Pembayaran**.
+3. Pilih **QRIS** (`kiki ramadhani`) atau **Bayar di Tempat** (dapat Kode Bayar 4-digit lalu divalidasi lunas oleh kasir di `kasir.html`).
+
+### B. Alur Penjual / Kasir (`kasir.html`)
+1. Buka `http://localhost:3000/kasir.html`.
+2. Untuk pesanan walk-in cash: klik menu (**+ Tambah 1**, **+2**, **+5**), pilih meja/take away, masukkan uang tunai (atau biarkan kosong untuk uang pas) lalu klik **Simpan Pesanan & Terima Cash (LUNAS)**.
+3. Untuk pembeli yang memilih **Bayar di Tempat**: cocokkan Kode Bayar 4-digit di kotak validasi, lalu klik **Validasi Cash & Masak**.
+4. Semua catatan otomatis masuk ke `Catatan_Penjualan_Centeng.xlsx`, dan bisa diunduh lewat tombol **Download Excel (.xlsx)** atau dibuka lewat tombol **Buka Google Sheet**.

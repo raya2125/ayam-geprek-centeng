@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ayam Geprek Centeng | Pesan di Tempat & Layar Antrean</title>
-  <meta name="description" content="Menu resmi Ayam Geprek Centeng. Pesan makan di tempat atau takeaway dengan sistem antrean real-time dan rekap kasir otomatis ke Excel.">
+  <meta name="description" content="Menu Ayam Geprek Centeng. Pesan makan di tempat atau take away dengan layar antrean real-time.">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,11 +14,8 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- SheetJS Library for Excel (.xlsx) Generation -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_7">
+  <link rel="stylesheet" href="style.css?v=20261118_8">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -115,19 +112,9 @@
         <a href="kasir.html" class="nav-item" style="color: #C84626 !important; font-weight: 700;">
           <i class="fas fa-cash-register"></i> Kasir (Penjual)
         </a>
-        <a href="javascript:void(0)" onclick="openExcelModal()" class="nav-item nav-item-highlight">
-          <i class="fas fa-file-excel"></i> Rekap Excel
-        </a>
       </nav>
 
       <div class="nav-right">
-        <!-- Excel Modal Button -->
-        <button class="excel-trigger-btn" onclick="openExcelModal()" title="Lihat Rekap Pesanan Excel">
-          <i class="fas fa-file-excel"></i>
-          <span class="excel-btn-text">Rekap Excel</span>
-          <span class="excel-badge-count" id="excelOrderCountBadge">0</span>
-        </button>
-
         <!-- Floating Cart Trigger Button -->
         <button class="cart-trigger-btn" id="openCartBtn" onclick="toggleCartDrawer()">
           <i class="fas fa-shopping-bag"></i>
@@ -154,8 +141,8 @@
           Pesan Nyaman Tanpa Ribet!
         </h1>
         <p class="hero-desc">
-          Nikmati racikan ayam goreng krispi dengan sambal cabai rawit asli. Pilih makan di tempat dengan nomor mejamu,
-          pantau nomor antrean secara langsung, dan rekap otomatis ke Excel!
+          Nikmati racikan ayam goreng krispi dengan sambal cabai rawit asli. Pilih makan di tempat dengan nomor mejamu
+          atau pesan Take Away, lalu pantau nomor antreanmu secara langsung!
         </p>
 
         <div class="hero-features-chips">
@@ -169,7 +156,7 @@
           </div>
           <div class="chip-item">
             <i class="fas fa-check-circle"></i>
-            <span>Rekap Kasir Masuk ke Excel</span>
+            <span>Bayar QRIS atau di Kasir</span>
           </div>
         </div>
 
@@ -310,7 +297,7 @@
           <div class="dinein-info">
             <h3>Cara Mudah Pesan Dari Meja:</h3>
             <p>
-              Sistem kiosk mandiri kami akan menerbitkan <strong>Nomor Antrean Resmi</strong> dan mengirimkan pesanan Anda langsung ke dapur serta tercatat otomatis di buku rekap kasir Excel.
+              Pilih nomor meja langsung dari website untuk mendapatkan <strong>Nomor Antrean</strong> dan pesanan Anda segera disiapkan setelah pembayaran terkonfirmasi.
             </p>
 
             <div class="dinein-steps">
@@ -557,7 +544,6 @@
           <li><a href="#pesan-tempat">Pesan di Tempat (Dine-In)</a></li>
           <li><a href="#layar-antrean">Layar Antrean Live</a></li>
           <li><a href="kasir.html">Halaman Penjual / Kasir Cash</a></li>
-          <li><a href="javascript:void(0)" onclick="openExcelModal()">Rekap Kasir Excel</a></li>
           <li><a href="#lokasi-outlet">Lokasi & Jam Buka</a></li>
         </ul>
       </div>
@@ -565,14 +551,14 @@
       <div class="footer-col">
         <h4>Jam Buka Kedai</h4>
         <p>Senin s/d Minggu<br><strong>10.00 - 22.00 WIB</strong></p>
-        <p class="text-muted"><small>Menerima pesanan makan di tempat & takeaway.</small></p>
+        <p class="text-muted"><small>Menerima pesanan makan di tempat &amp; take away.</small></p>
       </div>
     </div>
 
     <div class="footer-bar">
       <div class="container footer-bar-inner">
         <p>&copy; 2026 Ayam Geprek Centeng. Hak Cipta Dilindungi.</p>
-        <p>Sistem Kiosk Mandiri & Rekap Kasir Excel Otomatis.</p>
+        <p>Sistem Pemesanan Mandiri &amp; Antrean Real-Time.</p>
       </div>
     </div>
   </footer>
@@ -612,7 +598,7 @@
           <i class="fas fa-cash-register"></i>
           <div>
             <h3>Konfirmasi Pesanan Baru</h3>
-            <small>Pesanan otomatis masuk ke Layar Antrean & Rekap Excel</small>
+            <small>Pilih Dine-In / Take Away lalu lanjutkan ke pembayaran</small>
           </div>
         </div>
         <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
@@ -883,101 +869,15 @@
             <span>Total Bayar:</span>
             <span id="ticketTotalPrice">Rp 0</span>
           </div>
-
-          <div style="margin-top: 14px; padding: 8px; background: rgba(16, 124, 65, 0.1); border-radius: 8px; color: var(--excel-green); font-size: 0.8rem; font-weight: 700;">
-            <i class="fas fa-check-circle"></i> Otomatis Masuk ke Rekap Excel Kasir
-          </div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button class="btn btn-excel btn-block" onclick="downloadCurrentOrderExcel()">
-            <i class="fas fa-file-excel"></i> Download Excel (.xlsx) Pesanan Ini
-          </button>
-          <button class="btn btn-outline btn-block" onclick="closeTicketModal(); location.href='#layar-antrean';">
+          <button class="btn btn-primary btn-block" onclick="closeTicketModal(); location.href='#layar-antrean';">
             <i class="fas fa-tv"></i> Pantau di Layar Antrean
           </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADMIN REKAP EXCEL MODAL -->
-  <div class="modal-backdrop" id="excelModal">
-    <div class="modal-dialog modal-dialog-large">
-      <div class="modal-header">
-        <div class="modal-title-box">
-          <i class="fas fa-file-excel" style="color: var(--excel-green);"></i>
-          <div>
-            <h3>Rekap Kasir & Database Excel</h3>
-            <small>Setiap pesanan yang masuk otomatis tercatat di sini</small>
-          </div>
-        </div>
-        <button class="modal-close" onclick="closeExcelModal()">&times;</button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Stats summary -->
-        <div class="excel-stats-grid">
-          <div class="stat-box stat-primary">
-            <span>Total Pesanan</span>
-            <strong id="statTotalOrders">0</strong>
-          </div>
-          <div class="stat-box stat-primary">
-            <span>Total Omzet</span>
-            <strong id="statTotalRevenue">Rp 0</strong>
-          </div>
-          <div class="stat-box" style="border-left: 3px solid #107C41;">
-            <span>Sudah Lunas</span>
-            <strong id="statPaidOrders" style="color: #107C41;">0</strong>
-          </div>
-          <div class="stat-box" style="border-left: 3px solid #D9480F;">
-            <span>Bayar di Kasir</span>
-            <strong id="statCashOrders" style="color: #D9480F;">0</strong>
-          </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="excel-toolbar">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="btn btn-excel" onclick="exportToExcel()">
-              <i class="fas fa-download"></i> Download Rekap Excel (.xlsx)
-            </button>
-            <button class="btn btn-outline btn-sm" onclick="addSampleOrderDemo()" title="Tambah pesanan contoh untuk simulasi">
-              <i class="fas fa-plus"></i> + Simulasi Order
-            </button>
-            <button class="btn btn-outline btn-sm" onclick="clearAllOrders()" style="color: #c92a2a;">
-              <i class="fas fa-trash"></i> Reset Data
-            </button>
-          </div>
-
-          <label style="font-size: 0.82rem; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary);">
-            <input type="checkbox" id="autoDownloadExcelCheckbox" checked>
-            <span>Auto-download Excel tiap pesanan baru</span>
-          </label>
-        </div>
-
-        <!-- Orders Table -->
-        <div class="excel-table-container">
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Antrean</th>
-                <th>Waktu</th>
-                <th>Pemesan</th>
-                <th>Tipe</th>
-                <th>Meja</th>
-                <th>Menu</th>
-                <th>Total</th>
-                <th>Metode Bayar</th>
-                <th>Status Bayar</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="excelOrdersTableBody">
-              <!-- Injected by app.js -->
-            </tbody>
-          </table>
+          <button class="btn btn-outline btn-block" onclick="closeTicketModal()">
+            Tutup
+          </button>
         </div>
       </div>
     </div>
@@ -989,16 +889,9 @@
     <span id="toastNoticeMsg">Pesanan baru berhasil dicatat!</span>
   </div>
 
-  <!-- Floating Actions (Bottom Right) -->
-  <div class="floating-actions-wrap">
-    <button class="floating-btn-excel" onclick="openExcelModal()" title="Buka Rekap Excel Kasir">
-      <i class="fas fa-file-excel"></i>
-    </button>
-  </div>
-
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261118_7"></script>
-  <script src="shared-store.js?v=20261118_7"></script>
-  <script src="app.js?v=20261118_7"></script>
+  <script src="menu-data.js?v=20261118_8"></script>
+  <script src="shared-store.js?v=20261118_8"></script>
+  <script src="app.js?v=20261118_8"></script>
 </body>
 </html>

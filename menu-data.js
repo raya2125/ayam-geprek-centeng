@@ -11,6 +11,10 @@
 
 const BRAND_NAME = "Ayam Geprek Centeng";
 
+// Konfigurasi Google Spreadsheet Catatan Penjualan
+const GOOGLE_SHEETS_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1Ul4Il-KYMHwirIwqpaJ_HOUPG87gQ3VY5twEicdu7Ow/edit";
+const GOOGLE_SHEETS_WEBHOOK_URL = ""; // Opsional: isi URL Web App Apps Script (lihat google-apps-script.js)
+
 // Konfigurasi Pembayaran Non-Tunai (QRIS Resmi: kiki ramadhani)
 const PAYMENT_GATEWAY_CONFIG = {
   enabled: true,
