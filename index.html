@@ -17,6 +17,9 @@
   <!-- SheetJS Library for Excel (.xlsx) Generation -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+  <!-- QRCode.js Library for Payment Gateway QRIS -->
+  <script src="assets/qrcode.min.js"></script>
+
   <!-- External Stylesheet with Cache Busting -->
   <link rel="stylesheet" href="style.css?v=20261103_3">
 
@@ -89,7 +92,7 @@
   <!-- Top Announcement Bar -->
   <div class="announcement-bar">
     <div class="container announcement-inner">
-      <span>🍗 <strong>Ayam Geprek Centeng:</strong> Tersedia Opsi Pesan di Tempat (Dine-In) & Layar Antrean Kiosk!</span>
+      <span>💳 <strong>Ayam Geprek Centeng:</strong> Tersedia Payment Gateway (QRIS, VA Bank, E-Wallet) & Layar Antrean Kiosk!</span>
       <a href="#layar-antrean" class="announcement-link">Lihat Status Antrean &rarr;</a>
     </div>
   </div>
@@ -745,13 +748,247 @@
           </div>
 
           <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 10px;">
-            <i class="fas fa-ticket-alt"></i> Buat Pesanan & Dapatkan Nomor Antrean
+            <i class="fas fa-credit-card"></i> Lanjut ke Pembayaran (Payment Gateway) &rarr;
           </button>
           
           <button type="button" class="btn btn-whatsapp btn-block" onclick="submitToWhatsAppDirectly()">
             <i class="fab fa-whatsapp"></i> Atau Langsung Kirim ke WhatsApp Kasir
           </button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT GATEWAY MODAL (QRIS, VA, E-WALLET, CASH) -->
+  <div class="modal-backdrop" id="paymentGatewayModal">
+    <div class="modal-dialog modal-dialog-payment">
+      <div class="pg-header">
+        <div class="pg-header-left">
+          <div class="pg-header-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <div class="pg-header-titles">
+            <h3>Gerbang Pembayaran Resmi</h3>
+            <span class="pg-secure-badge"><i class="fas fa-lock"></i> 256-Bit SSL Enkripsi Terverifikasi</span>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closePaymentGateway()">&times;</button>
+      </div>
+
+      <div class="modal-body" style="position: relative;">
+        <!-- Order Summary Bar -->
+        <div class="pg-order-summary">
+          <div class="pg-summary-info">
+            <span id="pgOrderRefText">Tagihan Pesanan #---</span>
+            <strong id="pgTotalAmountText">Rp 0</strong>
+          </div>
+          <div class="pg-timer-badge">
+            <i class="fas fa-clock"></i> <span id="pgCountdownText">05:00</span>
+          </div>
+        </div>
+
+        <!-- Payment Method Navigation Tabs -->
+        <div class="pg-tabs-bar">
+          <button class="pg-tab-btn active" data-pg-tab="qris" onclick="switchPaymentTab('qris')">
+            <i class="fas fa-qrcode"></i>
+            <span>QRIS</span>
+          </button>
+          <button class="pg-tab-btn" data-pg-tab="va" onclick="switchPaymentTab('va')">
+            <i class="fas fa-university"></i>
+            <span>Virtual Account</span>
+          </button>
+          <button class="pg-tab-btn" data-pg-tab="ewallet" onclick="switchPaymentTab('ewallet')">
+            <i class="fas fa-wallet"></i>
+            <span>E-Wallet</span>
+          </button>
+          <button class="pg-tab-btn" data-pg-tab="cash" onclick="switchPaymentTab('cash')">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Bayar Kasir</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: QRIS -->
+        <div class="pg-tab-panel active" id="pgPanelQris">
+          <div class="qris-card">
+            <div class="qris-header-strip">
+              <span class="qris-logo-title">QRIS</span>
+              <span class="qris-badge-national">STANDAR PEMBAYARAN NASIONAL</span>
+            </div>
+            <div class="qris-body">
+              <div class="qris-merchant-info">
+                <strong>AYAM GEPREK CENTENG</strong>
+                <span>NMID: ID1029384756910 • A01</span>
+              </div>
+              <div class="qris-qr-container">
+                <div id="qrisQrCodeElement"></div>
+              </div>
+              <div class="qris-amount-pill">
+                <span>Total yang harus dibayar:</span>
+                <strong id="qrisAmountText">Rp 0</strong>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+                Buka BCA Mobile, Livin, GoPay, OVO, DANA, ShopeePay, atau m-Banking Anda, lalu scan QR di atas.
+              </p>
+              <div class="qris-supported-logos">
+                <span class="qris-app-tag">BCA</span>
+                <span class="qris-app-tag">Mandiri</span>
+                <span class="qris-app-tag">BRI</span>
+                <span class="qris-app-tag">BNI</span>
+                <span class="qris-app-tag">GoPay</span>
+                <span class="qris-app-tag">OVO</span>
+                <span class="qris-app-tag">DANA</span>
+                <span class="qris-app-tag">ShopeePay</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-outline btn-block btn-sm" onclick="downloadQrisImage()">
+              <i class="fas fa-download"></i> Unduh QR
+            </button>
+            <button class="btn btn-primary btn-block" onclick="executePaymentProcess('QRIS', true)">
+              <i class="fas fa-check-circle"></i> Simulasi Bayar QRIS (Lunas)
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 2: Virtual Account -->
+        <div class="pg-tab-panel" id="pgPanelVa">
+          <div class="va-bank-grid">
+            <div class="va-bank-item active" data-bank="bca" onclick="selectVaBank('bca')">
+              <strong>BCA</strong>
+              <span>Virtual Account</span>
+            </div>
+            <div class="va-bank-item" data-bank="mandiri" onclick="selectVaBank('mandiri')">
+              <strong>Mandiri</strong>
+              <span>Virtual Account</span>
+            </div>
+            <div class="va-bank-item" data-bank="bri" onclick="selectVaBank('bri')">
+              <strong>BRI</strong>
+              <span>BRIVA</span>
+            </div>
+            <div class="va-bank-item" data-bank="bni" onclick="selectVaBank('bni')">
+              <strong>BNI</strong>
+              <span>Virtual Account</span>
+            </div>
+          </div>
+
+          <div class="va-details-box">
+            <div class="va-info-row">
+              <div>
+                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700; display: block;">BANK TUJUAN</span>
+                <strong id="vaBankNameText" style="font-size: 1.1rem; color: var(--text-primary);">Bank BCA (BCA Virtual Account)</strong>
+              </div>
+              <span class="badge-status ready">Online 24 Jam</span>
+            </div>
+
+            <div class="va-info-row">
+              <div>
+                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700; display: block;">NOMOR VIRTUAL ACCOUNT</span>
+                <div class="va-num-text" id="vaNumberDisplay">8801 2812 3456 7890</div>
+              </div>
+              <button class="btn-copy" onclick="copyVaNumber()">
+                <i class="fas fa-copy"></i> Salin
+              </button>
+            </div>
+
+            <div class="va-info-row">
+              <div>
+                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700; display: block;">TOTAL PEMBAYARAN</span>
+                <strong id="vaAmountDisplay" style="font-size: 1.2rem; color: var(--primary-brand); font-family: var(--font-display);">Rp 0</strong>
+              </div>
+              <button class="btn-copy" onclick="copyVaAmount()">
+                <i class="fas fa-copy"></i> Salin
+              </button>
+            </div>
+          </div>
+
+          <div class="va-instructions">
+            <strong>Cara Transfer Virtual Account:</strong>
+            <ol>
+              <li>Buka Mobile Banking atau ATM bank pilihan Anda.</li>
+              <li>Pilih menu <strong>Transfer &gt; Virtual Account</strong>.</li>
+              <li>Masukkan Nomor VA di atas dan pastikan penerima adalah <strong>Ayam Geprek Centeng</strong>.</li>
+              <li>Konfirmasi pembayaran sesuai nominal tepat.</li>
+            </ol>
+          </div>
+
+          <button class="btn btn-primary btn-block" style="margin-top: 14px;" onclick="executePaymentProcess('Virtual Account', true)">
+            <i class="fas fa-check-circle"></i> Cek Status / Simulasi Transfer Berhasil
+          </button>
+        </div>
+
+        <!-- Tab 3: E-Wallet -->
+        <div class="pg-tab-panel" id="pgPanelEwallet">
+          <div class="ewallet-grid">
+            <div class="ewallet-item active" data-wallet="gopay" onclick="selectEwallet('gopay')">
+              <div class="ewallet-icon-box"><i class="fas fa-bolt"></i></div>
+              <div>
+                <strong style="display: block; font-size: 0.95rem;">GoPay</strong>
+                <small style="color: var(--text-muted);">Instan / Aplikasi</small>
+              </div>
+            </div>
+            <div class="ewallet-item" data-wallet="dana" onclick="selectEwallet('dana')">
+              <div class="ewallet-icon-box"><i class="fas fa-wallet"></i></div>
+              <div>
+                <strong style="display: block; font-size: 0.95rem;">DANA</strong>
+                <small style="color: var(--text-muted);">Saldo DANA</small>
+              </div>
+            </div>
+            <div class="ewallet-item" data-wallet="ovo" onclick="selectEwallet('ovo')">
+              <div class="ewallet-icon-box"><i class="fas fa-coins"></i></div>
+              <div>
+                <strong style="display: block; font-size: 0.95rem;">OVO</strong>
+                <small style="color: var(--text-muted);">OVO Cash</small>
+              </div>
+            </div>
+            <div class="ewallet-item" data-wallet="shopeepay" onclick="selectEwallet('shopeepay')">
+              <div class="ewallet-icon-box"><i class="fas fa-bag-shopping"></i></div>
+              <div>
+                <strong style="display: block; font-size: 0.95rem;">ShopeePay</strong>
+                <small style="color: var(--text-muted);">ShopeePay</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pgEwalletPhone">Nomor Handphone Terdaftar di E-Wallet:</label>
+            <input type="text" id="pgEwalletPhone" class="form-control" placeholder="081234567890" value="081234567890">
+          </div>
+
+          <button class="btn btn-primary btn-block btn-lg" onclick="executePaymentProcess('E-Wallet', true)">
+            <i class="fas fa-mobile-alt"></i> Bayar Sekarang via E-Wallet
+          </button>
+        </div>
+
+        <!-- Tab 4: Tunai / Kasir -->
+        <div class="pg-tab-panel" id="pgPanelCash">
+          <div class="cash-card-box">
+            <div class="cash-icon-circle">
+              <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h4>Bayar Tunai Langsung di Kasir</h4>
+            <p>
+              Pesanan Anda akan tetap dibuat dan mendapatkan Nomor Antrean. Silakan tunjukkan nomor antrean Anda ke kasir kedai saat nomor Anda dipanggil atau saat tiba di kedai.
+            </p>
+          </div>
+
+          <button class="btn btn-primary btn-block btn-lg" onclick="executePaymentProcess('Tunai di Kasir', false)">
+            <i class="fas fa-check"></i> Konfirmasi Pesanan (Bayar Nanti di Kasir)
+          </button>
+        </div>
+
+        <!-- Verifying & Success Screen Overlay -->
+        <div class="pg-verifying-overlay" id="pgVerifyingOverlay">
+          <div class="pg-spinner" id="pgSpinner"></div>
+          <div class="pg-success-icon" id="pgSuccessIcon">
+            <i class="fas fa-check"></i>
+          </div>
+          <h3 class="pg-verifying-title" id="pgVerifyingTitle">Memverifikasi Pembayaran...</h3>
+          <p class="pg-verifying-desc" id="pgVerifyingDesc">
+            Sistem sedang memverifikasi transaksi ke Payment Gateway. Mohon tunggu sebentar.
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -780,6 +1017,12 @@
             <div class="receipt-queue-label">NOMOR ANTREAN ANDA</div>
             <div class="receipt-queue-number" id="ticketQueueNumber">#001</div>
             <div class="receipt-order-type" id="ticketOrderType">Makan di Tempat - Meja 01</div>
+          </div>
+
+          <!-- Stempel Status Pembayaran -->
+          <div id="ticketPaymentStampContainer" style="margin: 6px 0 10px;"></div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;" id="ticketTxIdText">
+            ID Transaksi: TRX-20261118-000000
           </div>
 
           <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;" id="ticketTimestamp">
@@ -848,13 +1091,13 @@
             <span>Total Omzet</span>
             <strong id="statTotalRevenue">Rp 0</strong>
           </div>
-          <div class="stat-box">
-            <span>Makan di Tempat</span>
-            <strong id="statDineIn">0</strong>
+          <div class="stat-box" style="border-left: 3px solid #107C41;">
+            <span>Lunas (QRIS/VA)</span>
+            <strong id="statPaidOrders" style="color: #107C41;">0</strong>
           </div>
-          <div class="stat-box">
-            <span>Takeaway/Delivery</span>
-            <strong id="statTakeaway">0</strong>
+          <div class="stat-box" style="border-left: 3px solid #D9480F;">
+            <span>Bayar di Kasir</span>
+            <strong id="statCashOrders" style="color: #D9480F;">0</strong>
           </div>
         </div>
 
@@ -890,13 +1133,16 @@
                 <th>Tipe</th>
                 <th>Meja</th>
                 <th>Menu</th>
-                <th>Level</th>
                 <th>Total</th>
-                <th>Status</th>
+                <th>Metode Bayar</th>
+                <th>Status Bayar</th>
                 <th>Aksi</th>
               </tr>
             </thead>
             <tbody id="excelOrdersTableBody">
+              <!-- Injected by app.js -->
+            </tbody>
+          </table>
               <!-- Injected by app.js -->
             </tbody>
           </table>

@@ -1,15 +1,36 @@
 /**
  * ============================================================
- * AYAM GEPREK CENTENG - DATA MENU RESMI
+ * AYAM GEPREK CENTENG - DATA MENU RESMI & KONFIGURASI
  * ============================================================
  * Menu resmi yang tersedia saat ini:
  * 1. Ayam Geprek
  * 2. Es Teh
+ * Dilengkapi Sistem Payment Gateway (QRIS, VA Bank, E-Wallet)
  * ============================================================
  */
 
 const WA_PHONE_NUMBER = "6281234567890"; // Ganti dengan nomor WhatsApp aktif (awali 62)
 const BRAND_NAME = "Ayam Geprek Centeng";
+
+// Konfigurasi Payment Gateway
+const PAYMENT_GATEWAY_CONFIG = {
+  enabled: true,
+  merchantName: "Ayam Geprek Centeng",
+  merchantCity: "JAKARTA",
+  qrisNmid: "ID1029384756910",
+  vaNumbers: {
+    bca: "8801281234567890",
+    mandiri: "8901281234567890",
+    bri: "1201281234567890",
+    bni: "9801281234567890"
+  },
+  ewalletNumbers: {
+    gopay: "0812-3456-7890",
+    dana: "0812-3456-7890",
+    ovo: "0812-3456-7890",
+    shopeepay: "0812-3456-7890"
+  }
+};
 
 const MENU_LIST = [
   {

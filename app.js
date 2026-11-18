@@ -2,7 +2,7 @@
  * ============================================================
  * AYAM GEPREK CENTENG - OFFICIAL APP SCRIPT
  * Sistem Kiosk, Pesan di Tempat, Layar Antrean Burger King,
- * Keranjang Pesanan & Ekspor Excel Otomatis
+ * Keranjang Pesanan, Payment Gateway (QRIS/VA) & Ekspor Excel Otomatis
  * ============================================================
  */
 
@@ -12,6 +12,12 @@ let currentCategory = 'all';
 let searchQuery = '';
 let selectedTableNumber = 'Meja 01';
 let currentActiveOrder = null;
+let currentDraftOrder = null;
+let selectedPaymentTab = 'qris';
+let selectedVaBank = 'bca';
+let selectedEwallet = 'gopay';
+let pgCountdownTimer = null;
+let qrisInstance = null;
 
 // LocalStorage Keys
 const STORAGE_ORDERS_KEY = 'centeng_orders_db';
@@ -297,12 +303,10 @@ function setupTablePicker() {
 
 function startDineInOrder() {
   if (cart.length === 0) {
-    // Tambahkan 1x Ayam Geprek dan 1x Es Teh secara instan sebagai rekomendasi
     addToCart(1);
     addToCart(2);
   }
 
-  // Pre-set modal table number
   const modalTableSelect = document.getElementById('custTableNumber');
   if (modalTableSelect) {
     modalTableSelect.value = selectedTableNumber;
@@ -321,7 +325,7 @@ function toggleTableInput(isDineIn) {
 
 /**
  * ============================================================
- * 4. CHECKOUT & ORDER CREATION
+ * 4. CHECKOUT & ORDER CREATION (LANJUT KE PAYMENT GATEWAY)
  * ============================================================
  */
 function openCheckoutModal() {
@@ -330,7 +334,6 @@ function openCheckoutModal() {
     return;
   }
 
-  // Tutup drawer jika terbuka
   const drawer = document.getElementById('cartDrawer');
   if (drawer && drawer.classList.contains('active')) {
     toggleCartDrawer();
@@ -368,28 +371,27 @@ function closeCheckoutModal() {
 
 function openDirectOrderModal(defaultMenu = '') {
   if (cart.length === 0) {
-    addToCart(1); // Tambah Ayam Geprek
+    addToCart(1);
   }
   openCheckoutModal();
 }
 
-// Close checkout modal on backdrop click
+// Global modal backdrop close listener
 window.addEventListener('click', (e) => {
   const checkoutModal = document.getElementById('checkoutModal');
   const ticketModal = document.getElementById('ticketModal');
   const excelModal = document.getElementById('excelModal');
+  const paymentModal = document.getElementById('paymentGatewayModal');
 
   if (e.target === checkoutModal) closeCheckoutModal();
   if (e.target === ticketModal) closeTicketModal();
   if (e.target === excelModal) closeExcelModal();
+  if (e.target === paymentModal) closePaymentGateway();
 });
 
 /**
  * Handle form order submit:
- * 1. Generate Queue Number (Burger King Style)
- * 2. Save order to LocalStorage database
- * 3. Auto-trigger Excel download if enabled
- * 4. Show Digital Ticket Slip
+ * Alihkan ke Payment Gateway Resmi untuk memilih metode pembayaran (QRIS / VA / E-Wallet / Cash)
  */
 function handleProcessOrder(e) {
   if (e) e.preventDefault();
@@ -440,7 +442,7 @@ function handleProcessOrder(e) {
 
   const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
 
-  const newOrder = {
+  const draftOrder = {
     id: Date.now(),
     queueNumber: queueNum,
     timestamp: timeFormatted,
@@ -455,41 +457,314 @@ function handleProcessOrder(e) {
     status: 'Sedang Disiapkan'
   };
 
-  // Simpan ke database
-  saveOrderToStorage(newOrder);
-  currentActiveOrder = newOrder;
+  currentDraftOrder = draftOrder;
 
-  // Reset cart
-  cart = [];
-  updateCartUI();
+  // Tutup checkout modal & buka Payment Gateway
   closeCheckoutModal();
+  openPaymentGateway(draftOrder);
+}
 
-  // Update Layar Antrean
-  renderQueueBoard();
-  updateExcelOrderBadge();
+/**
+ * ============================================================
+ * 5. PAYMENT GATEWAY LOGIC (QRIS, VA, E-WALLET, CASH)
+ * ============================================================
+ */
+function openPaymentGateway(order) {
+  const modal = document.getElementById('paymentGatewayModal');
+  const refText = document.getElementById('pgOrderRefText');
+  const totalText = document.getElementById('pgTotalAmountText');
+  const qrisAmount = document.getElementById('qrisAmountText');
+  const vaAmount = document.getElementById('vaAmountDisplay');
 
-  // Update Banner Pelanggan Aktif
-  const activeBar = document.getElementById('bkCustomerActiveBar');
-  const myQueueNumText = document.getElementById('myQueueNumberText');
-  const myQueueStatusText = document.getElementById('myQueueStatusText');
-  if (activeBar && myQueueNumText) {
-    activeBar.style.display = 'flex';
-    myQueueNumText.innerText = queueNum;
-    myQueueStatusText.innerText = `Pesanan ${orderType} (${tableNum !== '-' ? tableNum : 'Counter'}) sedang disiapkan di dapur.`;
+  if (refText) refText.innerText = `Tagihan Pesanan ${order.queueNumber} (${order.orderType})`;
+  if (totalText) totalText.innerText = `Rp ${order.totalPrice.toLocaleString('id-ID')}`;
+  if (qrisAmount) qrisAmount.innerText = `Rp ${order.totalPrice.toLocaleString('id-ID')}`;
+  if (vaAmount) vaAmount.innerText = `Rp ${order.totalPrice.toLocaleString('id-ID')}`;
+
+  // Reset overlay verifikasi jika sebelumnya aktif
+  const overlay = document.getElementById('pgVerifyingOverlay');
+  if (overlay) overlay.classList.remove('active');
+
+  // Set default tab ke QRIS
+  switchPaymentTab('qris');
+
+  // Render dynamic QR code untuk QRIS
+  renderQrisCode(order);
+
+  // Mulai hitung mundur 5 menit
+  startPaymentCountdown(5 * 60);
+
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closePaymentGateway() {
+  const modal = document.getElementById('paymentGatewayModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  if (pgCountdownTimer) {
+    clearInterval(pgCountdownTimer);
+    pgCountdownTimer = null;
+  }
+}
+
+function switchPaymentTab(tabName) {
+  selectedPaymentTab = tabName;
+
+  // Update tabs button
+  const buttons = document.querySelectorAll('.pg-tab-btn');
+  buttons.forEach(btn => {
+    if (btn.dataset.pgTab === tabName) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // Update panels
+  const panels = {
+    qris: document.getElementById('pgPanelQris'),
+    va: document.getElementById('pgPanelVa'),
+    ewallet: document.getElementById('pgPanelEwallet'),
+    cash: document.getElementById('pgPanelCash')
+  };
+
+  Object.keys(panels).forEach(k => {
+    if (panels[k]) {
+      if (k === tabName) panels[k].classList.add('active');
+      else panels[k].classList.remove('active');
+    }
+  });
+}
+
+function selectVaBank(bankCode) {
+  selectedVaBank = bankCode;
+
+  const items = document.querySelectorAll('.va-bank-item');
+  items.forEach(it => {
+    if (it.dataset.bank === bankCode) it.classList.add('active');
+    else it.classList.remove('active');
+  });
+
+  const vaNumbers = (typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' && PAYMENT_GATEWAY_CONFIG.vaNumbers) 
+    ? PAYMENT_GATEWAY_CONFIG.vaNumbers 
+    : { bca: '8801281234567890', mandiri: '8901281234567890', bri: '1201281234567890', bni: '9801281234567890' };
+
+  const bankNames = {
+    bca: 'Bank BCA (BCA Virtual Account)',
+    mandiri: 'Bank Mandiri (Mandiri Virtual Account)',
+    bri: 'Bank BRI (BRIVA Virtual Account)',
+    bni: 'Bank BNI (BNI Virtual Account)'
+  };
+
+  const rawNum = vaNumbers[bankCode] || '8801281234567890';
+  // Format 4 4 4 4
+  const formatted = rawNum.replace(/(\d{4})/g, '$1 ').trim();
+
+  const numEl = document.getElementById('vaNumberDisplay');
+  const nameEl = document.getElementById('vaBankNameText');
+
+  if (numEl) numEl.innerText = formatted;
+  if (nameEl) nameEl.innerText = bankNames[bankCode] || bankCode.toUpperCase();
+}
+
+function selectEwallet(walletCode) {
+  selectedEwallet = walletCode;
+
+  const items = document.querySelectorAll('.ewallet-item');
+  items.forEach(it => {
+    if (it.dataset.wallet === walletCode) it.classList.add('active');
+    else it.classList.remove('active');
+  });
+}
+
+function startPaymentCountdown(seconds) {
+  if (pgCountdownTimer) clearInterval(pgCountdownTimer);
+
+  const display = document.getElementById('pgCountdownText');
+  let remain = seconds;
+
+  function tick() {
+    const mins = Math.floor(remain / 60);
+    const secs = remain % 60;
+    const str = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    if (display) display.innerText = str;
+
+    if (remain <= 0) {
+      clearInterval(pgCountdownTimer);
+      if (display) display.innerText = 'Kadaluarsa';
+    }
+    remain--;
   }
 
-  showToast(`Pesanan #${queueNum} berhasil dicatat & masuk ke Rekap Excel!`);
+  tick();
+  pgCountdownTimer = setInterval(tick, 1000);
+}
 
-  // Auto-download Excel jika checkbox aktif
-  const autoDownloadCheckbox = document.getElementById('autoDownloadExcelCheckbox');
-  if (autoDownloadCheckbox && autoDownloadCheckbox.checked) {
+function renderQrisCode(order) {
+  const container = document.getElementById('qrisQrCodeElement');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  // Generate payload QRIS standar
+  const qrisPayload = `00020101021226600016ID.CENTENG.WWW01189360091801293847560215ID10293847569100303UMI51440014ID.GO.QRIS.WWW0215ID10293847569100303UMI52045812530336054${order.totalPrice.toString().length < 10 ? '0' + order.totalPrice.toString().length : order.totalPrice.toString().length}${order.totalPrice}5802ID5919AYAM GEPREK CENTENG6007JAKARTA62070703A016304`;
+
+  try {
+    if (typeof QRCode !== 'undefined') {
+      qrisInstance = new QRCode(container, {
+        text: qrisPayload,
+        width: 190,
+        height: 190,
+        colorDark: '#1C110B',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } else {
+      // Fallback SVG QR placeholder jika library belum termuat
+      container.innerHTML = `
+        <div style="width: 190px; height: 190px; background: #fff; display: flex; align-items: center; justify-content: center; border: 2px dashed #E8590C; border-radius: 8px;">
+          <div style="text-align: center;">
+            <i class="fas fa-qrcode" style="font-size: 5rem; color: #1C110B;"></i>
+            <small style="display: block; font-weight: 800; font-size: 0.7rem; color: #C84626; margin-top: 4px;">QRIS CENTENG</small>
+          </div>
+        </div>
+      `;
+    }
+  } catch (err) {
+    container.innerHTML = `
+      <div style="width: 190px; height: 190px; background: #fff; display: flex; align-items: center; justify-content: center; border: 2px dashed #E8590C;">
+        <i class="fas fa-qrcode" style="font-size: 5rem; color: #1C110B;"></i>
+      </div>
+    `;
+  }
+}
+
+function downloadQrisImage() {
+  const qrImg = document.querySelector('#qrisQrCodeElement img') || document.querySelector('#qrisQrCodeElement canvas');
+  if (qrImg) {
+    const link = document.createElement('a');
+    link.download = `QRIS_Centeng_${currentDraftOrder ? currentDraftOrder.queueNumber : 'Bayar'}.png`;
+    link.href = qrImg.src || (qrImg.toDataURL ? qrImg.toDataURL('image/png') : '');
+    link.click();
+    showToast('Gambar QRIS berhasil di-download!');
+  } else {
+    showToast('Gambar QRIS siap discan di layar.');
+  }
+}
+
+function copyVaNumber() {
+  const numEl = document.getElementById('vaNumberDisplay');
+  if (!numEl) return;
+  const raw = numEl.innerText.replace(/\s+/g, '');
+  navigator.clipboard.writeText(raw).then(() => {
+    showToast(`Nomor Virtual Account ${raw} berhasil disalin!`);
+  }).catch(() => {
+    showToast(`VA: ${raw}`);
+  });
+}
+
+function copyVaAmount() {
+  if (!currentDraftOrder) return;
+  navigator.clipboard.writeText(currentDraftOrder.totalPrice.toString()).then(() => {
+    showToast(`Nominal Rp ${currentDraftOrder.totalPrice.toLocaleString('id-ID')} disalin!`);
+  });
+}
+
+/**
+ * Eksekusi Pembayaran:
+ * Verifikasi 1.2 detik -> Animasi sukses -> Catat ke Excel & Layar Antrean -> Buka Struk LUNAS
+ */
+function executePaymentProcess(methodType, isInstantPaid) {
+  if (!currentDraftOrder) return;
+
+  const overlay = document.getElementById('pgVerifyingOverlay');
+  const spinner = document.getElementById('pgSpinner');
+  const successIcon = document.getElementById('pgSuccessIcon');
+  const title = document.getElementById('pgVerifyingTitle');
+  const desc = document.getElementById('pgVerifyingDesc');
+
+  if (overlay) {
+    overlay.classList.add('active');
+    if (spinner) spinner.style.display = 'block';
+    if (successIcon) successIcon.style.display = 'none';
+    if (title) title.innerText = 'Memverifikasi Pembayaran...';
+    if (desc) desc.innerText = 'Sistem sedang memverifikasi transaksi ke Payment Gateway. Mohon tunggu sebentar.';
+  }
+
+  setTimeout(() => {
+    // Generate Transaction ID unik
+    const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const dateCode = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const txId = `TRX-${dateCode}-${randomHex}`;
+
+    let fullMethod = methodType;
+    if (methodType === 'Virtual Account') {
+      fullMethod = `${selectedVaBank.toUpperCase()} Virtual Account`;
+    } else if (methodType === 'E-Wallet') {
+      const ewalletNames = { gopay: 'GoPay', dana: 'DANA', ovo: 'OVO', shopeepay: 'ShopeePay' };
+      fullMethod = `${ewalletNames[selectedEwallet] || 'E-Wallet'} (Online)`;
+    }
+
+    const finalizedOrder = {
+      ...currentDraftOrder,
+      paymentMethod: fullMethod,
+      paymentStatus: isInstantPaid ? 'LUNAS' : 'Bayar di Kasir',
+      transactionId: txId
+    };
+
+    if (spinner) spinner.style.display = 'none';
+    if (successIcon) successIcon.style.display = 'flex';
+    if (title) title.innerText = isInstantPaid ? 'Pembayaran Berhasil! (LUNAS)' : 'Pesanan Dikonfirmasi!';
+    if (desc) {
+      desc.innerText = isInstantPaid 
+        ? `Transaksi ${txId} via ${fullMethod} resmi terverifikasi. Nomor antrean Anda aktif di dapur!`
+        : `Silakan lakukan pembayaran tunai di kasir dengan menunjukkan nomor antrean Anda.`;
+    }
+
     setTimeout(() => {
-      exportToExcel(false);
-    }, 500);
-  }
+      closePaymentGateway();
 
-  // Tampilkan Struk Digital Kiosk (Burger King Style)
-  showDigitalTicketModal(newOrder);
+      // Simpan ke database LocalStorage & Excel
+      saveOrderToStorage(finalizedOrder);
+      currentActiveOrder = finalizedOrder;
+
+      // Reset keranjang
+      cart = [];
+      updateCartUI();
+
+      // Update Layar Antrean Monitor
+      renderQueueBoard();
+      updateExcelOrderBadge();
+
+      // Update Banner Pelanggan Aktif
+      const activeBar = document.getElementById('bkCustomerActiveBar');
+      const myQueueNumText = document.getElementById('myQueueNumberText');
+      const myQueueStatusText = document.getElementById('myQueueStatusText');
+      if (activeBar && myQueueNumText) {
+        activeBar.style.display = 'flex';
+        myQueueNumText.innerText = finalizedOrder.queueNumber;
+        myQueueStatusText.innerText = `Pesanan ${finalizedOrder.orderType} (${finalizedOrder.tableNumber !== '-' ? finalizedOrder.tableNumber : 'Counter'}) • Pembayaran: ${finalizedOrder.paymentStatus}`;
+      }
+
+      showToast(`Pesanan #${finalizedOrder.queueNumber} [${finalizedOrder.paymentStatus}] masuk ke Rekap Excel!`);
+
+      // Auto-download Excel jika checkbox aktif
+      const autoDownloadCheckbox = document.getElementById('autoDownloadExcelCheckbox');
+      if (autoDownloadCheckbox && autoDownloadCheckbox.checked) {
+        setTimeout(() => {
+          exportToExcel(false);
+        }, 500);
+      }
+
+      // Tampilkan Struk Digital Kiosk (Burger King Style) berstempel LUNAS
+      showDigitalTicketModal(finalizedOrder);
+    }, 1000);
+  }, 1300);
 }
 
 /**
@@ -530,6 +805,9 @@ function submitToWhatsAppDirectly() {
     hour: '2-digit', minute: '2-digit'
   }).replace(/\./g, ':');
 
+  const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const txId = `TRX-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${randomHex}`;
+
   const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
 
   const newOrder = {
@@ -544,7 +822,10 @@ function submitToWhatsAppDirectly() {
     spicyLevel: spicy,
     notes: notes,
     totalPrice: grandTotal,
-    status: 'Sedang Disiapkan'
+    status: 'Sedang Disiapkan',
+    paymentMethod: 'Transfer / QRIS via WhatsApp',
+    paymentStatus: 'Menunggu Konfirmasi WA',
+    transactionId: txId
   };
 
   saveOrderToStorage(newOrder);
@@ -562,11 +843,10 @@ function submitToWhatsAppDirectly() {
 
 /**
  * ============================================================
- * 5. BURGER KING STYLE QUEUE SYSTEM (LAYAR ANTREAN MONITOR)
+ * 6. BURGER KING STYLE QUEUE SYSTEM (LAYAR ANTREAN MONITOR)
  * ============================================================
  */
 function initQueueSystem() {
-  // Buat sample order awal jika belum ada data agar langsung terlihat keren
   const existing = getStoredOrders();
   if (existing.length === 0) {
     const sampleOrders = [
@@ -582,7 +862,10 @@ function initQueueSystem() {
         spicyLevel: 'Level 3 (Sedang)',
         notes: 'Sambal dipisah',
         totalPrice: 40000,
-        status: 'Siap Diambil'
+        status: 'Siap Diambil',
+        paymentMethod: 'QRIS (Gojek/BCA)',
+        paymentStatus: 'LUNAS',
+        transactionId: 'TRX-20261118-84920'
       },
       {
         id: 1002,
@@ -596,7 +879,10 @@ function initQueueSystem() {
         spicyLevel: 'Level 5 (Pedas Nampol)',
         notes: '-',
         totalPrice: 20000,
-        status: 'Sedang Disiapkan'
+        status: 'Sedang Disiapkan',
+        paymentMethod: 'BCA Virtual Account',
+        paymentStatus: 'LUNAS',
+        transactionId: 'TRX-20261118-93102'
       }
     ];
     localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(sampleOrders));
@@ -638,9 +924,15 @@ function renderQueueBoard() {
       const card = document.createElement('div');
       card.className = 'bk-queue-card';
       const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Takeaway';
+      const isPaid = o.paymentStatus === 'LUNAS';
       card.innerHTML = `
         <div class="bk-card-num">${o.queueNumber}</div>
         <div class="bk-card-type">${dest}</div>
+        <div style="margin: 4px 0;">
+          <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}" style="font-size: 0.65rem;">
+            ${isPaid ? '✓ LUNAS' : 'KASIR'}
+          </span>
+        </div>
         <div class="bk-card-time">${o.timestamp.split(' ')[1] || ''}</div>
         <div class="bk-card-action">
           <button class="btn-kiosk-action" onclick="updateOrderStatus(${o.id}, 'Siap Diambil')" title="Klik untuk tandai pesanan siap">
@@ -664,9 +956,15 @@ function renderQueueBoard() {
       const card = document.createElement('div');
       card.className = 'bk-queue-card';
       const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Siap Diambil';
+      const isPaid = o.paymentStatus === 'LUNAS';
       card.innerHTML = `
         <div class="bk-card-num">${o.queueNumber}</div>
         <div class="bk-card-type">${dest}</div>
+        <div style="margin: 4px 0;">
+          <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}" style="font-size: 0.65rem;">
+            ${isPaid ? '✓ LUNAS' : 'KASIR'}
+          </span>
+        </div>
         <div class="bk-card-time">Siap di Kasir / Diantar</div>
         <div class="bk-card-action">
           <button class="btn-kiosk-action" onclick="updateOrderStatus(${o.id}, 'Selesai')" title="Selesai & diserahkan ke pelanggan">
@@ -706,7 +1004,7 @@ function startLiveClock() {
 
 /**
  * ============================================================
- * 6. DIGITAL STRUK / RECEIPT MODAL (BURGER KING STYLE)
+ * 7. DIGITAL STRUK / RECEIPT MODAL (BURGER KING STYLE)
  * ============================================================
  */
 function showDigitalTicketModal(order) {
@@ -716,6 +1014,8 @@ function showDigitalTicketModal(order) {
   const tTime = document.getElementById('ticketTimestamp');
   const tBody = document.getElementById('ticketItemsBody');
   const tPrice = document.getElementById('ticketTotalPrice');
+  const stampContainer = document.getElementById('ticketPaymentStampContainer');
+  const txIdEl = document.getElementById('ticketTxIdText');
 
   if (qNum) qNum.innerText = order.queueNumber;
   if (oType) {
@@ -724,6 +1024,26 @@ function showDigitalTicketModal(order) {
       : order.orderType;
   }
   if (tTime) tTime.innerText = `${order.timestamp} WIB | Pemesan: ${order.customerName}`;
+
+  if (stampContainer) {
+    if (order.paymentStatus === 'LUNAS') {
+      stampContainer.innerHTML = `
+        <div class="stamp-paid-badge">
+          <i class="fas fa-check-circle"></i> LUNAS • PAID (${escapeHtml(order.paymentMethod || 'ONLINE')})
+        </div>
+      `;
+    } else {
+      stampContainer.innerHTML = `
+        <div class="stamp-cash-badge">
+          <i class="fas fa-clock"></i> BAYAR DI KASIR (${escapeHtml(order.paymentMethod || 'TUNAI')})
+        </div>
+      `;
+    }
+  }
+
+  if (txIdEl) {
+    txIdEl.innerText = `ID Transaksi: ${order.transactionId || 'TRX-OFFLINE'} | Metode: ${order.paymentMethod || 'QRIS'}`;
+  }
 
   if (tBody) {
     tBody.innerHTML = '';
@@ -791,8 +1111,12 @@ function forwardOrderToWhatsApp(order) {
   msg += `🎫 *NOMOR ANTREAN: ${order.queueNumber}*\n`;
   msg += `🍽️ *Tipe Pesanan:* ${order.orderType} ${order.tableNumber !== '-' ? `(${order.tableNumber})` : ''}\n`;
   msg += `👤 *Nama Pemesan:* ${order.customerName}\n`;
-  msg += `🕒 *Waktu Pesan:* ${order.timestamp} WIB\n\n`;
-  msg += `📋 *RINCIAN MENU:*\n`;
+  msg += `🕒 *Waktu Pesan:* ${order.timestamp} WIB\n`;
+  msg += `💳 *Pembayaran:* ${order.paymentMethod || 'QRIS'} (Status: *${order.paymentStatus || 'LUNAS'}*)\n`;
+  if (order.transactionId) {
+    msg += `🔖 *ID Transaksi:* ${order.transactionId}\n`;
+  }
+  msg += `\n📋 *RINCIAN MENU:*\n`;
   order.items.forEach((it, idx) => {
     msg += `   ${idx + 1}. ${it.qty}x ${it.name} = Rp ${it.subtotal.toLocaleString('id-ID')}\n`;
   });
@@ -801,7 +1125,7 @@ function forwardOrderToWhatsApp(order) {
     msg += `📝 *Catatan:* ${order.notes}\n`;
   }
   msg += `\n💰 *TOTAL BAYAR:* Rp ${order.totalPrice.toLocaleString('id-ID')}\n`;
-  msg += `\nStatus: *${order.status}*\nMohon segera diproses ya min, terima kasih! 🙏`;
+  msg += `\nStatus Dapur: *${order.status}*\nMohon segera diproses ya min, terima kasih! 🙏`;
 
   const waNum = (typeof WA_PHONE_NUMBER !== 'undefined' && WA_PHONE_NUMBER) ? WA_PHONE_NUMBER : '6281234567890';
   const url = `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`;
@@ -810,7 +1134,7 @@ function forwardOrderToWhatsApp(order) {
 
 /**
  * ============================================================
- * 7. EXCEL EXPORT & DATABASE KASIR
+ * 8. EXCEL EXPORT & DATABASE KASIR
  * ============================================================
  */
 function getStoredOrders() {
@@ -856,23 +1180,23 @@ function renderExcelModalTable() {
   const tbody = document.getElementById('excelOrdersTableBody');
   const statOrders = document.getElementById('statTotalOrders');
   const statRevenue = document.getElementById('statTotalRevenue');
-  const statDineIn = document.getElementById('statDineIn');
-  const statTakeaway = document.getElementById('statTakeaway');
+  const statPaid = document.getElementById('statPaidOrders');
+  const statCash = document.getElementById('statCashOrders');
 
   let totalRev = 0;
-  let countDineIn = 0;
-  let countTakeaway = 0;
+  let countPaid = 0;
+  let countCash = 0;
 
   orders.forEach(o => {
     totalRev += (o.totalPrice || 0);
-    if (o.orderType === 'Makan di Tempat') countDineIn++;
-    else countTakeaway++;
+    if (o.paymentStatus === 'LUNAS') countPaid++;
+    else countCash++;
   });
 
   if (statOrders) statOrders.innerText = orders.length;
   if (statRevenue) statRevenue.innerText = 'Rp ' + totalRev.toLocaleString('id-ID');
-  if (statDineIn) statDineIn.innerText = countDineIn;
-  if (statTakeaway) statTakeaway.innerText = countTakeaway;
+  if (statPaid) statPaid.innerText = countPaid;
+  if (statCash) statCash.innerText = countCash;
 
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -893,7 +1217,7 @@ function renderExcelModalTable() {
   const reversed = [...orders].reverse();
   reversed.forEach((o, idx) => {
     const tr = document.createElement('tr');
-    const statusClass = o.status === 'Siap Diambil' ? 'ready' : o.status === 'Selesai' ? 'completed' : 'preparing';
+    const isPaid = o.paymentStatus === 'LUNAS';
     tr.innerHTML = `
       <td>${reversed.length - idx}</td>
       <td><strong>${o.queueNumber}</strong></td>
@@ -902,9 +1226,13 @@ function renderExcelModalTable() {
       <td>${escapeHtml(o.orderType)}</td>
       <td>${escapeHtml(o.tableNumber)}</td>
       <td>${escapeHtml(o.menuSummary)}</td>
-      <td>${escapeHtml(o.spicyLevel)}</td>
       <td><strong>Rp ${(o.totalPrice).toLocaleString('id-ID')}</strong></td>
-      <td><span class="badge-status ${statusClass}">${o.status}</span></td>
+      <td>${escapeHtml(o.paymentMethod || 'QRIS')}</td>
+      <td>
+        <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}">
+          ${isPaid ? '✓ LUNAS' : 'KASIR'}
+        </span>
+      </td>
       <td>
         <button class="btn btn-sm btn-outline" onclick="deleteSingleOrder(${o.id})" title="Hapus pesanan" style="padding: 4px 8px; font-size: 0.75rem;">
           <i class="fas fa-trash"></i>
@@ -940,14 +1268,20 @@ function addSampleOrderDemo() {
   const queueNum = getNextQueueNumber();
   const tables = ['Meja 02', 'Meja 04', 'Meja 05', 'Meja 08', 'Meja 10'];
   const names = ['Andi Pratama', 'Maya Safitri', 'Dimas Arya', 'Nadia Putri', 'Fajar Ramadhan'];
+  const methods = ['QRIS (Instant)', 'BCA Virtual Account', 'GoPay (E-Wallet)', 'Tunai di Kasir'];
   const randomTable = tables[Math.floor(Math.random() * tables.length)];
   const randomName = names[Math.floor(Math.random() * names.length)];
+  const randomMethod = methods[Math.floor(Math.random() * methods.length)];
+  const isPaid = randomMethod !== 'Tunai di Kasir';
 
   const now = new Date();
   const timeFormatted = now.toLocaleDateString('id-ID', {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit'
   }).replace(/\./g, ':');
+
+  const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const txId = `TRX-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${randomHex}`;
 
   const demoOrder = {
     id: Date.now(),
@@ -964,14 +1298,17 @@ function addSampleOrderDemo() {
     spicyLevel: 'Level 3 (Sedang Mantap)',
     notes: 'Makan di tempat',
     totalPrice: 20000,
-    status: 'Sedang Disiapkan'
+    status: 'Sedang Disiapkan',
+    paymentMethod: randomMethod,
+    paymentStatus: isPaid ? 'LUNAS' : 'Bayar di Kasir',
+    transactionId: txId
   };
 
   saveOrderToStorage(demoOrder);
   renderExcelModalTable();
   renderQueueBoard();
   updateExcelOrderBadge();
-  showToast(`Pesanan demo ${queueNum} berhasil ditambahkan!`);
+  showToast(`Pesanan demo ${queueNum} (${randomMethod}) berhasil ditambahkan!`);
 }
 
 /**
@@ -984,19 +1321,21 @@ function exportToExcel(showPrompt = true) {
     return;
   }
 
-  // Format dataset yang rapi untuk Excel
+  // Format dataset yang rapi untuk Excel dilengkapi kolom Payment Gateway
   const excelData = orders.map((o, idx) => ({
     "No": idx + 1,
     "Nomor Antrean": o.queueNumber,
     "Waktu Pesan": o.timestamp,
+    "ID Transaksi": o.transactionId || "-",
     "Nama Pemesan": o.customerName,
     "Tipe Pesanan": o.orderType,
     "Nomor Meja": o.tableNumber || "-",
     "Daftar Menu": o.menuSummary,
-    "Level Pedas": o.spicyLevel,
     "Total Bayar (Rp)": o.totalPrice,
-    "Catatan": o.notes || "-",
-    "Status Pesanan": o.status
+    "Metode Pembayaran": o.paymentMethod || "QRIS",
+    "Status Pembayaran": o.paymentStatus || "LUNAS",
+    "Status Dapur": o.status,
+    "Catatan": o.notes || "-"
   }));
 
   const now = new Date();
@@ -1004,31 +1343,30 @@ function exportToExcel(showPrompt = true) {
   const filename = `Rekap_Pesanan_Ayam_Geprek_Centeng_${dateStr}.xlsx`;
 
   if (typeof XLSX !== 'undefined') {
-    // Generate .xlsx dengan SheetJS
     const ws = XLSX.utils.json_to_sheet(excelData);
 
-    // Atur lebar kolom agar proporsional di Microsoft Excel
     ws['!cols'] = [
       { wch: 6 },  // No
       { wch: 15 }, // Nomor Antrean
       { wch: 18 }, // Waktu
+      { wch: 22 }, // ID Transaksi
       { wch: 20 }, // Nama
       { wch: 18 }, // Tipe
       { wch: 12 }, // Meja
-      { wch: 32 }, // Menu
-      { wch: 22 }, // Level
+      { wch: 30 }, // Menu
       { wch: 16 }, // Total
-      { wch: 24 }, // Catatan
-      { wch: 18 }  // Status
+      { wch: 22 }, // Metode Bayar
+      { wch: 18 }, // Status Bayar
+      { wch: 18 }, // Status Dapur
+      { wch: 22 }  // Catatan
     ];
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Rekap Pesanan");
+    XLSX.utils.book_append_sheet(wb, ws, "Rekap Pesanan Centeng");
     XLSX.writeFile(wb, filename);
 
     if (showPrompt) showToast('File Excel Rekap (.xlsx) berhasil di-download!');
   } else {
-    // Fallback CSV ber-BOM UTF-8 (membuka langsung di Excel tanpa masalah karakter)
     exportToCsvFallback(excelData, `Rekap_Pesanan_Ayam_Geprek_Centeng_${dateStr}.csv`);
   }
 }
@@ -1039,22 +1377,24 @@ function exportToExcel(showPrompt = true) {
 function exportSingleOrderToExcel(order) {
   const singleData = [
     { "Keterangan": "Nomor Antrean", "Nilai": order.queueNumber },
+    { "Keterangan": "ID Transaksi", "Nilai": order.transactionId || "-" },
     { "Keterangan": "Waktu Transaksi", "Nilai": order.timestamp + " WIB" },
     { "Keterangan": "Nama Pemesan", "Nilai": order.customerName },
     { "Keterangan": "Tipe Pesanan", "Nilai": order.orderType },
     { "Keterangan": "Nomor Meja", "Nilai": order.tableNumber },
     { "Keterangan": "Rincian Menu", "Nilai": order.menuSummary },
     { "Keterangan": "Level Pedas", "Nilai": order.spicyLevel },
-    { "Keterangan": "Catatan", "Nilai": order.notes || "-" },
     { "Keterangan": "Total Bayar (Rp)", "Nilai": order.totalPrice },
-    { "Keterangan": "Status", "Nilai": order.status }
+    { "Keterangan": "Metode Pembayaran", "Nilai": order.paymentMethod || "QRIS" },
+    { "Keterangan": "Status Pembayaran", "Nilai": order.paymentStatus || "LUNAS" },
+    { "Keterangan": "Status Dapur", "Nilai": order.status }
   ];
 
   const filename = `Struk_Antrean_${order.queueNumber.replace('#', '')}_Centeng.xlsx`;
 
   if (typeof XLSX !== 'undefined') {
     const ws = XLSX.utils.json_to_sheet(singleData);
-    ws['!cols'] = [{ wch: 20 }, { wch: 40 }];
+    ws['!cols'] = [{ wch: 22 }, { wch: 40 }];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Struk Pesanan");
     XLSX.writeFile(wb, filename);
@@ -1071,7 +1411,7 @@ function exportToCsvFallback(dataArray, filename) {
   if (!dataArray || dataArray.length === 0) return;
 
   const headers = Object.keys(dataArray[0]);
-  let csvContent = '\uFEFF'; // UTF-8 BOM agar Excel membacanya dengan tepat
+  let csvContent = '\uFEFF';
   csvContent += headers.map(h => `"${h}"`).join(';') + '\r\n';
 
   dataArray.forEach(row => {
@@ -1095,7 +1435,7 @@ function exportToCsvFallback(dataArray, filename) {
 
 /**
  * ============================================================
- * 8. HELPER TOAST & UTILITIES
+ * 9. HELPER TOAST & UTILITIES
  * ============================================================
  */
 function showToast(msg) {

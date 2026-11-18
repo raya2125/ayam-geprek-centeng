@@ -2138,3 +2138,543 @@ h1, h2, h3, h4, .brand-name {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ============================================================
+   PAYMENT GATEWAY STYLES (QRIS, VA, E-WALLET, CASH)
+   ============================================================ */
+.modal-dialog-payment {
+  max-width: 620px;
+  position: relative;
+}
+.pg-header {
+  padding: 18px 24px;
+  background: var(--bg-main);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pg-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pg-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(200, 70, 38, 0.12);
+  color: var(--primary-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+.pg-header-titles h3 {
+  font-size: 1.15rem;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+.pg-secure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #107C41;
+  background: rgba(16, 124, 65, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.pg-order-summary {
+  background: #FFF9F2;
+  border: 1.5px solid #F2DEC7;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.pg-summary-info span {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.pg-summary-info strong {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--primary-brand);
+}
+.pg-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFF0ED;
+  border: 1px solid #FFC9C0;
+  color: #D9480F;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+/* Payment Method Navigation Tabs */
+.pg-tabs-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1.5px solid var(--border-light);
+  padding-bottom: 12px;
+}
+.pg-tab-btn {
+  background: #fff;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+}
+.pg-tab-btn i {
+  font-size: 1.25rem;
+}
+.pg-tab-btn span {
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pg-tab-btn:hover {
+  border-color: var(--primary-brand);
+  background: var(--accent-cream);
+  color: var(--primary-brand);
+}
+.pg-tab-btn.active {
+  background: var(--primary-brand);
+  border-color: var(--primary-brand);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(200, 70, 38, 0.25);
+}
+
+/* Tab Panels */
+.pg-tab-panel {
+  display: none;
+}
+.pg-tab-panel.active {
+  display: block;
+  animation: fadeIn 0.25s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* QRIS Card Design */
+.qris-card {
+  background: #FFFFFF;
+  border: 2px solid #E8590C;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(232, 89, 12, 0.12);
+  margin-bottom: 18px;
+  text-align: center;
+}
+.qris-header-strip {
+  background: linear-gradient(135deg, #C92A2A 0%, #E8590C 100%);
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.qris-logo-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  font-size: 1.1rem;
+}
+.qris-badge-national {
+  font-size: 0.68rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+.qris-body {
+  padding: 20px;
+}
+.qris-merchant-info {
+  margin-bottom: 14px;
+}
+.qris-merchant-info strong {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  display: block;
+}
+.qris-merchant-info span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.qris-qr-container {
+  display: inline-block;
+  padding: 14px;
+  background: #fff;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin: 0 auto 14px;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+.qris-qr-container img, .qris-qr-container canvas {
+  display: block;
+  margin: 0 auto;
+}
+.qris-amount-pill {
+  background: #FFF4E6;
+  border: 1.5px dashed var(--accent-gold);
+  border-radius: var(--radius-pill);
+  padding: 8px 20px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+.qris-amount-pill span {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  display: block;
+}
+.qris-amount-pill strong {
+  font-size: 1.35rem;
+  color: var(--primary-brand);
+  font-family: var(--font-display);
+}
+.qris-supported-logos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+.qris-app-tag {
+  background: #F8F9FA;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Virtual Account Styles */
+.va-bank-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.va-bank-item {
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: #fff;
+}
+.va-bank-item strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.va-bank-item span {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.va-bank-item:hover {
+  border-color: var(--primary-brand);
+  background: var(--accent-cream);
+}
+.va-bank-item.active {
+  border-color: var(--primary-brand);
+  background: var(--accent-cream);
+  box-shadow: 0 2px 10px rgba(200, 70, 38, 0.15);
+}
+.va-bank-item.active strong {
+  color: var(--primary-brand);
+}
+
+.va-details-box {
+  background: #FFFDF9;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.va-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border-light);
+}
+.va-info-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.va-num-text {
+  font-family: monospace;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary-brand);
+  letter-spacing: 0.05em;
+}
+.btn-copy {
+  background: #fff;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-copy:hover {
+  border-color: var(--primary-brand);
+  color: var(--primary-brand);
+}
+
+.va-instructions {
+  background: #F8F9FA;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: left;
+}
+.va-instructions ol {
+  padding-left: 18px;
+  margin-top: 6px;
+}
+
+/* E-Wallet Grid */
+.ewallet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ewallet-item {
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  background: #fff;
+  transition: var(--transition);
+}
+.ewallet-item:hover {
+  border-color: var(--primary-brand);
+  background: var(--accent-cream);
+}
+.ewallet-item.active {
+  border-color: var(--primary-brand);
+  background: var(--accent-cream);
+  box-shadow: 0 2px 10px rgba(200, 70, 38, 0.15);
+}
+.ewallet-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--primary-brand);
+}
+
+/* Cash Card */
+.cash-card-box {
+  background: #FFFDF9;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.cash-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent-cream);
+  border: 2px dashed var(--accent-gold);
+  color: var(--primary-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 16px;
+}
+.cash-card-box h4 {
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+.cash-card-box p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Payment Processing & Success Animation */
+.pg-verifying-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: var(--radius-lg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  z-index: 10;
+  animation: fadeIn 0.2s ease;
+}
+.pg-verifying-overlay.active {
+  display: flex;
+}
+.pg-spinner {
+  width: 58px;
+  height: 58px;
+  border: 4px solid #F0E8D8;
+  border-top-color: var(--primary-brand);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 18px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.pg-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #107C41;
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  box-shadow: 0 6px 24px rgba(16, 124, 65, 0.35);
+  margin-bottom: 18px;
+  animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pg-verifying-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.pg-verifying-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+/* Struk LUNAS / PAID Stamp */
+.stamp-paid-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #EBFBEE;
+  border: 2px solid #2B8A3E;
+  color: #2B8A3E;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+.stamp-cash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF4E6;
+  border: 2px dashed #D9480F;
+  color: #D9480F;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+/* Payment Status Pills on Cards and Table */
+.badge-pay-status {
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.badge-pay-status.paid {
+  background: #EBFBEE;
+  color: #2B8A3E;
+  border: 1px solid rgba(43, 138, 62, 0.4);
+}
+.badge-pay-status.cash {
+  background: #FFF4E6;
+  color: #D9480F;
+  border: 1px solid rgba(217, 72, 15, 0.4);
+}
+.badge-pay-status.pending {
+  background: #FFF9DB;
+  color: #F08C00;
+  border: 1px solid rgba(240, 140, 0, 0.4);
+}
