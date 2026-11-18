@@ -1,6 +1,6 @@
 # 🍗 Ayam Geprek Centeng - Digital Kiosk, Live Queue & Payment Gateway System
 
-Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam Geprek Centeng**. Dirancang dengan tampilan hangat & humanis (*warm humanist dining aesthetic*), sistem **Pesan di Tempat (Dine-In)** dengan nomor meja, **Layar Antrean Real-Time ala Burger King**, **Gerbang Pembayaran Multi-Metode (Payment Gateway: QRIS, VA Bank, E-Wallet)**, serta integrasi pencatatan otomatis ke **Microsoft Excel (.xlsx)** dan **WhatsApp**.
+Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam Geprek Centeng**. Dirancang dengan tampilan hangat & humanis (*warm humanist dining aesthetic*), sistem **Pesan di Tempat (Dine-In)** dengan nomor meja, **Layar Antrean Real-Time**, **Gerbang Pembayaran Multi-Metode (Payment Gateway: QRIS, VA Bank, E-Wallet)**, serta integrasi pencatatan otomatis ke **Microsoft Excel (.xlsx)** dan **WhatsApp**.
 
 ---
 
@@ -31,7 +31,7 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
    - Pesanan langsung terhubung dengan nomor meja pelanggan tanpa perlu berdesakan di depan kasir.
    - Pilihan fleksibel antara: **Makan di Tempat (Dine-In)**, **Bawa Pulang (Takeaway)**, atau **Pesan Antar (Delivery)**.
 
-6. **📟 Layar Monitor Antrean ala Burger King (*Live Order Board*)**
+6. **📟 Layar Monitor Antrean (*Live Order Board*)**
    - Tampilan monitor antrean pesanan digital dengan 2 kolom terpisah:
      - 🟡 **SEDANG DISIAPKAN (PREPARING IN KITCHEN)** dengan lampu indikator berkedip dan status pembayaran (`✓ LUNAS` / `KASIR`).
      - 🟢 **SIAP DIAMBIL / DIANTAR (READY FOR COLLECTION)** dengan kartu hijau bercahaya.
