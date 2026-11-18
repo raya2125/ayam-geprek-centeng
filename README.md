@@ -90,8 +90,8 @@ Lalu buka:
 2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja (atau Take Away), lalu klik **Lanjut ke Pembayaran**.
 3. Pilih **QRIS** (`kiki ramadhani`) atau **Bayar di Tempat** (dapat Kode Bayar 4-digit lalu divalidasi lunas oleh kasir di `kasir.html`).
 
-### B. Alur Penjual / Kasir (`kasir.html`)
-1. Buka `http://localhost:3000/kasir.html`.
+### B. Alur Penjual / Kasir (`kasir.html` — Link Terpisah)
+1. Buka langsung URL terpisah `http://localhost:3000/kasir` (atau `kasir.html` / `/kasir.html` di GitHub Pages; halaman kasir tidak ditautkan dari halaman pembeli agar pembeli tidak bisa masuk ke kasir).
 2. Untuk pesanan walk-in cash: klik menu (**+ Tambah 1**, **+2**, **+5**), pilih meja/take away, masukkan uang tunai (atau biarkan kosong untuk uang pas) lalu klik **Simpan Pesanan & Terima Cash (LUNAS)**.
 3. Untuk pembeli yang memilih **Bayar di Tempat**: cocokkan Kode Bayar 4-digit di kotak validasi, lalu klik **Validasi Cash & Masak**.
 4. Semua catatan otomatis masuk ke `Catatan_Penjualan_Centeng.xlsx`, dan bisa diunduh lewat tombol **Download Excel (.xlsx)** atau dibuka lewat tombol **Buka Google Sheet**.

@@ -189,7 +189,14 @@ function resolveSafeFilePath(requestUrl) {
   } catch (e) {
     return null;
   }
-  const relativePath = cleanUrl === '/' ? 'index.html' : cleanUrl.replace(/^\/+/, '');
+  let relativePath;
+  if (cleanUrl === '/') {
+    relativePath = 'index.html';
+  } else if (cleanUrl === '/kasir') {
+    relativePath = 'kasir.html';
+  } else {
+    relativePath = cleanUrl.replace(/^\/+/, '');
+  }
   const fullPath = path.resolve(ROOT_DIR, relativePath);
 
   if (fullPath !== ROOT_DIR && !fullPath.startsWith(ROOT_DIR + path.sep)) {
