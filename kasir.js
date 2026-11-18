@@ -391,16 +391,61 @@ function posSetFilter(filterName) {
 
 /** Mengevaluasi apakah pesanan cocok dengan filter dan kata kunci pencarian. */
 function posMatchesFilter(order, filterName, searchTerm) {
+  if (filterName === 'unpaid' && order.paymentStatus === 'LUNAS') return false;
   if (filterName === 'Sedang Disiapkan' && order.status !== 'Sedang Disiapkan') return false;
   if (filterName === 'Siap Diambil' && order.status !== 'Siap Diambil') return false;
   if (filterName === 'cash' && !isCashPaymentOrder(order)) return false;
   if (filterName === 'noncash' && isCashPaymentOrder(order)) return false;
 
   if (searchTerm) {
-    const haystack = `${order.queueNumber} ${order.customerName} ${order.menuSummary} ${order.tableNumber}`.toLowerCase();
+    const haystack = `${order.queueNumber} ${order.customerName} ${order.menuSummary} ${order.tableNumber} ${order.paymentCode || ''}`.toLowerCase();
     if (!haystack.includes(searchTerm)) return false;
   }
   return true;
+}
+
+/** Merender panel khusus pesanan "Bayar di Tempat" yang belum divalidasi oleh kasir. */
+function posRenderPendingCashBox(orders) {
+  const box = document.getElementById('posPendingCashBox');
+  const listEl = document.getElementById('posPendingCashList');
+  const countBadge = document.getElementById('posPendingCountBadge');
+  if (!box || !listEl) return;
+
+  const pendingOrders = orders.filter((o) => o.paymentStatus !== 'LUNAS');
+  if (countBadge) countBadge.innerText = pendingOrders.length;
+
+  if (pendingOrders.length === 0) {
+    box.style.display = 'none';
+    listEl.innerHTML = '';
+    return;
+  }
+
+  box.style.display = 'block';
+  listEl.innerHTML = '';
+
+  pendingOrders.forEach((o) => {
+    const card = document.createElement('div');
+    card.className = 'pos-pending-card';
+    const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Take Away';
+    card.innerHTML = `
+      <div class="pos-pending-card-top">
+        <div>
+          <span class="pos-pending-qnum">${escapeHtml(o.queueNumber)}</span>
+          <strong>${escapeHtml(o.customerName)}</strong>
+          <small>(${escapeHtml(dest)})</small>
+        </div>
+        ${o.paymentCode ? `<span class="pos-pending-code">Kode: ${escapeHtml(o.paymentCode)}</span>` : ''}
+      </div>
+      <div class="pos-pending-menu">${escapeHtml(o.menuSummary)} &bull; <strong>Rp ${(o.totalPrice || 0).toLocaleString('id-ID')}</strong></div>
+      <div class="pos-pending-actions">
+        <input type="number" id="pendingCashInput_${o.id}" class="form-control pos-pending-input" min="0" step="500" placeholder="Tunai (kosong = pas Rp ${(o.totalPrice || 0).toLocaleString('id-ID')})">
+        <button type="button" class="pos-mini-btn pay" onclick="posValidateCashOrder(${o.id})">
+          <i class="fas fa-check-circle"></i> Validasi Cash &amp; Masak
+        </button>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
 }
 
 /** Memperbarui ringkasan statistik omzet Cash, Non-Tunai, dan total pesanan. */
@@ -410,6 +455,7 @@ function posRenderStats(orders) {
   let nonCashRev = 0;
 
   orders.forEach((o) => {
+    if (o.paymentStatus !== 'LUNAS') return;
     const amount = o.totalPrice || 0;
     totalRev += amount;
     if (isCashPaymentOrder(o)) cashRev += amount;
@@ -432,6 +478,7 @@ function posRenderStats(orders) {
 /** Merender tabel daftar antrean & riwayat penjualan di halaman kasir. */
 function posRenderOrdersTable() {
   const orders = getStoredOrders();
+  posRenderPendingCashBox(orders);
   posRenderStats(orders);
 
   const tbody = document.getElementById('posOrdersTableBody');
@@ -479,16 +526,16 @@ function posRenderOrdersTable() {
       </td>
       <td><strong>Rp ${(o.totalPrice || 0).toLocaleString('id-ID')}</strong></td>
       <td>
-        <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}">${isPaid ? '✓ LUNAS' : escapeHtml(o.paymentStatus || 'KASIR')}</span><br>
-        <small style="color: var(--text-muted);">${escapeHtml(o.paymentMethod || 'QRIS')}</small>${cashDetail}
+        <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}">${isPaid ? '✓ LUNAS' : escapeHtml(o.paymentStatus || 'BELUM BAYAR')}</span><br>
+        <small style="color: var(--text-muted);">${escapeHtml(o.paymentMethod || 'QRIS')}${!isPaid && o.paymentCode ? ` • Kode: ${escapeHtml(o.paymentCode)}` : ''}</small>${cashDetail}
       </td>
       <td>
         <span class="badge-status ${o.status === 'Siap Diambil' || o.status === 'Selesai' ? 'ready' : 'preparing'}">${escapeHtml(o.status)}</span>
       </td>
       <td>
         <div class="pos-action-group">
-          ${!isPaid ? `<button type="button" class="pos-mini-btn pay" onclick="posMarkOrderPaidCash(${o.id})" title="Terima uang cash dan tandai LUNAS"><i class="fas fa-money-bill-wave"></i> Lunas Cash</button>` : ''}
-          ${o.status === 'Sedang Disiapkan' ? `<button type="button" class="pos-mini-btn ready" onclick="posUpdateOrderStatus(${o.id}, 'Siap Diambil')"><i class="fas fa-bell"></i> Siap</button>` : ''}
+          ${!isPaid ? `<button type="button" class="pos-mini-btn pay" onclick="posValidateCashOrder(${o.id})" title="Terima uang cash dan validasi masuk dapur"><i class="fas fa-money-bill-wave"></i> Lunas Cash</button>` : ''}
+          ${isPaid && o.status === 'Sedang Disiapkan' ? `<button type="button" class="pos-mini-btn ready" onclick="posUpdateOrderStatus(${o.id}, 'Siap Diambil')"><i class="fas fa-bell"></i> Siap</button>` : ''}
           ${o.status === 'Siap Diambil' ? `<button type="button" class="pos-mini-btn done" onclick="posUpdateOrderStatus(${o.id}, 'Selesai')"><i class="fas fa-check"></i> Selesai</button>` : ''}
           <button type="button" class="pos-mini-btn" onclick="posViewOrderReceipt(${o.id})" title="Lihat & Cetak Struk"><i class="fas fa-receipt"></i></button>
           <button type="button" class="pos-mini-btn danger" onclick="posDeleteOrder(${o.id})" title="Hapus pesanan"><i class="fas fa-trash"></i></button>
@@ -499,20 +546,44 @@ function posRenderOrdersTable() {
   });
 }
 
-/** Menandai pesanan yang belum lunas menjadi LUNAS via Cash di kasir. */
-function posMarkOrderPaidCash(orderId) {
+/** Memvalidasi pembayaran tunai "Bayar di Tempat", menandai LUNAS & meneruskan ke dapur. */
+function posValidateCashOrder(orderId) {
   const orders = getStoredOrders();
   const target = orders.find((o) => o.id === orderId);
   if (!target) return;
 
-  target.paymentMethod = 'Tunai / Cash di Kasir';
+  const total = target.totalPrice || 0;
+  const cashInput = document.getElementById(`pendingCashInput_${orderId}`);
+  const rawVal = cashInput && cashInput.value !== undefined && cashInput.value !== null ? String(cashInput.value).trim() : '';
+
+  let cashReceived = total;
+  if (rawVal !== '') {
+    cashReceived = Math.max(0, parseInt(rawVal, 10) || 0);
+    if (cashReceived < total) {
+      alert(`Uang tunai kurang! Total tagihan Rp ${total.toLocaleString('id-ID')}.`);
+      return;
+    }
+  }
+
+  const change = cashReceived - total;
+  target.paymentMethod = 'Bayar di Tempat (Cash Kasir)';
   target.paymentStatus = 'LUNAS';
-  target.cashReceived = target.totalPrice;
-  target.cashChange = 0;
+  target.cashReceived = cashReceived;
+  target.cashChange = change;
+  if (target.status === 'Menunggu Pembayaran') {
+    target.status = 'Sedang Disiapkan';
+  }
 
   setStoredOrders(orders);
   posRenderOrdersTable();
-  showToast(`Pesanan ${target.queueNumber} dilunasi secara Cash!`);
+
+  const changeMsg = change > 0 ? ` • Kembalian: Rp ${change.toLocaleString('id-ID')}` : '';
+  showToast(`Pesanan ${target.queueNumber} LUNAS & masuk antrean dapur!${changeMsg}`);
+}
+
+/** Alias kompatibilitas untuk pelunasan tunai di kasir. */
+function posMarkOrderPaidCash(orderId) {
+  posValidateCashOrder(orderId);
 }
 
 /** Memperbarui status dapur pesanan (Siap Diambil / Selesai). */

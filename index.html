@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_6">
+  <link rel="stylesheet" href="style.css?v=20261118_7">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -89,7 +89,7 @@
   <!-- Top Announcement Bar -->
   <div class="announcement-bar">
     <div class="container announcement-inner">
-      <span>💳 <strong>Portal Pembeli (Non-Tunai):</strong> Pesan mandiri &amp; bayar instan via QRIS atau E-Wallet!</span>
+      <span>💳 <strong>Portal Pembeli:</strong> Pesan praktis &amp; bayar pakai QRIS atau Bayar di Tempat (Kasir)!</span>
       <a href="kasir.html" class="announcement-link"><i class="fas fa-cash-register"></i> Buka Halaman Penjual (Kasir Cash) &rarr;</a>
     </div>
   </div>
@@ -399,6 +399,9 @@
           </div>
         </div>
 
+        <!-- Waiting Payment Banner if any Pay-at-Counter orders pending -->
+        <div class="bk-pending-cash-bar" id="bkPendingCashBar" style="display: none;"></div>
+
         <!-- Notification Banner if user has placed an order -->
         <div class="bk-customer-active-bar" id="bkCustomerActiveBar" style="display: none;">
           <div class="bk-active-info">
@@ -511,9 +514,8 @@
           </div>
           <h3>Menerima Pembayaran:</h3>
           <div class="payment-tags">
-            <span class="pay-tag"><i class="fas fa-qrcode"></i> QRIS</span>
-            <span class="pay-tag"><i class="fas fa-wallet"></i> E-Wallet</span>
-            <span class="pay-tag"><i class="fas fa-money-bill-wave"></i> Tunai (Cash di Kasir)</span>
+            <span class="pay-tag"><i class="fas fa-qrcode"></i> QRIS (Semua Bank &amp; E-Wallet)</span>
+            <span class="pay-tag"><i class="fas fa-money-bill-wave"></i> Bayar di Tempat (Kasir)</span>
           </div>
           <p class="delivery-partner-note">Praktis pesan Dine-In atau Take Away langsung lewat website &amp; kasir kedai.</p>
         </div>
@@ -727,15 +729,15 @@
           </div>
         </div>
 
-        <!-- Payment Method Navigation Tabs (QRIS & E-Wallet) -->
+        <!-- Payment Method Navigation Tabs (QRIS & Bayar di Tempat) -->
         <div class="pg-tabs-bar pg-tabs-bar-2">
           <button class="pg-tab-btn active" data-pg-tab="qris" onclick="switchPaymentTab('qris')">
             <i class="fas fa-qrcode"></i>
             <span>QRIS</span>
           </button>
-          <button class="pg-tab-btn" data-pg-tab="ewallet" onclick="switchPaymentTab('ewallet')">
-            <i class="fas fa-wallet"></i>
-            <span>E-Wallet</span>
+          <button class="pg-tab-btn" data-pg-tab="cash" onclick="switchPaymentTab('cash')">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Bayar di Tempat</span>
           </button>
         </div>
 
@@ -791,53 +793,27 @@
           </div>
         </div>
 
-        <!-- Tab 2: E-Wallet -->
-        <div class="pg-tab-panel" id="pgPanelEwallet">
-          <div class="ewallet-grid">
-            <div class="ewallet-item active" data-wallet="gopay" onclick="selectEwallet('gopay')">
-              <div class="ewallet-icon-box"><i class="fas fa-bolt"></i></div>
-              <div>
-                <strong style="display: block; font-size: 0.95rem;">GoPay</strong>
-                <small style="color: var(--text-muted);">Instan / Aplikasi</small>
-              </div>
+        <!-- Tab 2: Bayar di Tempat (Validasi Kasir) -->
+        <div class="pg-tab-panel" id="pgPanelCash">
+          <div class="cash-card-box">
+            <div class="cash-icon-circle">
+              <i class="fas fa-store"></i>
             </div>
-            <div class="ewallet-item" data-wallet="dana" onclick="selectEwallet('dana')">
-              <div class="ewallet-icon-box"><i class="fas fa-wallet"></i></div>
-              <div>
-                <strong style="display: block; font-size: 0.95rem;">DANA</strong>
-                <small style="color: var(--text-muted);">Saldo DANA</small>
-              </div>
-            </div>
-            <div class="ewallet-item" data-wallet="ovo" onclick="selectEwallet('ovo')">
-              <div class="ewallet-icon-box"><i class="fas fa-coins"></i></div>
-              <div>
-                <strong style="display: block; font-size: 0.95rem;">OVO</strong>
-                <small style="color: var(--text-muted);">OVO Cash</small>
-              </div>
-            </div>
-            <div class="ewallet-item" data-wallet="shopeepay" onclick="selectEwallet('shopeepay')">
-              <div class="ewallet-icon-box"><i class="fas fa-bag-shopping"></i></div>
-              <div>
-                <strong style="display: block; font-size: 0.95rem;">ShopeePay</strong>
-                <small style="color: var(--text-muted);">ShopeePay</small>
-              </div>
+            <h4>Bayar Tunai di Tempat (Kasir)</h4>
+            <p>
+              Anda akan menerima <strong>Nomor Antrean</strong> &amp; <strong>Kode Bayar 4-digit</strong>.
+              Tunjukkan ke kasir untuk membayar tunai &mdash; pesanan langsung masuk antrean masak setelah divalidasi oleh penjual.
+            </p>
+            <div class="cash-validation-steps">
+              <span><strong>1. Ambil Kode</strong> &rarr;</span>
+              <span><strong>2. Bayar ke Kasir</strong> &rarr;</span>
+              <span><strong>3. Kasir Validasi Lunas</strong></span>
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="pgEwalletPhone">Nomor Handphone Terdaftar di E-Wallet:</label>
-            <input type="text" id="pgEwalletPhone" class="form-control" placeholder="081234567890" value="081234567890">
-          </div>
-
-          <button class="btn btn-primary btn-block btn-lg" onclick="executePaymentProcess('E-Wallet', true)">
-            <i class="fas fa-mobile-alt"></i> Bayar Sekarang via E-Wallet
+          <button class="btn btn-primary btn-block btn-lg" onclick="executePaymentProcess('Bayar di Tempat (Kasir)', false)">
+            <i class="fas fa-ticket-alt"></i> Ambil Antrean &amp; Kode Bayar di Tempat
           </button>
-        </div>
-
-        <!-- Info Bayar Tunai Langsung ke Penjual -->
-        <div class="pg-cash-redirect-note">
-          <i class="fas fa-cash-register"></i>
-          <span>Ingin bayar <strong>Tunai (Cash)</strong>? Pesan langsung di kasir agar diinput penjual &rarr; <a href="kasir.html">Halaman Kasir Penjual</a></span>
         </div>
 
         <!-- Verifying & Success Screen Overlay -->
@@ -951,7 +927,7 @@
             <strong id="statTotalRevenue">Rp 0</strong>
           </div>
           <div class="stat-box" style="border-left: 3px solid #107C41;">
-            <span>Lunas (QRIS / E-Wallet)</span>
+            <span>Sudah Lunas</span>
             <strong id="statPaidOrders" style="color: #107C41;">0</strong>
           </div>
           <div class="stat-box" style="border-left: 3px solid #D9480F;">
@@ -1021,8 +997,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261118_6"></script>
-  <script src="shared-store.js?v=20261118_6"></script>
-  <script src="app.js?v=20261118_6"></script>
+  <script src="menu-data.js?v=20261118_7"></script>
+  <script src="shared-store.js?v=20261118_7"></script>
+  <script src="app.js?v=20261118_7"></script>
 </body>
 </html>

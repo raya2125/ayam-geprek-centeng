@@ -6,15 +6,13 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 ## ✨ Fitur Utama
 
-1. **💳 Portal Pembeli — Payment Gateway Non-Tunai (`index.html`)**
-   - **Khusus Pembeli Cashless**: Pembeli yang memesan langsung dari katalog/kiosk melakukan pembayaran online melalui **QRIS** (`kiki ramadhani`) atau **E-Wallet** (**GoPay**, **DANA**, **OVO**, **ShopeePay**).
-   - **QRIS Dinamis**: Menghasilkan kode QR standar QRIS secara otomatis sesuai nominal tagihan, dilengkapi penghitung waktu mundur (*countdown timer 5 menit*), tombol unduh QR, dan verifikasi otomatis.
-   - **Animasi Verifikasi Cepat**: Dilengkapi efek loading verifikasi dan centang sukses yang otomatis menyematkan stempel resmi **LUNAS • PAID** pada struk digital dan status pesanan.
+1. **💳 Portal Pembeli (`index.html`)**
+   - **2 Pilihan Pembayaran:** Pembeli dapat membayar non-tunai lewat **QRIS** (`kiki ramadhani`, mendukung BCA/Mandiri/BRI/BNI & GoPay/OVO/DANA/ShopeePay) atau memilih **Bayar di Tempat (Kasir)**.
+   - **Validasi Bayar di Tempat:** Pembeli yang memilih *Bayar di Tempat* memperoleh **Nomor Antrean** & **Kode Bayar 4-digit** dengan status *Belum Bayar*; pesanan baru dimasak dapur setelah kasir menerima uang tunai dan memvalidasinya menjadi **LUNAS**.
 
 2. **💵 Portal Khusus Penjual / Kasir Tunai (`kasir.html`)**
-   - **Input Pesanan Cepat (POS)**: Dirancang khusus untuk penjual yang melayani pelanggan bayar tunai (*Cash*)—tinggal klik apa yang dibeli & dipesan (menu, tipe *Dine-In/Takeaway*, nomor meja, level pedas, nama/catatan opsional).
-   - **Kalkulator Uang Tunai & Kembalian**: Input uang diterima dengan tombol nominal cepat (**Uang Pas**, **Rp 20.000**, **Rp 50.000**, **Rp 100.000**) dan perhitungan kembalian otomatis secara *real-time*.
-   - **Kelola Antrean & Pelunasan**: Penjual dapat langsung menandai status dapur (**Siap Diambil** / **Selesai**), melunasi pesanan via cash, mencetak struk, dan menyinkronkan data otomatis lintas tab dengan layar antrean pembeli.
+   - **Input Pesanan Cepat (POS):** Tinggal klik apa yang dibeli & dipesan (menu, *Dine-In/Take Away*, nomor meja, level pedas) plus kalkulator uang tunai & kembalian.
+   - **Validasi Pembayaran di Tempat:** Pesanan pembeli yang memilih *Bayar di Tempat* otomatis muncul di kotak validasi kasir lengkap dengan kode 4-digit agar penjual tinggal mencocokkan, menerima cash, dan meneruskannya ke dapur.
 
 2. **Logo & Maskot Ayam Resmi**
    - Menggunakan maskot ayam jago jempolan khas kuliner nusantara yang ramah dan bersahabat di navbar, hero, struk digital, layar antrean, dan footer.
@@ -54,7 +52,7 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 ```
 tugas bkin web makanan/
-├── index.html          # Halaman Pembeli: katalog, pesan di tempat, pembayaran non-tunai (QRIS/E-Wallet), antrean & struk
+├── index.html          # Halaman Pembeli: katalog, pesan di tempat, bayar QRIS / Bayar di Tempat, antrean & struk
 ├── kasir.html          # Halaman Khusus Penjual / Kasir Cash: input pesanan cepat, kalkulator kembalian, kelola antrean & omzet
 ├── style.css           # Desain visual hangat humanis, payment gateway UI, halaman kasir POS, antrean & struk
 ├── shared-store.js     # Modul database bersama (localStorage), generator antrean/ID, dan ekspor Excel (.xlsx / CSV)
@@ -77,7 +75,7 @@ tugas bkin web makanan/
 ### A. Alur Pembeli (Non-Tunai: QRIS / VA / E-Wallet)
 1. Buka [`index.html`](index.html) di peramban web.
 2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja, lalu klik **Lanjut ke Pembayaran (Payment Gateway)**.
-3. Pilih **QRIS** atau **E-Wallet** dan konfirmasi pembayaran untuk melihat verifikasi, struk berstempel **LUNAS**, serta antrean otomatis.
+3. Pilih **QRIS** atau **Bayar di Tempat** (dapat Kode Bayar 4-digit lalu divalidasi lunas oleh kasir di `kasir.html`).
 
 ### B. Alur Penjual / Kasir (Pembayaran Cash / Tunai)
 1. Buka [`kasir.html`](kasir.html) (atau klik tautan **Kasir (Penjual)** di navigasi atas).

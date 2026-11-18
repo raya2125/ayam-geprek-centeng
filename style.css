@@ -2328,44 +2328,59 @@ h1, h2, h3, h4, .brand-name {
   color: var(--primary-brand);
 }
 
-/* E-Wallet Grid */
-.ewallet-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.ewallet-item {
-  border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 14px;
+/* Cash Card & Validation Steps */
+.cash-validation-steps {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  background: #fff;
-  transition: var(--transition);
-}
-.ewallet-item:hover {
-  border-color: var(--primary-brand);
-  background: var(--accent-cream);
-}
-.ewallet-item.active {
-  border-color: var(--primary-brand);
-  background: var(--accent-cream);
-  box-shadow: 0 2px 10px rgba(200, 70, 38, 0.15);
-}
-.ewallet-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #fff;
-  border: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
-  font-size: 1.2rem;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-subtle);
+  font-size: 0.78rem;
   color: var(--primary-brand);
+}
+.bk-pending-cash-bar {
+  background: rgba(255, 193, 7, 0.14);
+  border: 1px solid rgba(255, 193, 7, 0.45);
+  color: #FFD43B;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.84rem;
+}
+.ticket-cash-code-box {
+  margin-top: 10px;
+  background: #FFF9DB;
+  border: 1.5px dashed #E88C08;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  text-align: center;
+}
+.ticket-cash-code-box span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #B35C00;
+  letter-spacing: 0.06em;
+}
+.ticket-cash-code-box strong {
+  display: block;
+  font-family: monospace;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #2C1A10;
+  letter-spacing: 0.16em;
+  margin: 4px 0;
+}
+.ticket-cash-code-box small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
 }
 
 /* Cash Card */
@@ -2525,31 +2540,79 @@ h1, h2, h3, h4, .brand-name {
   border: 1px solid rgba(240, 140, 0, 0.4);
 }
 
-/* Buyer Gateway 2-Tab Layout & Cash Redirect Note */
+/* Buyer 2-Tab Layout & Seller Pending Cash Validation Box */
 .pg-tabs-bar-2 {
   grid-template-columns: repeat(2, 1fr);
 }
-.pg-cash-redirect-note {
-  margin-top: 16px;
-  padding: 12px 14px;
-  background: #FFF9F2;
-  border: 1px dashed #E8C79B;
+.pos-pending-cash-box {
+  background: #FFF9E6;
+  border: 2px solid #F59F00;
   border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.pos-pending-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: #8A5300;
+  font-size: 0.95rem;
 }
-.pg-cash-redirect-note i {
-  color: var(--primary-brand);
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-.pg-cash-redirect-note a {
-  color: var(--primary-brand);
+.pos-pending-badge {
+  background: #D9480F;
+  color: #FFFFFF;
+  font-size: 0.78rem;
   font-weight: 800;
-  text-decoration: underline;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+.pos-pending-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.pos-pending-card {
+  background: #FFFFFF;
+  border: 1px solid #F2D08B;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.pos-pending-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.pos-pending-qnum {
+  font-weight: 900;
+  color: var(--primary-brand);
+  margin-right: 4px;
+}
+.pos-pending-code {
+  background: #2C1A10;
+  color: #FFB020;
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.82rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.pos-pending-menu {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.pos-pending-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pos-pending-input {
+  flex: 1;
+  padding: 6px 10px !important;
+  font-size: 0.82rem !important;
 }
 
 /* ============================================================

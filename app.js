@@ -14,7 +14,6 @@ let selectedTableNumber = 'Meja 01';
 let currentActiveOrder = null;
 let currentDraftOrder = null;
 let selectedPaymentTab = 'qris';
-let selectedEwallet = 'gopay';
 let pgCountdownTimer = null;
 
 // State (Konstanta database, OFFICIAL_MENUS, helper tanggal, & Ekspor Excel ada di shared-store.js)
@@ -33,6 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
       renderQueueBoard();
       updateExcelOrderBadge();
+
+      if (currentActiveOrder) {
+        const latest = getStoredOrders().find(o => o.id === currentActiveOrder.id);
+        if (latest) {
+          currentActiveOrder = latest;
+          updateActiveOrderBanner(latest);
+          if (document.getElementById('ticketModal')?.classList.contains('active')) {
+            showDigitalTicketModal(latest);
+          }
+        }
+      }
+
       if (document.getElementById('excelModal')?.classList.contains('active')) {
         renderExcelModalTable();
       }
@@ -509,10 +520,10 @@ function switchPaymentTab(tabName) {
     }
   });
 
-  // Update panels (QRIS & E-Wallet)
+  // Update panels (QRIS & Bayar di Tempat)
   const panels = {
     qris: document.getElementById('pgPanelQris'),
-    ewallet: document.getElementById('pgPanelEwallet')
+    cash: document.getElementById('pgPanelCash')
   };
 
   Object.keys(panels).forEach(k => {
@@ -520,16 +531,6 @@ function switchPaymentTab(tabName) {
       if (k === tabName) panels[k].classList.add('active');
       else panels[k].classList.remove('active');
     }
-  });
-}
-
-function selectEwallet(walletCode) {
-  selectedEwallet = walletCode;
-
-  const items = document.querySelectorAll('.ewallet-item');
-  items.forEach(it => {
-    if (it.dataset.wallet === walletCode) it.classList.add('active');
-    else it.classList.remove('active');
   });
 }
 
@@ -613,29 +614,25 @@ function executePaymentProcess(methodType, isInstantPaid) {
   }
 
   setTimeout(() => {
-    // Generate Transaction ID unik via shared-store.js
-    const txId = generateTransactionId('TRX');
-
-    let fullMethod = methodType;
-    if (methodType === 'E-Wallet') {
-      const ewalletNames = { gopay: 'GoPay', dana: 'DANA', ovo: 'OVO', shopeepay: 'ShopeePay' };
-      fullMethod = `${ewalletNames[selectedEwallet] || 'E-Wallet'} (Online)`;
-    }
+    const txId = generateTransactionId(isInstantPaid ? 'TRX' : 'KASIR');
+    const paymentCode = isInstantPaid ? null : String(Math.floor(1000 + Math.random() * 9000));
 
     const finalizedOrder = {
       ...currentDraftOrder,
-      paymentMethod: fullMethod,
-      paymentStatus: isInstantPaid ? 'LUNAS' : 'Bayar di Kasir',
+      paymentMethod: methodType,
+      paymentStatus: isInstantPaid ? 'LUNAS' : 'Belum Bayar',
+      status: isInstantPaid ? 'Sedang Disiapkan' : 'Menunggu Pembayaran',
+      paymentCode: paymentCode,
       transactionId: txId
     };
 
     if (spinner) spinner.style.display = 'none';
     if (successIcon) successIcon.style.display = 'flex';
-    if (title) title.innerText = isInstantPaid ? 'Pembayaran Berhasil! (LUNAS)' : 'Pesanan Dikonfirmasi!';
+    if (title) title.innerText = isInstantPaid ? 'Pembayaran Berhasil! (LUNAS)' : 'Antrean & Kode Bayar Terbit!';
     if (desc) {
       desc.innerText = isInstantPaid 
-        ? `Pembayaran ${txId} via ${fullMethod} berhasil dicatat. Pesanan Anda segera diproses!`
-        : `Silakan lakukan pembayaran tunai di kasir dengan menunjukkan nomor antrean Anda.`;
+        ? `Pembayaran ${txId} via ${methodType} berhasil dicatat. Pesanan Anda segera diproses!`
+        : `Tunjukkan Antrean ${finalizedOrder.queueNumber} & Kode Bayar ${paymentCode} ke kasir untuk pembayaran tunai.`;
     }
 
     setTimeout(() => {
@@ -649,21 +646,14 @@ function executePaymentProcess(methodType, isInstantPaid) {
       cart = [];
       updateCartUI();
 
-      // Update Layar Antrean Monitor
+      // Update Layar Antrean Monitor & Banner Pelanggan
       renderQueueBoard();
       updateExcelOrderBadge();
+      updateActiveOrderBanner(finalizedOrder);
 
-      // Update Banner Pelanggan Aktif
-      const activeBar = document.getElementById('bkCustomerActiveBar');
-      const myQueueNumText = document.getElementById('myQueueNumberText');
-      const myQueueStatusText = document.getElementById('myQueueStatusText');
-      if (activeBar && myQueueNumText) {
-        activeBar.style.display = 'flex';
-        myQueueNumText.innerText = finalizedOrder.queueNumber;
-        myQueueStatusText.innerText = `Pesanan ${finalizedOrder.orderType} (${finalizedOrder.tableNumber !== '-' ? finalizedOrder.tableNumber : 'Counter'}) • Pembayaran: ${finalizedOrder.paymentStatus}`;
-      }
-
-      showToast(`Pesanan #${finalizedOrder.queueNumber} [${finalizedOrder.paymentStatus}] masuk ke Rekap Excel!`);
+      showToast(isInstantPaid
+        ? `Pesanan ${finalizedOrder.queueNumber} [LUNAS] masuk dapur!`
+        : `Antrean ${finalizedOrder.queueNumber} • Kode Kasir: ${paymentCode}`);
 
       // Auto-download Excel jika checkbox aktif
       const autoDownloadCheckbox = document.getElementById('autoDownloadExcelCheckbox');
@@ -673,10 +663,28 @@ function executePaymentProcess(methodType, isInstantPaid) {
         }, 500);
       }
 
-      // Tampilkan Struk Digital Kiosk berstempel LUNAS
+      // Tampilkan Struk Digital Kiosk
       showDigitalTicketModal(finalizedOrder);
     }, 1000);
   }, 1300);
+}
+
+/** Memperbarui banner status antrean milik pelanggan aktif di bawah monitor. */
+function updateActiveOrderBanner(order) {
+  const activeBar = document.getElementById('bkCustomerActiveBar');
+  const myQueueNumText = document.getElementById('myQueueNumberText');
+  const myQueueStatusText = document.getElementById('myQueueStatusText');
+  if (!activeBar || !myQueueNumText || !order) return;
+
+  activeBar.style.display = 'flex';
+  myQueueNumText.innerText = order.queueNumber;
+
+  const dest = order.tableNumber !== '-' ? order.tableNumber : 'Take Away';
+  if (order.paymentStatus === 'LUNAS') {
+    myQueueStatusText.innerText = `Pesanan ${order.orderType} (${dest}) • Pembayaran: LUNAS (${order.status})`;
+  } else {
+    myQueueStatusText.innerText = `Menunggu pembayaran tunai di kasir • Kode Validasi: ${order.paymentCode || '-'}`;
+  }
 }
 
 /**
@@ -701,7 +709,7 @@ function initQueueSystem() {
         notes: 'Sambal dipisah',
         totalPrice: 40000,
         status: 'Siap Diambil',
-        paymentMethod: 'QRIS (Gojek/BCA)',
+        paymentMethod: 'QRIS (kiki ramadhani)',
         paymentStatus: 'LUNAS',
         transactionId: 'TRX-20261118-84920'
       },
@@ -718,7 +726,7 @@ function initQueueSystem() {
         notes: '-',
         totalPrice: 20000,
         status: 'Sedang Disiapkan',
-        paymentMethod: 'GoPay (E-Wallet)',
+        paymentMethod: 'QRIS (kiki ramadhani)',
         paymentStatus: 'LUNAS',
         transactionId: 'TRX-20261118-93102'
       }
@@ -739,8 +747,26 @@ function renderQueueBoard() {
   readyList.innerHTML = '';
 
   const orders = getStoredOrders();
+  const pendingCashOrders = orders.filter(o => o.status === 'Menunggu Pembayaran');
   const preparingOrders = orders.filter(o => o.status === 'Sedang Disiapkan');
   const readyOrders = orders.filter(o => o.status === 'Siap Diambil');
+
+  const pendingBar = document.getElementById('bkPendingCashBar');
+  if (pendingBar) {
+    if (pendingCashOrders.length > 0) {
+      const summary = pendingCashOrders
+        .map(o => `<strong>${escapeHtml(o.queueNumber)}</strong> (Kode: ${escapeHtml(o.paymentCode || '-')})`)
+        .join(' • ');
+      pendingBar.style.display = 'flex';
+      pendingBar.innerHTML = `
+        <i class="fas fa-clock"></i>
+        <span>Menunggu Bayar di Kasir sebelum dimasak: ${summary}</span>
+      `;
+    } else {
+      pendingBar.style.display = 'none';
+      pendingBar.innerHTML = '';
+    }
+  }
 
   if (preparingOrders.length === 0) {
     prepList.innerHTML = `
@@ -859,13 +885,18 @@ function showDigitalTicketModal(order) {
     if (order.paymentStatus === 'LUNAS') {
       stampContainer.innerHTML = `
         <div class="stamp-paid-badge">
-          <i class="fas fa-check-circle"></i> LUNAS • PAID (${escapeHtml(order.paymentMethod || 'ONLINE')})
+          <i class="fas fa-check-circle"></i> LUNAS • PAID (${escapeHtml(order.paymentMethod || 'QRIS')})
         </div>
       `;
     } else {
       stampContainer.innerHTML = `
         <div class="stamp-cash-badge">
-          <i class="fas fa-clock"></i> BAYAR DI KASIR (${escapeHtml(order.paymentMethod || 'TUNAI')})
+          <i class="fas fa-clock"></i> BELUM BAYAR • BAYAR DI KASIR
+        </div>
+        <div class="ticket-cash-code-box">
+          <span>KODE VALIDASI KASIR:</span>
+          <strong>${escapeHtml(order.paymentCode || '-')}</strong>
+          <small>Tunjukkan antrean &amp; kode ini ke kasir untuk membayar tunai. Pesanan langsung dimasak setelah divalidasi lunas oleh penjual.</small>
         </div>
       `;
     }
@@ -1049,15 +1080,16 @@ function addSampleOrderDemo() {
   const queueNum = getNextQueueNumber();
   const tables = ['Meja 02', 'Meja 04', 'Meja 05', 'Meja 08', 'Meja 10'];
   const names = ['Andi Pratama', 'Maya Safitri', 'Dimas Arya', 'Nadia Putri', 'Fajar Ramadhan'];
-  const methods = ['QRIS (kiki ramadhani)', 'GoPay (E-Wallet)', 'DANA (E-Wallet)', 'Tunai di Kasir'];
+  const methods = ['QRIS (kiki ramadhani)', 'Bayar di Tempat (Kasir)'];
   const randomTable = tables[Math.floor(Math.random() * tables.length)];
   const randomName = names[Math.floor(Math.random() * names.length)];
   const randomMethod = methods[Math.floor(Math.random() * methods.length)];
-  const isPaid = randomMethod !== 'Tunai di Kasir';
+  const isPaid = randomMethod !== 'Bayar di Tempat (Kasir)';
 
   const now = new Date();
   const timeFormatted = formatOrderTimestamp(now);
-  const txId = generateTransactionId(isPaid ? 'TRX' : 'CASH', now);
+  const txId = generateTransactionId(isPaid ? 'TRX' : 'KASIR', now);
+  const paymentCode = isPaid ? null : String(Math.floor(1000 + Math.random() * 9000));
 
   const demoOrder = {
     id: Date.now(),
@@ -1074,9 +1106,10 @@ function addSampleOrderDemo() {
     spicyLevel: 'Level 3 (Sedang Mantap)',
     notes: 'Makan di tempat',
     totalPrice: 20000,
-    status: 'Sedang Disiapkan',
+    status: isPaid ? 'Sedang Disiapkan' : 'Menunggu Pembayaran',
     paymentMethod: randomMethod,
-    paymentStatus: isPaid ? 'LUNAS' : 'Bayar di Kasir',
+    paymentStatus: isPaid ? 'LUNAS' : 'Belum Bayar',
+    paymentCode: paymentCode,
     transactionId: txId
   };
 

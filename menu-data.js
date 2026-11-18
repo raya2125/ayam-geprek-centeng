@@ -18,13 +18,7 @@ const PAYMENT_GATEWAY_CONFIG = {
   merchantCity: "INDONESIA",
   qrisNmid: "ID1026545206900",
   qrisTerminal: "A01",
-  qrisImage: "assets/qris-kiki-ramadhani.jpg",
-  ewalletNumbers: {
-    gopay: "0812-3456-7890",
-    dana: "0812-3456-7890",
-    ovo: "0812-3456-7890",
-    shopeepay: "0812-3456-7890"
-  }
+  qrisImage: "assets/qris-kiki-ramadhani.jpg"
 };
 
 const MENU_LIST = [

@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_6">
+  <link rel="stylesheet" href="style.css?v=20261118_7">
 
   <style>
     :root {
@@ -65,8 +65,8 @@
   <!-- Top Seller Announcement Strip -->
   <div class="announcement-bar pos-announcement">
     <div class="container announcement-inner">
-      <span>👨‍💼 <strong>MODE KHUSUS PENJUAL / KASIR:</strong> Input cepat pesanan &amp; terima pembayaran tunai (Cash) langsung di tempat.</span>
-      <a href="index.html" class="announcement-link"><i class="fas fa-arrow-left"></i> Kembali ke Halaman Pembeli (QRIS/Non-Tunai)</a>
+      <span>👨‍💼 <strong>MODE KHUSUS PENJUAL / KASIR:</strong> Input cepat pesanan &amp; validasi pembayaran tunai (Cash / Bayar di Tempat).</span>
+      <a href="index.html" class="announcement-link"><i class="fas fa-arrow-left"></i> Kembali ke Halaman Pembeli (QRIS)</a>
     </div>
   </div>
 
@@ -263,7 +263,7 @@
       <!-- BOTTOM: Live Kitchen Queue & Sales Log (Cash + Cashless) -->
       <section class="pos-orders-section">
         <div class="pos-card-title">
-          <h2><i class="fas fa-list-check"></i> Antrean Dapur &amp; Rekap Penjualan (Cash + QRIS/E-Wallet)</h2>
+          <h2><i class="fas fa-list-check"></i> Antrean Dapur &amp; Rekap Penjualan (Cash + QRIS)</h2>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn btn-excel btn-sm" onclick="exportToExcel()">
               <i class="fas fa-file-excel"></i> Download Excel (.xlsx)
@@ -272,6 +272,15 @@
               <i class="fas fa-trash"></i> Reset Data
             </button>
           </div>
+        </div>
+
+        <!-- Kotak Validasi Pesanan Bayar di Tempat dari Pembeli -->
+        <div class="pos-pending-cash-box" id="posPendingCashBox" style="display: none;">
+          <div class="pos-pending-header">
+            <strong><i class="fas fa-bell"></i> Pesanan "Bayar di Tempat" Menunggu Validasi Kasir</strong>
+            <span id="posPendingCountBadge" class="pos-pending-badge">0</span>
+          </div>
+          <div class="pos-pending-list" id="posPendingCashList"></div>
         </div>
 
         <div class="pos-stats-grid">
@@ -288,7 +297,7 @@
             <strong id="posStatCashRevenue" style="color: #107C41;">Rp 0</strong>
           </div>
           <div class="stat-box" style="border-left: 3px solid #C84626;">
-            <span>Omzet Non-Tunai (QRIS/E-Wallet)</span>
+            <span>Omzet Non-Tunai (QRIS)</span>
             <strong id="posStatNonCashRevenue" style="color: #C84626;">Rp 0</strong>
           </div>
         </div>
@@ -296,10 +305,11 @@
         <div class="pos-filter-toolbar">
           <div class="pos-pill-row" id="posFilterRow">
             <button type="button" class="pos-choice-pill active" data-filter="all" onclick="posSetFilter('all')">Semua</button>
+            <button type="button" class="pos-choice-pill" data-filter="unpaid" onclick="posSetFilter('unpaid')">⏳ Belum Bayar</button>
             <button type="button" class="pos-choice-pill" data-filter="Sedang Disiapkan" onclick="posSetFilter('Sedang Disiapkan')">🍳 Diproses Dapur</button>
             <button type="button" class="pos-choice-pill" data-filter="Siap Diambil" onclick="posSetFilter('Siap Diambil')">🔔 Siap Diambil</button>
             <button type="button" class="pos-choice-pill" data-filter="cash" onclick="posSetFilter('cash')">💵 Tunai (Cash)</button>
-            <button type="button" class="pos-choice-pill" data-filter="noncash" onclick="posSetFilter('noncash')">💳 QRIS / E-Wallet</button>
+            <button type="button" class="pos-choice-pill" data-filter="noncash" onclick="posSetFilter('noncash')">💳 QRIS</button>
           </div>
 
           <input type="text" id="posSearchInput" class="pos-search-input" placeholder="Cari nama atau #antrean..." oninput="posRenderOrdersTable()">
@@ -417,8 +427,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="menu-data.js?v=20261118_6"></script>
-  <script src="shared-store.js?v=20261118_6"></script>
-  <script src="kasir.js?v=20261118_6"></script>
+  <script src="menu-data.js?v=20261118_7"></script>
+  <script src="shared-store.js?v=20261118_7"></script>
+  <script src="kasir.js?v=20261118_7"></script>
 </body>
 </html>
