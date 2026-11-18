@@ -654,8 +654,8 @@ function executePaymentProcess(methodType, isInstantPaid) {
     overlay.classList.add('active');
     if (spinner) spinner.style.display = 'block';
     if (successIcon) successIcon.style.display = 'none';
-    if (title) title.innerText = 'Memverifikasi Pembayaran...';
-    if (desc) desc.innerText = 'Sistem sedang memverifikasi transaksi ke Payment Gateway. Mohon tunggu sebentar.';
+    if (title) title.innerText = 'Memproses Pembayaran...';
+    if (desc) desc.innerText = 'Pesanan Anda sedang diproses. Mohon tunggu sebentar.';
   }
 
   setTimeout(() => {
@@ -682,7 +682,7 @@ function executePaymentProcess(methodType, isInstantPaid) {
     if (title) title.innerText = isInstantPaid ? 'Pembayaran Berhasil! (LUNAS)' : 'Pesanan Dikonfirmasi!';
     if (desc) {
       desc.innerText = isInstantPaid 
-        ? `Transaksi ${txId} via ${fullMethod} resmi terverifikasi. Nomor antrean Anda aktif di dapur!`
+        ? `Pembayaran ${txId} via ${fullMethod} berhasil dicatat. Pesanan Anda segera diproses!`
         : `Silakan lakukan pembayaran tunai di kasir dengan menunjukkan nomor antrean Anda.`;
     }
 
