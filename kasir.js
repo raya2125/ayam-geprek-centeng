@@ -9,7 +9,6 @@
 let posCart = [];
 let posOrderType = 'Makan di Tempat';
 let posSelectedTable = 'Meja 01';
-let posSelectedSpicy = 'Level 3 (Sedang Mantap)';
 let posActiveFilter = 'all';
 let posCurrentReceiptOrder = null;
 
@@ -205,14 +204,6 @@ function posSelectTable(tableName) {
   if (labelEl) labelEl.innerText = tableName;
 }
 
-/** Memilih level pedas sambal untuk pesanan saat ini. */
-function posSelectSpicy(spicyLabel) {
-  posSelectedSpicy = spicyLabel;
-  document.querySelectorAll('#posSpicyRow .pos-choice-pill').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.spicy === spicyLabel);
-  });
-}
-
 /** Menambahkan catatan cepat ke kolom input catatan kasir. */
 function posAppendNote(noteText) {
   const input = document.getElementById('posOrderNotes');
@@ -327,10 +318,6 @@ function posSubmitCashOrder() {
 
   const customerName = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Pelanggan Tunai';
   const notes = notesInput && notesInput.value.trim() ? notesInput.value.trim() : '-';
-  const hasSpicyMenu = posCart.some((c) => {
-    const m = MENU_LIST.find((item) => item.id === c.id);
-    return m && m.isSpicySelectable;
-  });
 
   const now = new Date();
   const itemsList = posCart.map((c) => ({
@@ -349,7 +336,7 @@ function posSubmitCashOrder() {
     tableNumber: posOrderType === 'Makan di Tempat' ? posSelectedTable : '-',
     items: itemsList,
     menuSummary: itemsList.map((i) => `${i.qty}x ${i.name}`).join(', '),
-    spicyLevel: hasSpicyMenu ? posSelectedSpicy : '-',
+    spicyLevel: '-',
     notes: notes,
     totalPrice: calc.total,
     status: 'Sedang Disiapkan',
@@ -510,10 +497,7 @@ function posRenderOrdersTable() {
     const cashDetail = o.cashReceived !== undefined && o.cashReceived !== null
       ? `<br><small style="color: #107C41;">Bayar Rp ${o.cashReceived.toLocaleString('id-ID')} • Kembali Rp ${(o.cashChange || 0).toLocaleString('id-ID')}</small>`
       : '';
-    const extraNotes = [
-      o.spicyLevel && o.spicyLevel !== '-' ? o.spicyLevel : '',
-      o.notes && o.notes !== '-' ? `Catatan: ${o.notes}` : ''
-    ].filter(Boolean).join(' • ');
+    const extraNotes = o.notes && o.notes !== '-' ? `Catatan: ${o.notes}` : '';
 
     tr.innerHTML = `
       <td><strong>${escapeHtml(o.queueNumber)}</strong></td>

@@ -7,11 +7,11 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 ## ✨ Fitur Utama
 
 1. **💳 Portal Pembeli (`index.html`)**
-   - **2 Pilihan Pembayaran:** Pembeli dapat membayar non-tunai lewat **QRIS** (`kiki ramadhani`, mendukung BCA/Mandiri/BRI/BNI & GoPay/OVO/DANA/ShopeePay) atau memilih **Bayar di Tempat (Kasir)**.
+   - **2 Pilihan Pembayaran:** Pembeli dapat membayar non-tunai lewat **QRIS** (mendukung BCA/Mandiri/BRI/BNI & GoPay/OVO/DANA/ShopeePay) atau memilih **Bayar di Tempat (Kasir)**.
    - **Validasi Bayar di Tempat:** Pembeli yang memilih *Bayar di Tempat* memperoleh **Nomor Antrean** & **Kode Bayar 4-digit** dengan status *Belum Bayar*; pesanan baru dimasak dapur setelah kasir menerima uang tunai dan memvalidasinya menjadi **LUNAS**.
 
 2. **💵 Portal Khusus Penjual / Kasir Tunai (`kasir.html`)**
-   - **Input Pesanan Cepat (POS):** Tinggal klik apa yang dibeli & dipesan (menu, *Dine-In/Take Away*, nomor meja, level pedas) plus kalkulator uang tunai & kembalian.
+   - **Input Pesanan Cepat (POS):** Tinggal klik apa yang dibeli & dipesan (menu, *Dine-In/Take Away*, nomor meja) plus kalkulator uang tunai & kembalian.
    - **Validasi Pembayaran di Tempat:** Pesanan pembeli yang memilih *Bayar di Tempat* otomatis muncul di kotak validasi kasir lengkap dengan kode 4-digit agar penjual tinggal mencocokkan, menerima cash, dan meneruskannya ke dapur.
 
 2. **Logo & Maskot Ayam Resmi**
@@ -21,8 +21,8 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
    - Menggantikan nuansa gelap/merah menyala yang agresif dengan palet hangat ala restoran santai: krem vanila lembut (`#FAF6EF`), aksen terracotta panggang (`#C84626`), emas mustard (`#E88C08`), dan teks espresso cokelat yang nyaman di mata.
 
 4. **2 Pilihan Menu Utama Spesial**
-   - **Ayam Geprek** (Rp 15.000) – Pilihan level pedas 0 sampai 10 (Centeng Bar-bar).
-   - **Es Teh Manis** (Rp 5.000) – Es teh melati segar dingin pereda pedas terbaik.
+   - **Ayam Geprek** (Rp 10.000) – Ayam goreng krispi renyah dengan sambal korek cabai rawit merah dadakan + nasi putih hangat.
+   - **Es Teh Manis** (Rp 5.000) – Es teh melati segar dingin.
 
 5. **🍽️ Pesan di Tempat (Dine-In Kiosk) & Pemilih Meja Interaktif**
    - Pelanggan yang datang ke kedai dapat langsung memilih nomor meja mereka (Meja 01 s/d Meja 12).
@@ -62,12 +62,12 @@ tugas bkin web makanan/
 ├── shared-store.js                   # Modul database bersama (localStorage + sync server.js), generator antrean & ekspor Excel
 ├── app.js                            # Logika halaman pembeli: keranjang, pembayaran QRIS / Bayar di Tempat & layar antrean
 ├── kasir.js                          # Logika halaman penjual/kasir: POS input cepat, kalkulator cash, validasi kode & rekap
-├── menu-data.js                      # Data 2 menu utama, konfigurasi QRIS (kiki ramadhani) & URL Google Spreadsheet
+├── menu-data.js                      # Data 2 menu utama, konfigurasi QRIS & URL Google Spreadsheet
 ├── assets/
 │   ├── ayam-geprek.jpg               # Foto resmi menu Ayam Geprek
 │   ├── es-teh.jpg                    # Foto resmi menu Es Teh
 │   ├── logo-chicken.jpg              # Foto maskot ayam resmi Centeng
-│   ├── qris-kiki-ramadhani.jpg       # Gambar QRIS resmi untuk pembayaran non-tunai
+│   ├── qris-code.jpg                 # Gambar kode QRIS untuk pembayaran non-tunai
 │   └── brand-reference.png           # Referensi logo brand
 └── README.md                         # Panduan dokumentasi proyek
 ```
@@ -88,7 +88,7 @@ Lalu buka:
 ### A. Alur Pembeli
 1. Buka `http://localhost:3000` (atau [`index.html`](index.html)).
 2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja (atau Take Away), lalu klik **Lanjut ke Pembayaran**.
-3. Pilih **QRIS** (`kiki ramadhani`) atau **Bayar di Tempat** (dapat Kode Bayar 4-digit lalu divalidasi lunas oleh kasir di `kasir.html`).
+3. Pilih **QRIS** atau **Bayar di Tempat** (dapat Kode Bayar 4-digit lalu divalidasi lunas oleh kasir di `kasir.html`).
 
 ### B. Alur Penjual / Kasir (`kasir.html` — Link Terpisah)
 1. Buka langsung URL terpisah `http://localhost:3000/kasir` (atau `kasir.html` / `/kasir.html` di GitHub Pages; halaman kasir tidak ditautkan dari halaman pembeli agar pembeli tidak bisa masuk ke kasir).

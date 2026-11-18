@@ -26,7 +26,7 @@ function doPost(e) {
 
     const headers = [
       'No', 'Nomor Antrean', 'Waktu Pesan', 'ID Transaksi', 'Kode Kasir',
-      'Nama Pemesan', 'Tipe Pesanan', 'Nomor Meja', 'Daftar Menu', 'Level Pedas',
+      'Nama Pemesan', 'Tipe Pesanan', 'Nomor Meja', 'Daftar Menu',
       'Total Bayar (Rp)', 'Uang Diterima (Rp)', 'Kembalian (Rp)',
       'Metode Pembayaran', 'Status Pembayaran', 'Status Dapur', 'Catatan'
     ];
@@ -43,7 +43,6 @@ function doPost(e) {
         o.orderType || '-',
         o.tableNumber || '-',
         o.menuSummary || '-',
-        o.spicyLevel || '-',
         Number(o.totalPrice) || 0,
         o.cashReceived !== undefined && o.cashReceived !== null ? Number(o.cashReceived) : '-',
         o.cashChange !== undefined && o.cashChange !== null ? Number(o.cashChange) : '-',

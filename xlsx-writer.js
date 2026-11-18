@@ -158,7 +158,7 @@ function createZipBuffer(entries) {
 function buildOrdersWorkbookBuffer(orders) {
   const transaksiHeaders = [
     'No', 'Nomor Antrean', 'Waktu Pesan', 'ID Transaksi', 'Kode Kasir',
-    'Nama Pemesan', 'Tipe Pesanan', 'Nomor Meja', 'Daftar Menu', 'Level Pedas',
+    'Nama Pemesan', 'Tipe Pesanan', 'Nomor Meja', 'Daftar Menu',
     'Total Bayar (Rp)', 'Uang Diterima (Rp)', 'Kembalian (Rp)',
     'Metode Pembayaran', 'Status Pembayaran', 'Status Dapur', 'Catatan'
   ];
@@ -175,7 +175,6 @@ function buildOrdersWorkbookBuffer(orders) {
       o.orderType || '-',
       o.tableNumber || '-',
       o.menuSummary || '-',
-      o.spicyLevel || '-',
       typeof o.totalPrice === 'number' ? o.totalPrice : (parseInt(o.totalPrice, 10) || 0),
       o.cashReceived !== undefined && o.cashReceived !== null ? o.cashReceived : '-',
       o.cashChange !== undefined && o.cashChange !== null ? o.cashChange : '-',
@@ -190,19 +189,19 @@ function buildOrdersWorkbookBuffer(orders) {
   const summaryRows = [
     ['Keterangan', 'Nilai', 'Catatan'],
     ['Total Pesanan Tercatat', { formula: `COUNTA(Transaksi!B2:B${lastRow})` }, 'Seluruh pesanan masuk'],
-    ['Pesanan Sudah Lunas', { formula: `COUNTIF(Transaksi!O2:O${lastRow},"LUNAS")` }, 'QRIS + Cash tervalidasi'],
-    ['Menunggu Bayar di Kasir', { formula: `COUNTIF(Transaksi!O2:O${lastRow},"Belum Bayar")` }, 'Bayar di Tempat belum dibayar'],
-    ['Total Omzet Lunas (Rp)', { formula: `SUMIF(Transaksi!O2:O${lastRow},"LUNAS",Transaksi!K2:K${lastRow})` }, 'Akumulasi omzet berstatus LUNAS'],
-    ['Omzet QRIS (Rp)', { formula: `SUMIFS(Transaksi!K2:K${lastRow},Transaksi!O2:O${lastRow},"LUNAS",Transaksi!N2:N${lastRow},"*QRIS*")` }, 'Pembayaran non-tunai QRIS'],
-    ['Omzet Tunai / Cash Kasir (Rp)', { formula: `SUMIFS(Transaksi!K2:K${lastRow},Transaksi!O2:O${lastRow},"LUNAS",Transaksi!N2:N${lastRow},"*Cash*")+SUMIFS(Transaksi!K2:K${lastRow},Transaksi!O2:O${lastRow},"LUNAS",Transaksi!N2:N${lastRow},"*Tunai*")` }, 'Input kasir & validasi Bayar di Tempat']
+    ['Pesanan Sudah Lunas', { formula: `COUNTIF(Transaksi!N2:N${lastRow},"LUNAS")` }, 'QRIS + Cash tervalidasi'],
+    ['Menunggu Bayar di Kasir', { formula: `COUNTIF(Transaksi!N2:N${lastRow},"Belum Bayar")` }, 'Bayar di Tempat belum dibayar'],
+    ['Total Omzet Lunas (Rp)', { formula: `SUMIF(Transaksi!N2:N${lastRow},"LUNAS",Transaksi!J2:J${lastRow})` }, 'Akumulasi omzet berstatus LUNAS'],
+    ['Omzet QRIS (Rp)', { formula: `SUMIFS(Transaksi!J2:J${lastRow},Transaksi!N2:N${lastRow},"LUNAS",Transaksi!M2:M${lastRow},"*QRIS*")` }, 'Pembayaran non-tunai QRIS'],
+    ['Omzet Tunai / Cash Kasir (Rp)', { formula: `SUMIFS(Transaksi!J2:J${lastRow},Transaksi!N2:N${lastRow},"LUNAS",Transaksi!M2:M${lastRow},"*Cash*")+SUMIFS(Transaksi!J2:J${lastRow},Transaksi!N2:N${lastRow},"LUNAS",Transaksi!M2:M${lastRow},"*Tunai*")` }, 'Input kasir & validasi Bayar di Tempat']
   ];
 
   const sheet1Xml = buildSheetXml(
     transaksiRows,
-    [6, 15, 18, 22, 12, 20, 18, 12, 30, 20, 16, 18, 16, 26, 18, 20, 24],
+    [6, 15, 18, 22, 12, 20, 18, 12, 30, 16, 18, 16, 26, 18, 20, 24],
     (r, c, val) => {
       if (r === 0) return 1;
-      if ((c === 10 || c === 11 || c === 12) && typeof val === 'number') return 2;
+      if ((c === 9 || c === 10 || c === 11) && typeof val === 'number') return 2;
       return 0;
     }
   );

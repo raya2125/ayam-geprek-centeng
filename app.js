@@ -93,14 +93,9 @@ function renderMenu() {
     const card = document.createElement('div');
     card.className = 'menu-card';
 
-    const spicyPill = item.isSpicySelectable 
-      ? `<span class="card-spicy-pill"><i class="fas fa-pepper-hot"></i> Level 0-10</span>`
-      : '';
-
     card.innerHTML = `
       <div class="menu-card-img-wrap">
         <span class="card-badge-top">${escapeHtml(item.badge || 'Pilihan')}</span>
-        ${spicyPill}
         <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="menu-card-img" loading="lazy">
       </div>
       <div class="menu-card-body">
@@ -398,7 +393,6 @@ function handleProcessOrder(e) {
   if (e) e.preventDefault();
 
   const name = document.getElementById('custName').value.trim() || 'Pelanggan';
-  const spicy = document.getElementById('custSpicyLevel').value;
   const notes = document.getElementById('custNotes').value.trim();
 
   // Ambil tipe pesanan
@@ -446,7 +440,7 @@ function handleProcessOrder(e) {
     tableNumber: tableNum,
     items: itemsList,
     menuSummary: menuSummary,
-    spicyLevel: spicy,
+    spicyLevel: '-',
     notes: notes,
     totalPrice: grandTotal,
     status: 'Sedang Disiapkan'
@@ -560,22 +554,20 @@ function renderQrisCode(order) {
   if (!container) return;
 
   const cfg = typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' ? PAYMENT_GATEWAY_CONFIG : {};
-  const qrisImgSrc = cfg.qrisImage || 'assets/qris-kiki-ramadhani.jpg';
-  const merchantLabel = cfg.merchantName || 'kiki ramadhani';
-  const nmidLabel = cfg.qrisNmid || 'ID1026545206900';
+  const qrisImgSrc = cfg.qrisImage || 'assets/qris-code.jpg';
 
   container.innerHTML = `
-    <img src="${escapeHtml(qrisImgSrc)}" alt="QRIS ${escapeHtml(merchantLabel)} (NMID: ${escapeHtml(nmidLabel)})" class="qris-official-poster">
+    <img src="${escapeHtml(qrisImgSrc)}" alt="QRIS" class="qris-official-poster">
   `;
 }
 
 function downloadQrisImage() {
   const qrImg = document.querySelector('#qrisQrCodeElement img');
   const cfg = typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' ? PAYMENT_GATEWAY_CONFIG : {};
-  const src = (qrImg && qrImg.getAttribute('src')) || cfg.qrisImage || 'assets/qris-kiki-ramadhani.jpg';
+  const src = (qrImg && qrImg.getAttribute('src')) || cfg.qrisImage || 'assets/qris-code.jpg';
 
   const link = document.createElement('a');
-  link.download = `QRIS_kiki_ramadhani_${currentDraftOrder ? currentDraftOrder.queueNumber.replace('#', '') : 'Bayar'}.jpg`;
+  link.download = `QRIS_Centeng_${currentDraftOrder ? currentDraftOrder.queueNumber.replace('#', '') : 'Bayar'}.jpg`;
   link.href = src;
   document.body.appendChild(link);
   link.click();
@@ -691,13 +683,13 @@ function initQueueSystem() {
         customerName: 'Budi Santoso',
         orderType: 'Makan di Tempat',
         tableNumber: 'Meja 03',
-        items: [{ name: 'Ayam Geprek', qty: 2, price: 15000, subtotal: 30000 }, { name: 'Es Teh', qty: 2, price: 5000, subtotal: 10000 }],
+        items: [{ name: 'Ayam Geprek', qty: 2, price: 10000, subtotal: 20000 }, { name: 'Es Teh', qty: 2, price: 5000, subtotal: 10000 }],
         menuSummary: '2x Ayam Geprek, 2x Es Teh',
-        spicyLevel: 'Level 3 (Sedang)',
+        spicyLevel: '-',
         notes: 'Sambal dipisah',
-        totalPrice: 40000,
+        totalPrice: 30000,
         status: 'Siap Diambil',
-        paymentMethod: 'QRIS (kiki ramadhani)',
+        paymentMethod: 'QRIS',
         paymentStatus: 'LUNAS',
         transactionId: 'TRX-20261118-84920'
       },
@@ -708,13 +700,13 @@ function initQueueSystem() {
         customerName: 'Siti Rahma',
         orderType: 'Bawa Pulang',
         tableNumber: '-',
-        items: [{ name: 'Ayam Geprek', qty: 1, price: 15000, subtotal: 15000 }, { name: 'Es Teh', qty: 1, price: 5000, subtotal: 5000 }],
+        items: [{ name: 'Ayam Geprek', qty: 1, price: 10000, subtotal: 10000 }, { name: 'Es Teh', qty: 1, price: 5000, subtotal: 5000 }],
         menuSummary: '1x Ayam Geprek, 1x Es Teh',
-        spicyLevel: 'Level 5 (Pedas Nampol)',
+        spicyLevel: '-',
         notes: '-',
-        totalPrice: 20000,
+        totalPrice: 15000,
         status: 'Sedang Disiapkan',
-        paymentMethod: 'QRIS (kiki ramadhani)',
+        paymentMethod: 'QRIS',
         paymentStatus: 'LUNAS',
         transactionId: 'TRX-20261118-93102'
       }

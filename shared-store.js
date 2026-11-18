@@ -15,12 +15,12 @@ const OFFICIAL_MENUS = [
     id: 1,
     name: "Ayam Geprek",
     category: "geprek",
-    price: 15000,
-    formattedPrice: "Rp 15.000",
+    price: 10000,
+    formattedPrice: "Rp 10.000",
     badge: "Best Seller",
     description: "Ayam goreng krispi renyah gurih dengan sambal korek ulek dadakan cabai rawit merah asli + nasi putih pulen hangat.",
     image: "assets/ayam-geprek.jpg",
-    isSpicySelectable: true
+    isSpicySelectable: false
   },
   {
     id: 2,
@@ -225,7 +225,6 @@ function exportSingleOrderToExcel(order) {
     { "Keterangan": "Tipe Pesanan", "Nilai": order.orderType },
     { "Keterangan": "Nomor Meja", "Nilai": order.tableNumber },
     { "Keterangan": "Rincian Menu", "Nilai": order.menuSummary },
-    { "Keterangan": "Level Pedas", "Nilai": order.spicyLevel || "-" },
     { "Keterangan": "Total Bayar (Rp)", "Nilai": order.totalPrice },
     { "Keterangan": "Metode Pembayaran", "Nilai": order.paymentMethod || "QRIS" },
     { "Keterangan": "Status Pembayaran", "Nilai": order.paymentStatus || "LUNAS" },

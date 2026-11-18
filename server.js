@@ -43,15 +43,15 @@ const DEFAULT_SEED_DB = {
       orderType: 'Makan di Tempat',
       tableNumber: 'Meja 03',
       items: [
-        { name: 'Ayam Geprek', qty: 2, price: 15000, subtotal: 30000 },
+        { name: 'Ayam Geprek', qty: 2, price: 10000, subtotal: 20000 },
         { name: 'Es Teh', qty: 2, price: 5000, subtotal: 10000 }
       ],
       menuSummary: '2x Ayam Geprek, 2x Es Teh',
-      spicyLevel: 'Level 3 (Sedang)',
+      spicyLevel: '-',
       notes: 'Sambal dipisah',
-      totalPrice: 40000,
+      totalPrice: 30000,
       status: 'Siap Diambil',
-      paymentMethod: 'QRIS (kiki ramadhani)',
+      paymentMethod: 'QRIS',
       paymentStatus: 'LUNAS',
       transactionId: 'TRX-20261118-84920'
     },
@@ -63,15 +63,15 @@ const DEFAULT_SEED_DB = {
       orderType: 'Bawa Pulang',
       tableNumber: '-',
       items: [
-        { name: 'Ayam Geprek', qty: 1, price: 15000, subtotal: 15000 },
+        { name: 'Ayam Geprek', qty: 1, price: 10000, subtotal: 10000 },
         { name: 'Es Teh', qty: 1, price: 5000, subtotal: 5000 }
       ],
       menuSummary: '1x Ayam Geprek, 1x Es Teh',
-      spicyLevel: 'Level 5 (Pedas Nampol)',
+      spicyLevel: '-',
       notes: '-',
-      totalPrice: 20000,
+      totalPrice: 15000,
       status: 'Sedang Disiapkan',
-      paymentMethod: 'QRIS (kiki ramadhani)',
+      paymentMethod: 'QRIS',
       paymentStatus: 'LUNAS',
       transactionId: 'TRX-20261118-93102'
     }

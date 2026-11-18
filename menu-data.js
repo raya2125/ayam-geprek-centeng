@@ -15,14 +15,11 @@ const BRAND_NAME = "Ayam Geprek Centeng";
 const GOOGLE_SHEETS_SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1Ul4Il-KYMHwirIwqpaJ_HOUPG87gQ3VY5twEicdu7Ow/edit";
 const GOOGLE_SHEETS_WEBHOOK_URL = ""; // Opsional: isi URL Web App Apps Script (lihat google-apps-script.js)
 
-// Konfigurasi Pembayaran Non-Tunai (QRIS Resmi: kiki ramadhani)
+// Konfigurasi Pembayaran Non-Tunai (QRIS)
 const PAYMENT_GATEWAY_CONFIG = {
   enabled: true,
-  merchantName: "kiki ramadhani",
-  merchantCity: "INDONESIA",
-  qrisNmid: "ID1026545206900",
-  qrisTerminal: "A01",
-  qrisImage: "assets/qris-kiki-ramadhani.jpg"
+  merchantName: "Ayam Geprek Centeng",
+  qrisImage: "assets/qris-code.jpg"
 };
 
 const MENU_LIST = [
@@ -30,12 +27,12 @@ const MENU_LIST = [
     id: 1,
     name: "Ayam Geprek",
     category: "geprek",
-    price: 15000,
-    formattedPrice: "Rp 15.000",
+    price: 10000,
+    formattedPrice: "Rp 10.000",
     badge: "Best Seller",
     description: "Ayam goreng krispi renyah gurih dengan sambal korek ulek dadakan cabai rawit merah asli + nasi putih pulen hangat.",
     image: "assets/ayam-geprek.jpg",
-    isSpicySelectable: true
+    isSpicySelectable: false
   },
   {
     id: 2,
