@@ -19,36 +19,7 @@ let selectedEwallet = 'gopay';
 let pgCountdownTimer = null;
 let qrisInstance = null;
 
-// LocalStorage Keys
-const STORAGE_ORDERS_KEY = 'centeng_orders_db';
-const STORAGE_QUEUE_COUNTER_KEY = 'centeng_queue_counter';
-
-// Definisi Resmi 2 Menu Utama (Anti-Cache Override)
-const OFFICIAL_MENUS = [
-  {
-    id: 1,
-    name: "Ayam Geprek",
-    category: "geprek",
-    price: 15000,
-    formattedPrice: "Rp 15.000",
-    badge: "Best Seller",
-    description: "Ayam goreng krispi renyah gurih dengan sambal korek ulek dadakan cabai rawit merah asli + nasi putih pulen hangat.",
-    image: "assets/ayam-geprek.jpg",
-    isSpicySelectable: true
-  },
-  {
-    id: 2,
-    name: "Es Teh",
-    category: "minuman",
-    price: 5000,
-    formattedPrice: "Rp 5.000",
-    badge: "Segar Dingin",
-    description: "Es teh manis segar dingin racikan daun teh melati pilihan khas nusantara, penuntas dahaga & pereda pedas terbaik.",
-    image: "assets/es-teh.jpg",
-    isSpicySelectable: false
-  }
-];
-window.MENU_LIST = OFFICIAL_MENUS;
+// State (Konstanta database, OFFICIAL_MENUS, helper tanggal, & Ekspor Excel ada di shared-store.js)
 
 document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
@@ -58,6 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
   initQueueSystem();
   startLiveClock();
   updateExcelOrderBadge();
+
+  // Sinkronisasi otomatis lintas tab dengan Halaman Penjual (kasir.html)
+  window.addEventListener('storage', (event) => {
+    if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
+      renderQueueBoard();
+      updateExcelOrderBadge();
+      if (document.getElementById('excelModal')?.classList.contains('active')) {
+        renderExcelModalTable();
+      }
+    }
+  });
 });
 
 /**
@@ -430,15 +412,9 @@ function handleProcessOrder(e) {
     return;
   }
 
-  // Generate Queue Number (e.g. #001)
+  // Generate Queue Number & Waktu via shared-store.js
   const queueNum = getNextQueueNumber();
-
-  // Waktu
-  const now = new Date();
-  const timeFormatted = now.toLocaleDateString('id-ID', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  }).replace(/\./g, ':');
+  const timeFormatted = formatOrderTimestamp();
 
   const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
 
@@ -525,12 +501,11 @@ function switchPaymentTab(tabName) {
     }
   });
 
-  // Update panels
+  // Update panels (Cashless Only untuk halaman pembeli)
   const panels = {
     qris: document.getElementById('pgPanelQris'),
     va: document.getElementById('pgPanelVa'),
-    ewallet: document.getElementById('pgPanelEwallet'),
-    cash: document.getElementById('pgPanelCash')
+    ewallet: document.getElementById('pgPanelEwallet')
   };
 
   Object.keys(panels).forEach(k => {
@@ -697,10 +672,8 @@ function executePaymentProcess(methodType, isInstantPaid) {
   }
 
   setTimeout(() => {
-    // Generate Transaction ID unik
-    const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const dateCode = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const txId = `TRX-${dateCode}-${randomHex}`;
+    // Generate Transaction ID unik via shared-store.js
+    const txId = generateTransactionId('TRX');
 
     let fullMethod = methodType;
     if (methodType === 'Virtual Account') {
@@ -800,13 +773,8 @@ function submitToWhatsAppDirectly() {
 
   const queueNum = getNextQueueNumber();
   const now = new Date();
-  const timeFormatted = now.toLocaleDateString('id-ID', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  }).replace(/\./g, ':');
-
-  const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const txId = `TRX-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${randomHex}`;
+  const timeFormatted = formatOrderTimestamp(now);
+  const txId = generateTransactionId('TRX', now);
 
   const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
 
@@ -890,14 +858,6 @@ function initQueueSystem() {
   }
 
   renderQueueBoard();
-}
-
-function getNextQueueNumber() {
-  let counter = parseInt(localStorage.getItem(STORAGE_QUEUE_COUNTER_KEY) || '0', 10);
-  counter += 1;
-  localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, counter.toString());
-  const formatted = counter < 10 ? `#00${counter}` : counter < 100 ? `#0${counter}` : `#${counter}`;
-  return formatted;
 }
 
 function renderQueueBoard() {
@@ -1134,23 +1094,9 @@ function forwardOrderToWhatsApp(order) {
 
 /**
  * ============================================================
- * 8. EXCEL EXPORT & DATABASE KASIR
+ * 8. EXCEL MODAL UI & DATABASE KASIR (Helper di shared-store.js)
  * ============================================================
  */
-function getStoredOrders() {
-  try {
-    const raw = localStorage.getItem(STORAGE_ORDERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveOrderToStorage(order) {
-  const orders = getStoredOrders();
-  orders.push(order);
-  localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
-}
 
 function updateExcelOrderBadge() {
   const badge = document.getElementById('excelOrderCountBadge');
@@ -1275,13 +1221,8 @@ function addSampleOrderDemo() {
   const isPaid = randomMethod !== 'Tunai di Kasir';
 
   const now = new Date();
-  const timeFormatted = now.toLocaleDateString('id-ID', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  }).replace(/\./g, ':');
-
-  const randomHex = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const txId = `TRX-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${randomHex}`;
+  const timeFormatted = formatOrderTimestamp(now);
+  const txId = generateTransactionId(isPaid ? 'TRX' : 'CASH', now);
 
   const demoOrder = {
     id: Date.now(),
@@ -1312,130 +1253,8 @@ function addSampleOrderDemo() {
 }
 
 /**
- * EXPORT SEMUA PESANAN KE EXCEL (.XLSX / CSV FALLBACK)
- */
-function exportToExcel(showPrompt = true) {
-  const orders = getStoredOrders();
-  if (orders.length === 0) {
-    if (showPrompt) alert('Belum ada pesanan yang tersimpan untuk di-download.');
-    return;
-  }
-
-  // Format dataset yang rapi untuk Excel dilengkapi kolom Payment Gateway
-  const excelData = orders.map((o, idx) => ({
-    "No": idx + 1,
-    "Nomor Antrean": o.queueNumber,
-    "Waktu Pesan": o.timestamp,
-    "ID Transaksi": o.transactionId || "-",
-    "Nama Pemesan": o.customerName,
-    "Tipe Pesanan": o.orderType,
-    "Nomor Meja": o.tableNumber || "-",
-    "Daftar Menu": o.menuSummary,
-    "Total Bayar (Rp)": o.totalPrice,
-    "Metode Pembayaran": o.paymentMethod || "QRIS",
-    "Status Pembayaran": o.paymentStatus || "LUNAS",
-    "Status Dapur": o.status,
-    "Catatan": o.notes || "-"
-  }));
-
-  const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10);
-  const filename = `Rekap_Pesanan_Ayam_Geprek_Centeng_${dateStr}.xlsx`;
-
-  if (typeof XLSX !== 'undefined') {
-    const ws = XLSX.utils.json_to_sheet(excelData);
-
-    ws['!cols'] = [
-      { wch: 6 },  // No
-      { wch: 15 }, // Nomor Antrean
-      { wch: 18 }, // Waktu
-      { wch: 22 }, // ID Transaksi
-      { wch: 20 }, // Nama
-      { wch: 18 }, // Tipe
-      { wch: 12 }, // Meja
-      { wch: 30 }, // Menu
-      { wch: 16 }, // Total
-      { wch: 22 }, // Metode Bayar
-      { wch: 18 }, // Status Bayar
-      { wch: 18 }, // Status Dapur
-      { wch: 22 }  // Catatan
-    ];
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Rekap Pesanan Centeng");
-    XLSX.writeFile(wb, filename);
-
-    if (showPrompt) showToast('File Excel Rekap (.xlsx) berhasil di-download!');
-  } else {
-    exportToCsvFallback(excelData, `Rekap_Pesanan_Ayam_Geprek_Centeng_${dateStr}.csv`);
-  }
-}
-
-/**
- * EXPORT 1 STRUK PESANAN TERTENTU KE EXCEL
- */
-function exportSingleOrderToExcel(order) {
-  const singleData = [
-    { "Keterangan": "Nomor Antrean", "Nilai": order.queueNumber },
-    { "Keterangan": "ID Transaksi", "Nilai": order.transactionId || "-" },
-    { "Keterangan": "Waktu Transaksi", "Nilai": order.timestamp + " WIB" },
-    { "Keterangan": "Nama Pemesan", "Nilai": order.customerName },
-    { "Keterangan": "Tipe Pesanan", "Nilai": order.orderType },
-    { "Keterangan": "Nomor Meja", "Nilai": order.tableNumber },
-    { "Keterangan": "Rincian Menu", "Nilai": order.menuSummary },
-    { "Keterangan": "Level Pedas", "Nilai": order.spicyLevel },
-    { "Keterangan": "Total Bayar (Rp)", "Nilai": order.totalPrice },
-    { "Keterangan": "Metode Pembayaran", "Nilai": order.paymentMethod || "QRIS" },
-    { "Keterangan": "Status Pembayaran", "Nilai": order.paymentStatus || "LUNAS" },
-    { "Keterangan": "Status Dapur", "Nilai": order.status }
-  ];
-
-  const filename = `Struk_Antrean_${order.queueNumber.replace('#', '')}_Centeng.xlsx`;
-
-  if (typeof XLSX !== 'undefined') {
-    const ws = XLSX.utils.json_to_sheet(singleData);
-    ws['!cols'] = [{ wch: 22 }, { wch: 40 }];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Struk Pesanan");
-    XLSX.writeFile(wb, filename);
-    showToast(`Struk Excel ${order.queueNumber} berhasil di-download!`);
-  } else {
-    exportToCsvFallback(singleData, filename.replace('.xlsx', '.csv'));
-  }
-}
-
-/**
- * Fallback CSV dengan UTF-8 BOM
- */
-function exportToCsvFallback(dataArray, filename) {
-  if (!dataArray || dataArray.length === 0) return;
-
-  const headers = Object.keys(dataArray[0]);
-  let csvContent = '\uFEFF';
-  csvContent += headers.map(h => `"${h}"`).join(';') + '\r\n';
-
-  dataArray.forEach(row => {
-    const rowValues = headers.map(h => {
-      let val = row[h] === null || row[h] === undefined ? '' : String(row[h]);
-      val = val.replace(/"/g, '""');
-      return `"${val}"`;
-    });
-    csvContent += rowValues.join(';') + '\r\n';
-  });
-
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  showToast('File CSV/Excel berhasil di-download!');
-}
-
-/**
  * ============================================================
- * 9. HELPER TOAST & UTILITIES
+ * 9. HELPER TOAST & NAVIGASI MOBILE (escapeHtml di shared-store.js)
  * ============================================================
  */
 function showToast(msg) {
@@ -1466,14 +1285,4 @@ function setupMobileNav() {
       });
     });
   }
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 }

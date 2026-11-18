@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasir Penjual (Tunai / Cash) | Ayam Geprek Centeng</title>
+  <meta name="description" content="Halaman khusus Penjual & Kasir Ayam Geprek Centeng untuk input pesanan cepat dan pembayaran tunai (cash).">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cabinet+Grotesk:wght@800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- SheetJS Library for Excel (.xlsx) Generation -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- External Stylesheet with Cache Busting -->
+  <link rel="stylesheet" href="style.css?v=20261118_2">
+
+  <style>
+    :root {
+      --bg-main: #FAF6EF !important;
+      --bg-surface: #FFFFFF !important;
+      --text-primary: #2C1A10 !important;
+      --primary-brand: #C84626 !important;
+      --border-subtle: #E8DFC8 !important;
+    }
+    body {
+      background-color: #FAF6EF !important;
+      color: #2C1A10 !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .brand-badge, .brand-badge-logo {
+      width: 48px !important;
+      height: 48px !important;
+      min-width: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      border-radius: 50% !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 2px solid #E88C08 !important;
+      background: #FFFFFF !important;
+      flex-shrink: 0 !important;
+    }
+    .brand-badge img, .brand-badge-logo img, .brand-avatar-img {
+      width: 48px !important;
+      height: 48px !important;
+      max-width: 48px !important;
+      max-height: 48px !important;
+      object-fit: cover !important;
+      border-radius: 50% !important;
+      display: block !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Seller Announcement Strip -->
+  <div class="announcement-bar pos-announcement">
+    <div class="container announcement-inner">
+      <span>👨‍💼 <strong>MODE KHUSUS PENJUAL / KASIR:</strong> Input cepat pesanan &amp; terima pembayaran tunai (Cash) langsung di tempat.</span>
+      <a href="index.html" class="announcement-link"><i class="fas fa-arrow-left"></i> Kembali ke Halaman Pembeli (QRIS/Non-Tunai)</a>
+    </div>
+  </div>
+
+  <!-- Seller Navigation Header -->
+  <header class="site-header pos-header">
+    <div class="container nav-wrap">
+      <a href="kasir.html" class="brand">
+        <div class="brand-badge-logo" style="width: 48px; height: 48px; min-width: 48px; max-width: 48px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid #E88C08;">
+          <img src="assets/logo-chicken.jpg" alt="Logo Ayam Geprek Centeng" class="brand-avatar-img" style="width: 48px; height: 48px; object-fit: cover; border-radius: 50%; display: block;">
+        </div>
+        <div class="brand-titles">
+          <span class="brand-sub" style="color: #107C41;">PORTAL PENJUAL • KASIR TUNAI</span>
+          <span class="brand-name">Ayam Geprek Centeng</span>
+        </div>
+      </a>
+
+      <div class="nav-right">
+        <span class="pos-mode-pill">
+          <i class="fas fa-money-bill-wave"></i> Terima Cash
+        </span>
+        <span class="pos-clock-chip" id="posLiveClock">00:00:00 WIB</span>
+
+        <button class="excel-trigger-btn" onclick="exportToExcel()" title="Download Semua Rekap Excel">
+          <i class="fas fa-file-excel"></i>
+          <span class="excel-btn-text">Download Excel</span>
+          <span class="excel-badge-count" id="posOrderCountBadge">0</span>
+        </button>
+
+        <a href="index.html" class="btn btn-outline btn-sm" style="text-decoration: none;">
+          <i class="fas fa-store"></i> Halaman Pembeli
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main POS Content -->
+  <main class="pos-main">
+    <div class="container">
+
+      <!-- 2-Column Seller Workspace -->
+      <div class="pos-workspace">
+
+        <!-- LEFT: Input What Customer Buys & Orders -->
+        <div class="pos-card" id="posInputPanel">
+          <div class="pos-card-title">
+            <h2><i class="fas fa-utensils"></i> Input Pesanan Pembeli (Cash)</h2>
+            <span class="pos-step-badge">1. Klik Menu &rarr; 2. Simpan Cash</span>
+          </div>
+
+          <!-- Menu Quick Grid -->
+          <div class="pos-menu-grid" id="posMenuGrid">
+            <!-- Pre-rendered 2 menu resmi (disinkronkan ulang oleh kasir.js) -->
+            <div class="pos-menu-item">
+              <div class="pos-menu-top">
+                <img src="assets/ayam-geprek.jpg" alt="Ayam Geprek" class="pos-menu-thumb">
+                <div class="pos-menu-info">
+                  <h3>Ayam Geprek</h3>
+                  <div class="pos-menu-price">Rp 15.000</div>
+                </div>
+              </div>
+              <div class="pos-menu-actions">
+                <button type="button" class="pos-btn-add" onclick="posAddItem(1, 1)">
+                  <i class="fas fa-plus"></i> Tambah 1
+                </button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(1, 2)">+2</button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(1, 5)">+5</button>
+              </div>
+            </div>
+
+            <div class="pos-menu-item">
+              <div class="pos-menu-top">
+                <img src="assets/es-teh.jpg" alt="Es Teh" class="pos-menu-thumb">
+                <div class="pos-menu-info">
+                  <h3>Es Teh</h3>
+                  <div class="pos-menu-price">Rp 5.000</div>
+                </div>
+              </div>
+              <div class="pos-menu-actions">
+                <button type="button" class="pos-btn-add" onclick="posAddItem(2, 1)">
+                  <i class="fas fa-plus"></i> Tambah 1
+                </button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(2, 2)">+2</button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(2, 5)">+5</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Details Controls -->
+          <div class="pos-form-section">
+            <div>
+              <span class="pos-field-label">Tipe Pesanan Pembeli</span>
+              <div class="pos-pill-row" id="posOrderTypeRow">
+                <button type="button" class="pos-choice-pill active" data-type="Makan di Tempat" onclick="posSelectOrderType('Makan di Tempat')">
+                  <i class="fas fa-chair"></i> Makan di Tempat (Dine-In)
+                </button>
+                <button type="button" class="pos-choice-pill" data-type="Bawa Pulang" onclick="posSelectOrderType('Bawa Pulang')">
+                  <i class="fas fa-bag-shopping"></i> Bawa Pulang (Takeaway)
+                </button>
+              </div>
+            </div>
+
+            <div id="posTableGroup">
+              <span class="pos-field-label">Pilih Nomor Meja (<strong id="posSelectedTableText">Meja 01</strong>)</span>
+              <div class="pos-tables-grid" id="posTablesGrid">
+                <!-- Diisi otomatis oleh kasir.js (Meja 01 - 12) -->
+              </div>
+            </div>
+
+            <div>
+              <span class="pos-field-label">Level Pedas Sambal</span>
+              <div class="pos-pill-row" id="posSpicyRow">
+                <button type="button" class="pos-choice-pill" data-spicy="Level 0 (Tidak Pedas)" onclick="posSelectSpicy('Level 0 (Tidak Pedas)')">Lvl 0</button>
+                <button type="button" class="pos-choice-pill" data-spicy="Level 1 (Pedas Biasa)" onclick="posSelectSpicy('Level 1 (Pedas Biasa)')">Lvl 1</button>
+                <button type="button" class="pos-choice-pill active" data-spicy="Level 3 (Sedang Mantap)" onclick="posSelectSpicy('Level 3 (Sedang Mantap)')">Lvl 3</button>
+                <button type="button" class="pos-choice-pill" data-spicy="Level 5 (Pedas Nampol)" onclick="posSelectSpicy('Level 5 (Pedas Nampol)')">Lvl 5</button>
+                <button type="button" class="pos-choice-pill" data-spicy="Level 8 (Super Pedas)" onclick="posSelectSpicy('Level 8 (Super Pedas)')">Lvl 8</button>
+                <button type="button" class="pos-choice-pill" data-spicy="Level 10 (Ekstra Pedas Gila)" onclick="posSelectSpicy('Level 10 (Ekstra Pedas Gila)')">Lvl 10</button>
+              </div>
+            </div>
+
+            <div class="pos-two-col-inputs">
+              <div>
+                <label class="pos-field-label" for="posCustomerName">Nama Pembeli <small style="font-weight: 500; color: var(--text-muted);">(opsional)</small></label>
+                <input type="text" id="posCustomerName" class="form-control" placeholder="Kosongkan = Pelanggan Tunai">
+              </div>
+              <div>
+                <label class="pos-field-label" for="posOrderNotes">Catatan Pesanan <small style="font-weight: 500; color: var(--text-muted);">(opsional)</small></label>
+                <input type="text" id="posOrderNotes" class="form-control" placeholder="Contoh: Sambal dipisah">
+                <div class="pos-note-tags">
+                  <button type="button" class="pos-note-tag" onclick="posAppendNote('Sambal dipisah')">+ Sambal dipisah</button>
+                  <button type="button" class="pos-note-tag" onclick="posAppendNote('Tanpa es')">+ Tanpa es</button>
+                  <button type="button" class="pos-note-tag" onclick="posAppendNote('Bagian Paha')">+ Paha</button>
+                  <button type="button" class="pos-note-tag" onclick="posAppendNote('Bagian Dada')">+ Dada</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Summary & Cash Payment Calculator -->
+        <div class="pos-card pos-checkout-panel">
+          <div class="pos-card-title">
+            <h2><i class="fas fa-cash-register"></i> Kasir Pembayaran Tunai</h2>
+            <button type="button" class="btn btn-outline btn-sm" onclick="posClearCart()" style="padding: 4px 10px; font-size: 0.76rem;">
+              <i class="fas fa-eraser"></i> Kosongkan
+            </button>
+          </div>
+
+          <div class="pos-cart-list" id="posCartList">
+            <div class="pos-cart-empty">
+              <i class="fas fa-hand-pointer" style="font-size: 1.6rem; margin-bottom: 6px; opacity: 0.45;"></i>
+              <p>Belum ada menu dipilih.</p>
+              <small>Klik menu di sebelah kiri untuk mulai input pesanan cash.</small>
+            </div>
+          </div>
+
+          <div class="pos-total-box">
+            <span>TOTAL HARUS DIBAYAR:</span>
+            <strong id="posTotalAmount">Rp 0</strong>
+          </div>
+
+          <!-- Cash Input & Change Calculator -->
+          <div class="pos-cash-box">
+            <label class="pos-field-label" for="posCashReceived" style="color: #107C41;">
+              <i class="fas fa-money-bill-wave"></i> Uang Tunai (Cash) Diterima:
+            </label>
+            <div class="pos-cash-input-wrap">
+              <span class="pos-cash-prefix">Rp</span>
+              <input type="number" id="posCashReceived" class="form-control pos-cash-input" min="0" step="500" placeholder="Kosongkan = Uang Pas" oninput="posUpdateCashChange()">
+            </div>
+
+            <div class="pos-quick-cash-row">
+              <button type="button" class="pos-quick-cash-btn" onclick="posSetQuickCash('exact')">Uang Pas</button>
+              <button type="button" class="pos-quick-cash-btn" onclick="posSetQuickCash(20000)">20.000</button>
+              <button type="button" class="pos-quick-cash-btn" onclick="posSetQuickCash(50000)">50.000</button>
+              <button type="button" class="pos-quick-cash-btn" onclick="posSetQuickCash(100000)">100.000</button>
+            </div>
+
+            <div class="pos-change-row" id="posChangeRow">
+              <span id="posChangeLabel">Kembalian:</span>
+              <strong id="posChangeAmount">Rp 0</strong>
+            </div>
+            <small id="posCashHint" style="display: block; margin-top: 6px; font-size: 0.74rem; color: #2B8A3E;">
+              Biarkan kosong jika pembeli membayar dengan uang pas.
+            </small>
+          </div>
+
+          <button type="button" class="pos-btn-submit-cash" id="posSubmitBtn" onclick="posSubmitCashOrder()" disabled>
+            <i class="fas fa-check-circle"></i> Simpan Pesanan &amp; Terima Cash (LUNAS)
+          </button>
+        </div>
+      </div>
+
+      <!-- BOTTOM: Live Kitchen Queue & Sales Log (Cash + Cashless) -->
+      <section class="pos-orders-section">
+        <div class="pos-card-title">
+          <h2><i class="fas fa-list-check"></i> Antrean Dapur &amp; Rekap Penjualan (Cash + QRIS/VA)</h2>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-excel btn-sm" onclick="exportToExcel()">
+              <i class="fas fa-file-excel"></i> Download Excel (.xlsx)
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="posClearAllOrders()" style="color: #c92a2a;">
+              <i class="fas fa-trash"></i> Reset Data
+            </button>
+          </div>
+        </div>
+
+        <div class="pos-stats-grid">
+          <div class="stat-box stat-primary">
+            <span>Total Pesanan</span>
+            <strong id="posStatTotal">0</strong>
+          </div>
+          <div class="stat-box stat-primary">
+            <span>Total Semua Omzet</span>
+            <strong id="posStatRevenue">Rp 0</strong>
+          </div>
+          <div class="stat-box" style="border-left: 3px solid #107C41;">
+            <span>Omzet Cash (Kasir)</span>
+            <strong id="posStatCashRevenue" style="color: #107C41;">Rp 0</strong>
+          </div>
+          <div class="stat-box" style="border-left: 3px solid #C84626;">
+            <span>Omzet Non-Tunai (QRIS/VA)</span>
+            <strong id="posStatNonCashRevenue" style="color: #C84626;">Rp 0</strong>
+          </div>
+        </div>
+
+        <div class="pos-filter-toolbar">
+          <div class="pos-pill-row" id="posFilterRow">
+            <button type="button" class="pos-choice-pill active" data-filter="all" onclick="posSetFilter('all')">Semua</button>
+            <button type="button" class="pos-choice-pill" data-filter="Sedang Disiapkan" onclick="posSetFilter('Sedang Disiapkan')">🍳 Diproses Dapur</button>
+            <button type="button" class="pos-choice-pill" data-filter="Siap Diambil" onclick="posSetFilter('Siap Diambil')">🔔 Siap Diambil</button>
+            <button type="button" class="pos-choice-pill" data-filter="cash" onclick="posSetFilter('cash')">💵 Tunai (Cash)</button>
+            <button type="button" class="pos-choice-pill" data-filter="noncash" onclick="posSetFilter('noncash')">💳 QRIS / VA / E-Wallet</button>
+          </div>
+
+          <input type="text" id="posSearchInput" class="pos-search-input" placeholder="Cari nama atau #antrean..." oninput="posRenderOrdersTable()">
+        </div>
+
+        <div class="excel-table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Antrean</th>
+                <th>Waktu</th>
+                <th>Pembeli &amp; Meja</th>
+                <th>Menu &amp; Catatan</th>
+                <th>Total</th>
+                <th>Pembayaran</th>
+                <th>Status Dapur</th>
+                <th>Aksi Kasir</th>
+              </tr>
+            </thead>
+            <tbody id="posOrdersTableBody">
+              <!-- Diisi oleh kasir.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- CASH RECEIPT MODAL -->
+  <div class="modal-backdrop" id="posReceiptModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <i class="fas fa-receipt"></i>
+          <div>
+            <h3>Struk Pembayaran Kasir</h3>
+            <small>Pesanan Masuk Antrean Dapur &amp; Rekap Excel</small>
+          </div>
+        </div>
+        <button class="modal-close" onclick="posCloseReceiptModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="bk-receipt-card">
+          <img src="assets/logo-chicken.jpg" alt="Logo Centeng" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; border: 2px solid var(--accent-gold); display: block;">
+          <div class="receipt-brand-title">AYAM GEPREK CENTENG</div>
+          <small style="color: var(--text-muted);">Struk Resmi Kasir Penjual</small>
+
+          <div class="receipt-queue-box">
+            <div class="receipt-queue-label">NOMOR ANTREAN</div>
+            <div class="receipt-queue-number" id="posReceiptQueue">#001</div>
+            <div class="receipt-order-type" id="posReceiptType">Makan di Tempat - Meja 01</div>
+          </div>
+
+          <div id="posReceiptStamp" style="margin: 6px 0 10px;">
+            <div class="stamp-paid-badge">
+              <i class="fas fa-check-circle"></i> LUNAS • TUNAI CASH
+            </div>
+          </div>
+
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;" id="posReceiptTxId">
+            ID: CASH-00000000-XXXXXX
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 12px;" id="posReceiptTimestamp">
+            -
+          </div>
+
+          <table class="receipt-items-table">
+            <thead>
+              <tr>
+                <th>Menu</th>
+                <th style="text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody id="posReceiptItemsBody"></tbody>
+          </table>
+
+          <div class="receipt-total-row">
+            <span>Total Bayar:</span>
+            <span id="posReceiptTotal">Rp 0</span>
+          </div>
+
+          <div class="pos-receipt-cash-summary" id="posReceiptCashBox">
+            <div class="pos-receipt-cash-row">
+              <span>Uang Tunai Diterima:</span>
+              <strong id="posReceiptPaid">Rp 0</strong>
+            </div>
+            <div class="pos-receipt-cash-row change">
+              <span>Kembalian:</span>
+              <strong id="posReceiptChange">Rp 0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="pos-receipt-actions" style="display: flex; flex-direction: column; gap: 10px;">
+          <button type="button" class="btn btn-primary btn-block" onclick="posPrintReceipt()">
+            <i class="fas fa-print"></i> Cetak Struk
+          </button>
+          <button type="button" class="btn btn-excel btn-block" onclick="posDownloadReceiptExcel()">
+            <i class="fas fa-file-excel"></i> Download Excel (.xlsx) Struk Ini
+          </button>
+          <button type="button" class="btn btn-outline btn-block" onclick="posCloseReceiptModal()">
+            <i class="fas fa-plus"></i> Input Pesanan Baru
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toastNotice">
+    <i class="fas fa-bell"></i>
+    <span id="toastNoticeMsg">Pesanan tunai berhasil dicatat!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="menu-data.js?v=20261118_2"></script>
+  <script src="shared-store.js?v=20261118_2"></script>
+  <script src="kasir.js?v=20261118_2"></script>
+</body>
+</html>

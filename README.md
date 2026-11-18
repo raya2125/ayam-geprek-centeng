@@ -6,12 +6,15 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 ## ✨ Fitur Utama
 
-1. **💳 Gerbang Pembayaran Terpadu (Payment Gateway Multi-Channel)**
-   - **QRIS Dinamis**: Menghasilkan kode QR standar QRIS nasional secara otomatis sesuai nominal tagihan, dilengkapi penghitung waktu mundur (*countdown timer 5 menit*), tombol unduh QR, dan verifikasi otomatis. Mendukung BCA Mobile, Livin Mandiri, BRImo, BNI Mobile, GoPay, OVO, DANA, dan ShopeePay.
-   - **Virtual Account (VA Transfer)**: Pilihan 4 bank besar (**BCA**, **Mandiri**, **BRI / BRIVA**, **BNI**) lengkap dengan nomor VA 16-digit, tombol salin instan (*copy to clipboard*), dan panduan transfer ATM / m-Banking.
-   - **E-Wallet Instan**: Mendukung pembayaran via GoPay, DANA, OVO, dan ShopeePay.
-   - **Bayar Tunai di Kasir**: Pilihan fleksibel bagi pelanggan yang ingin membayar langsung di meja kasir.
-   - **Animasi Verifikasi Cepat**: Dilengkapi efek loading verifikasi dan centang sukses yang otomatis menyematkan stempel resmi **LUNAS / PAID** pada struk digital dan status pesanan.
+1. **💳 Portal Pembeli — Payment Gateway Non-Tunai (`index.html`)**
+   - **Khusus Pembeli Cashless**: Pembeli yang memesan langsung dari katalog/kiosk melakukan pembayaran online melalui **QRIS**, **Virtual Account** (**BCA**, **Mandiri**, **BRI / BRIVA**, **BNI**), atau **E-Wallet** (**GoPay**, **DANA**, **OVO**, **ShopeePay**).
+   - **QRIS Dinamis**: Menghasilkan kode QR standar QRIS secara otomatis sesuai nominal tagihan, dilengkapi penghitung waktu mundur (*countdown timer 5 menit*), tombol unduh QR, dan verifikasi otomatis.
+   - **Animasi Verifikasi Cepat**: Dilengkapi efek loading verifikasi dan centang sukses yang otomatis menyematkan stempel resmi **LUNAS • PAID** pada struk digital dan status pesanan.
+
+2. **💵 Portal Khusus Penjual / Kasir Tunai (`kasir.html`)**
+   - **Input Pesanan Cepat (POS)**: Dirancang khusus untuk penjual yang melayani pelanggan bayar tunai (*Cash*)—tinggal klik apa yang dibeli & dipesan (menu, tipe *Dine-In/Takeaway*, nomor meja, level pedas, nama/catatan opsional).
+   - **Kalkulator Uang Tunai & Kembalian**: Input uang diterima dengan tombol nominal cepat (**Uang Pas**, **Rp 20.000**, **Rp 50.000**, **Rp 100.000**) dan perhitungan kembalian otomatis secara *real-time*.
+   - **Kelola Antrean & Pelunasan**: Penjual dapat langsung menandai status dapur (**Siap Diambil** / **Selesai**), melunasi pesanan via cash, mencetak struk, dan menyinkronkan data otomatis lintas tab dengan layar antrean pembeli.
 
 2. **Logo & Maskot Ayam Resmi**
    - Menggunakan maskot ayam jago jempolan khas kuliner nusantara yang ramah dan bersahabat di navbar, hero, struk digital, layar antrean, dan footer.
@@ -51,9 +54,12 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 ```
 tugas bkin web makanan/
-├── index.html          # Struktur landing page, kiosk antrean, payment gateway modal, struk & excel
-├── style.css           # Desain visual hangat humanis, kartu menu, payment gateway UI, antrean & struk
-├── app.js              # Logika interaktif: keranjang, payment gateway (QRIS/VA), antrean BK & Excel
+├── index.html          # Halaman Pembeli: katalog, pesan di tempat, payment gateway non-tunai (QRIS/VA/E-Wallet), antrean BK & struk
+├── kasir.html          # Halaman Khusus Penjual / Kasir Cash: input pesanan cepat, kalkulator kembalian, kelola antrean & omzet
+├── style.css           # Desain visual hangat humanis, payment gateway UI, halaman kasir POS, antrean & struk
+├── shared-store.js     # Modul database bersama (localStorage), generator antrean/ID, dan ekspor Excel (.xlsx / CSV)
+├── app.js              # Logika halaman pembeli: keranjang, payment gateway non-tunai & layar antrean Burger King
+├── kasir.js            # Logika halaman penjual/kasir: POS input menu cepat, hitung kembalian cash, struk cetak & kelola order
 ├── menu-data.js        # Data 2 menu utama dan konfigurasi Payment Gateway (NMID, nomor VA)
 ├── assets/
 │   ├── ayam-geprek.jpg    # Foto resmi menu Ayam Geprek
@@ -68,10 +74,13 @@ tugas bkin web makanan/
 
 ## 🛠️ Cara Menguji / Menjalankan
 
-1. Buka file [`index.html`](index.html) langsung di peramban web (Google Chrome, Microsoft Edge, Mozilla Firefox).
-2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang pesanan.
-3. Klik tombol **Pesan di Tempat**, pilih **Nomor Meja**, lalu klik **Lanjut ke Pembayaran (Payment Gateway)**.
-4. Di jendela **Payment Gateway**:
-   - Pilih metode bayar: **QRIS**, **Virtual Account** (BCA, Mandiri, BRI, BNI), **E-Wallet**, atau **Bayar di Kasir**.
-   - Klik tombol **Simulasi Bayar QRIS (Lunas)** atau **Cek Status / Simulasi Transfer Berhasil**.
-5. Anda akan melihat animasi verifikasi pembayaran sukses, kemudian struk digital terbuka dengan stempel hijau **LUNAS • PAID**, nomor antrean aktif di **Layar Antrean Burger King**, dan otomatis tercatat di **Rekap Kasir Excel**.
+### A. Alur Pembeli (Non-Tunai: QRIS / VA / E-Wallet)
+1. Buka [`index.html`](index.html) di peramban web.
+2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja, lalu klik **Lanjut ke Pembayaran (Payment Gateway)**.
+3. Pilih **QRIS**, **Virtual Account**, atau **E-Wallet** dan klik tombol simulasi bayar untuk melihat verifikasi, struk berstempel **LUNAS**, serta antrean otomatis.
+
+### B. Alur Penjual / Kasir (Pembayaran Cash / Tunai)
+1. Buka [`kasir.html`](kasir.html) (atau klik tautan **Kasir (Penjual)** di navigasi atas).
+2. Klik menu yang dibeli pelanggan (**+ Tambah 1**, **+2**, **+5**), pilih **Makan di Tempat / Bawa Pulang**, nomor meja, serta level pedas.
+3. Masukkan uang tunai yang diterima (atau klik **Uang Pas** / nominal cepat) lalu klik **Simpan Pesanan & Terima Cash (LUNAS)**.
+4. Struk resmi kasir akan muncul beserta rincian kembalian, dan pesanan otomatis masuk ke layar antrean dapur serta rekap Excel (`.xlsx`).
