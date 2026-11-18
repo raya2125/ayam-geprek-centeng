@@ -17,11 +17,8 @@
   <!-- SheetJS Library for Excel (.xlsx) Generation -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- QRCode.js Library for Payment Gateway QRIS -->
-  <script src="assets/qrcode.min.js"></script>
-
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_3">
+  <link rel="stylesheet" href="style.css?v=20261118_4">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -755,18 +752,25 @@
             </div>
             <div class="qris-body">
               <div class="qris-merchant-info">
-                <strong>AYAM GEPREK CENTENG</strong>
-                <span>NMID: ID1029384756910 • A01</span>
+                <strong>kiki ramadhani</strong>
+                <span>NMID: ID1026545206900 • A01</span>
               </div>
               <div class="qris-qr-container">
-                <div id="qrisQrCodeElement"></div>
+                <div id="qrisQrCodeElement">
+                  <img src="assets/qris-kiki-ramadhani.jpg" alt="QRIS kiki ramadhani (NMID: ID1026545206900)" class="qris-official-poster">
+                </div>
               </div>
               <div class="qris-amount-pill">
                 <span>Total yang harus dibayar:</span>
-                <strong id="qrisAmountText">Rp 0</strong>
+                <div class="qris-amount-row">
+                  <strong id="qrisAmountText">Rp 0</strong>
+                  <button type="button" class="btn-copy" onclick="copyVaAmount()" title="Salin nominal exact">
+                    <i class="fas fa-copy"></i> Salin
+                  </button>
+                </div>
               </div>
               <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
-                Buka BCA Mobile, Livin, GoPay, OVO, DANA, ShopeePay, atau m-Banking Anda, lalu scan QR di atas.
+                Buka BCA Mobile, Livin, GoPay, OVO, DANA, ShopeePay, atau m-Banking Anda, scan QRIS <strong>kiki ramadhani</strong> di atas, lalu masukkan nominal tepat sesuai tagihan.
               </p>
               <div class="qris-supported-logos">
                 <span class="qris-app-tag">BCA</span>
@@ -783,10 +787,10 @@
 
           <div style="display: flex; gap: 10px;">
             <button class="btn btn-outline btn-block btn-sm" onclick="downloadQrisImage()">
-              <i class="fas fa-download"></i> Unduh QR
+              <i class="fas fa-download"></i> Unduh QRIS
             </button>
-            <button class="btn btn-primary btn-block" onclick="executePaymentProcess('QRIS', true)">
-              <i class="fas fa-check-circle"></i> Simulasi Bayar QRIS (Lunas)
+            <button class="btn btn-primary btn-block" onclick="executePaymentProcess('QRIS (kiki ramadhani)', true)">
+              <i class="fas fa-check-circle"></i> Sudah Bayar QRIS (Konfirmasi Lunas)
             </button>
           </div>
         </div>
@@ -1087,8 +1091,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261118_3"></script>
-  <script src="shared-store.js?v=20261118_3"></script>
-  <script src="app.js?v=20261118_3"></script>
+  <script src="menu-data.js?v=20261118_4"></script>
+  <script src="shared-store.js?v=20261118_4"></script>
+  <script src="app.js?v=20261118_4"></script>
 </body>
 </html>

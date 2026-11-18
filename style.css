@@ -2243,7 +2243,7 @@ h1, h2, h3, h4, .brand-name {
 }
 .qris-qr-container {
   display: inline-block;
-  padding: 14px;
+  padding: 8px;
   background: #fff;
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -2255,6 +2255,13 @@ h1, h2, h3, h4, .brand-name {
   display: block;
   margin: 0 auto;
 }
+.qris-official-poster {
+  max-width: 265px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
 .qris-amount-pill {
   background: #FFF4E6;
   border: 1.5px dashed var(--accent-gold);
@@ -2262,6 +2269,13 @@ h1, h2, h3, h4, .brand-name {
   padding: 8px 20px;
   display: inline-block;
   margin-bottom: 14px;
+}
+.qris-amount-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 2px;
 }
 .qris-amount-pill span {
   font-size: 0.78rem;

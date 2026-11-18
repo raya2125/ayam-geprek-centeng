@@ -11,12 +11,14 @@
 
 const BRAND_NAME = "Ayam Geprek Centeng";
 
-// Konfigurasi Payment Gateway
+// Konfigurasi Payment Gateway (QRIS Resmi: kiki ramadhani)
 const PAYMENT_GATEWAY_CONFIG = {
   enabled: true,
-  merchantName: "Ayam Geprek Centeng",
-  merchantCity: "JAKARTA",
-  qrisNmid: "ID1029384756910",
+  merchantName: "kiki ramadhani",
+  merchantCity: "INDONESIA",
+  qrisNmid: "ID1026545206900",
+  qrisTerminal: "A01",
+  qrisImage: "assets/qris-kiki-ramadhani.jpg",
   vaNumbers: {
     bca: "8801281234567890",
     mandiri: "8901281234567890",

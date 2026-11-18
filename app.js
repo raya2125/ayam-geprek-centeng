@@ -17,7 +17,6 @@ let selectedPaymentTab = 'qris';
 let selectedVaBank = 'bca';
 let selectedEwallet = 'gopay';
 let pgCountdownTimer = null;
-let qrisInstance = null;
 
 // State (Konstanta database, OFFICIAL_MENUS, helper tanggal, & Ekspor Excel ada di shared-store.js)
 
@@ -596,52 +595,28 @@ function renderQrisCode(order) {
   const container = document.getElementById('qrisQrCodeElement');
   if (!container) return;
 
-  container.innerHTML = '';
+  const cfg = typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' ? PAYMENT_GATEWAY_CONFIG : {};
+  const qrisImgSrc = cfg.qrisImage || 'assets/qris-kiki-ramadhani.jpg';
+  const merchantLabel = cfg.merchantName || 'kiki ramadhani';
+  const nmidLabel = cfg.qrisNmid || 'ID1026545206900';
 
-  // Generate payload QRIS standar
-  const qrisPayload = `00020101021226600016ID.CENTENG.WWW01189360091801293847560215ID10293847569100303UMI51440014ID.GO.QRIS.WWW0215ID10293847569100303UMI52045812530336054${order.totalPrice.toString().length < 10 ? '0' + order.totalPrice.toString().length : order.totalPrice.toString().length}${order.totalPrice}5802ID5919AYAM GEPREK CENTENG6007JAKARTA62070703A016304`;
-
-  try {
-    if (typeof QRCode !== 'undefined') {
-      qrisInstance = new QRCode(container, {
-        text: qrisPayload,
-        width: 190,
-        height: 190,
-        colorDark: '#1C110B',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    } else {
-      // Fallback SVG QR placeholder jika library belum termuat
-      container.innerHTML = `
-        <div style="width: 190px; height: 190px; background: #fff; display: flex; align-items: center; justify-content: center; border: 2px dashed #E8590C; border-radius: 8px;">
-          <div style="text-align: center;">
-            <i class="fas fa-qrcode" style="font-size: 5rem; color: #1C110B;"></i>
-            <small style="display: block; font-weight: 800; font-size: 0.7rem; color: #C84626; margin-top: 4px;">QRIS CENTENG</small>
-          </div>
-        </div>
-      `;
-    }
-  } catch (err) {
-    container.innerHTML = `
-      <div style="width: 190px; height: 190px; background: #fff; display: flex; align-items: center; justify-content: center; border: 2px dashed #E8590C;">
-        <i class="fas fa-qrcode" style="font-size: 5rem; color: #1C110B;"></i>
-      </div>
-    `;
-  }
+  container.innerHTML = `
+    <img src="${escapeHtml(qrisImgSrc)}" alt="QRIS ${escapeHtml(merchantLabel)} (NMID: ${escapeHtml(nmidLabel)})" class="qris-official-poster">
+  `;
 }
 
 function downloadQrisImage() {
-  const qrImg = document.querySelector('#qrisQrCodeElement img') || document.querySelector('#qrisQrCodeElement canvas');
-  if (qrImg) {
-    const link = document.createElement('a');
-    link.download = `QRIS_Centeng_${currentDraftOrder ? currentDraftOrder.queueNumber : 'Bayar'}.png`;
-    link.href = qrImg.src || (qrImg.toDataURL ? qrImg.toDataURL('image/png') : '');
-    link.click();
-    showToast('Gambar QRIS berhasil di-download!');
-  } else {
-    showToast('Gambar QRIS siap discan di layar.');
-  }
+  const qrImg = document.querySelector('#qrisQrCodeElement img');
+  const cfg = typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' ? PAYMENT_GATEWAY_CONFIG : {};
+  const src = (qrImg && qrImg.getAttribute('src')) || cfg.qrisImage || 'assets/qris-kiki-ramadhani.jpg';
+
+  const link = document.createElement('a');
+  link.download = `QRIS_kiki_ramadhani_${currentDraftOrder ? currentDraftOrder.queueNumber.replace('#', '') : 'Bayar'}.jpg`;
+  link.href = src;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Gambar QRIS berhasil di-download!');
 }
 
 function copyVaNumber() {
