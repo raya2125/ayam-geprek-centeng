@@ -7,7 +7,7 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 ## ✨ Fitur Utama
 
 1. **💳 Portal Pembeli — Payment Gateway Non-Tunai (`index.html`)**
-   - **Khusus Pembeli Cashless**: Pembeli yang memesan langsung dari katalog/kiosk melakukan pembayaran online melalui **QRIS**, **Virtual Account** (**BCA**, **Mandiri**, **BRI / BRIVA**, **BNI**), atau **E-Wallet** (**GoPay**, **DANA**, **OVO**, **ShopeePay**).
+   - **Khusus Pembeli Cashless**: Pembeli yang memesan langsung dari katalog/kiosk melakukan pembayaran online melalui **QRIS** (`kiki ramadhani`) atau **E-Wallet** (**GoPay**, **DANA**, **OVO**, **ShopeePay**).
    - **QRIS Dinamis**: Menghasilkan kode QR standar QRIS secara otomatis sesuai nominal tagihan, dilengkapi penghitung waktu mundur (*countdown timer 5 menit*), tombol unduh QR, dan verifikasi otomatis.
    - **Animasi Verifikasi Cepat**: Dilengkapi efek loading verifikasi dan centang sukses yang otomatis menyematkan stempel resmi **LUNAS • PAID** pada struk digital dan status pesanan.
 
@@ -54,7 +54,7 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 ```
 tugas bkin web makanan/
-├── index.html          # Halaman Pembeli: katalog, pesan di tempat, payment gateway non-tunai (QRIS/VA/E-Wallet), antrean BK & struk
+├── index.html          # Halaman Pembeli: katalog, pesan di tempat, pembayaran non-tunai (QRIS/E-Wallet), antrean & struk
 ├── kasir.html          # Halaman Khusus Penjual / Kasir Cash: input pesanan cepat, kalkulator kembalian, kelola antrean & omzet
 ├── style.css           # Desain visual hangat humanis, payment gateway UI, halaman kasir POS, antrean & struk
 ├── shared-store.js     # Modul database bersama (localStorage), generator antrean/ID, dan ekspor Excel (.xlsx / CSV)
@@ -77,7 +77,7 @@ tugas bkin web makanan/
 ### A. Alur Pembeli (Non-Tunai: QRIS / VA / E-Wallet)
 1. Buka [`index.html`](index.html) di peramban web.
 2. Tambahkan **Ayam Geprek** atau **Es Teh** ke keranjang, pilih nomor meja, lalu klik **Lanjut ke Pembayaran (Payment Gateway)**.
-3. Pilih **QRIS**, **Virtual Account**, atau **E-Wallet** dan klik tombol simulasi bayar untuk melihat verifikasi, struk berstempel **LUNAS**, serta antrean otomatis.
+3. Pilih **QRIS** atau **E-Wallet** dan konfirmasi pembayaran untuk melihat verifikasi, struk berstempel **LUNAS**, serta antrean otomatis.
 
 ### B. Alur Penjual / Kasir (Pembayaran Cash / Tunai)
 1. Buka [`kasir.html`](kasir.html) (atau klik tautan **Kasir (Penjual)** di navigasi atas).

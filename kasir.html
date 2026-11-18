@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_5">
+  <link rel="stylesheet" href="style.css?v=20261118_6">
 
   <style>
     :root {
@@ -263,7 +263,7 @@
       <!-- BOTTOM: Live Kitchen Queue & Sales Log (Cash + Cashless) -->
       <section class="pos-orders-section">
         <div class="pos-card-title">
-          <h2><i class="fas fa-list-check"></i> Antrean Dapur &amp; Rekap Penjualan (Cash + QRIS/VA)</h2>
+          <h2><i class="fas fa-list-check"></i> Antrean Dapur &amp; Rekap Penjualan (Cash + QRIS/E-Wallet)</h2>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="btn btn-excel btn-sm" onclick="exportToExcel()">
               <i class="fas fa-file-excel"></i> Download Excel (.xlsx)
@@ -288,7 +288,7 @@
             <strong id="posStatCashRevenue" style="color: #107C41;">Rp 0</strong>
           </div>
           <div class="stat-box" style="border-left: 3px solid #C84626;">
-            <span>Omzet Non-Tunai (QRIS/VA)</span>
+            <span>Omzet Non-Tunai (QRIS/E-Wallet)</span>
             <strong id="posStatNonCashRevenue" style="color: #C84626;">Rp 0</strong>
           </div>
         </div>
@@ -299,7 +299,7 @@
             <button type="button" class="pos-choice-pill" data-filter="Sedang Disiapkan" onclick="posSetFilter('Sedang Disiapkan')">🍳 Diproses Dapur</button>
             <button type="button" class="pos-choice-pill" data-filter="Siap Diambil" onclick="posSetFilter('Siap Diambil')">🔔 Siap Diambil</button>
             <button type="button" class="pos-choice-pill" data-filter="cash" onclick="posSetFilter('cash')">💵 Tunai (Cash)</button>
-            <button type="button" class="pos-choice-pill" data-filter="noncash" onclick="posSetFilter('noncash')">💳 QRIS / VA / E-Wallet</button>
+            <button type="button" class="pos-choice-pill" data-filter="noncash" onclick="posSetFilter('noncash')">💳 QRIS / E-Wallet</button>
           </div>
 
           <input type="text" id="posSearchInput" class="pos-search-input" placeholder="Cari nama atau #antrean..." oninput="posRenderOrdersTable()">
@@ -417,8 +417,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="menu-data.js?v=20261118_5"></script>
-  <script src="shared-store.js?v=20261118_5"></script>
-  <script src="kasir.js?v=20261118_5"></script>
+  <script src="menu-data.js?v=20261118_6"></script>
+  <script src="shared-store.js?v=20261118_6"></script>
+  <script src="kasir.js?v=20261118_6"></script>
 </body>
 </html>

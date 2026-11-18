@@ -14,7 +14,6 @@ let selectedTableNumber = 'Meja 01';
 let currentActiveOrder = null;
 let currentDraftOrder = null;
 let selectedPaymentTab = 'qris';
-let selectedVaBank = 'bca';
 let selectedEwallet = 'gopay';
 let pgCountdownTimer = null;
 
@@ -453,7 +452,7 @@ function handleProcessOrder(e) {
 
 /**
  * ============================================================
- * 5. PAYMENT GATEWAY LOGIC (QRIS, VA, E-WALLET, CASH)
+ * 5. PEMBAYARAN NON-TUNAI LOGIC (QRIS & E-WALLET)
  * ============================================================
  */
 function openPaymentGateway(order) {
@@ -461,12 +460,10 @@ function openPaymentGateway(order) {
   const refText = document.getElementById('pgOrderRefText');
   const totalText = document.getElementById('pgTotalAmountText');
   const qrisAmount = document.getElementById('qrisAmountText');
-  const vaAmount = document.getElementById('vaAmountDisplay');
 
   if (refText) refText.innerText = `Tagihan Pesanan ${order.queueNumber} (${order.orderType})`;
   if (totalText) totalText.innerText = `Rp ${order.totalPrice.toLocaleString('id-ID')}`;
   if (qrisAmount) qrisAmount.innerText = `Rp ${order.totalPrice.toLocaleString('id-ID')}`;
-  if (vaAmount) vaAmount.innerText = `Rp ${order.totalPrice.toLocaleString('id-ID')}`;
 
   // Reset overlay verifikasi jika sebelumnya aktif
   const overlay = document.getElementById('pgVerifyingOverlay');
@@ -512,10 +509,9 @@ function switchPaymentTab(tabName) {
     }
   });
 
-  // Update panels (Cashless Only untuk halaman pembeli)
+  // Update panels (QRIS & E-Wallet)
   const panels = {
     qris: document.getElementById('pgPanelQris'),
-    va: document.getElementById('pgPanelVa'),
     ewallet: document.getElementById('pgPanelEwallet')
   };
 
@@ -525,37 +521,6 @@ function switchPaymentTab(tabName) {
       else panels[k].classList.remove('active');
     }
   });
-}
-
-function selectVaBank(bankCode) {
-  selectedVaBank = bankCode;
-
-  const items = document.querySelectorAll('.va-bank-item');
-  items.forEach(it => {
-    if (it.dataset.bank === bankCode) it.classList.add('active');
-    else it.classList.remove('active');
-  });
-
-  const vaNumbers = (typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' && PAYMENT_GATEWAY_CONFIG.vaNumbers) 
-    ? PAYMENT_GATEWAY_CONFIG.vaNumbers 
-    : { bca: '8801281234567890', mandiri: '8901281234567890', bri: '1201281234567890', bni: '9801281234567890' };
-
-  const bankNames = {
-    bca: 'Bank BCA (BCA Virtual Account)',
-    mandiri: 'Bank Mandiri (Mandiri Virtual Account)',
-    bri: 'Bank BRI (BRIVA Virtual Account)',
-    bni: 'Bank BNI (BNI Virtual Account)'
-  };
-
-  const rawNum = vaNumbers[bankCode] || '8801281234567890';
-  // Format 4 4 4 4
-  const formatted = rawNum.replace(/(\d{4})/g, '$1 ').trim();
-
-  const numEl = document.getElementById('vaNumberDisplay');
-  const nameEl = document.getElementById('vaBankNameText');
-
-  if (numEl) numEl.innerText = formatted;
-  if (nameEl) nameEl.innerText = bankNames[bankCode] || bankCode.toUpperCase();
 }
 
 function selectEwallet(walletCode) {
@@ -619,18 +584,7 @@ function downloadQrisImage() {
   showToast('Gambar QRIS berhasil di-download!');
 }
 
-function copyVaNumber() {
-  const numEl = document.getElementById('vaNumberDisplay');
-  if (!numEl) return;
-  const raw = numEl.innerText.replace(/\s+/g, '');
-  navigator.clipboard.writeText(raw).then(() => {
-    showToast(`Nomor Virtual Account ${raw} berhasil disalin!`);
-  }).catch(() => {
-    showToast(`VA: ${raw}`);
-  });
-}
-
-function copyVaAmount() {
+function copyPaymentAmount() {
   if (!currentDraftOrder) return;
   navigator.clipboard.writeText(currentDraftOrder.totalPrice.toString()).then(() => {
     showToast(`Nominal Rp ${currentDraftOrder.totalPrice.toLocaleString('id-ID')} disalin!`);
@@ -663,9 +617,7 @@ function executePaymentProcess(methodType, isInstantPaid) {
     const txId = generateTransactionId('TRX');
 
     let fullMethod = methodType;
-    if (methodType === 'Virtual Account') {
-      fullMethod = `${selectedVaBank.toUpperCase()} Virtual Account`;
-    } else if (methodType === 'E-Wallet') {
+    if (methodType === 'E-Wallet') {
       const ewalletNames = { gopay: 'GoPay', dana: 'DANA', ovo: 'OVO', shopeepay: 'ShopeePay' };
       fullMethod = `${ewalletNames[selectedEwallet] || 'E-Wallet'} (Online)`;
     }
@@ -766,7 +718,7 @@ function initQueueSystem() {
         notes: '-',
         totalPrice: 20000,
         status: 'Sedang Disiapkan',
-        paymentMethod: 'BCA Virtual Account',
+        paymentMethod: 'GoPay (E-Wallet)',
         paymentStatus: 'LUNAS',
         transactionId: 'TRX-20261118-93102'
       }
@@ -1097,7 +1049,7 @@ function addSampleOrderDemo() {
   const queueNum = getNextQueueNumber();
   const tables = ['Meja 02', 'Meja 04', 'Meja 05', 'Meja 08', 'Meja 10'];
   const names = ['Andi Pratama', 'Maya Safitri', 'Dimas Arya', 'Nadia Putri', 'Fajar Ramadhan'];
-  const methods = ['QRIS (Instant)', 'BCA Virtual Account', 'GoPay (E-Wallet)', 'Tunai di Kasir'];
+  const methods = ['QRIS (kiki ramadhani)', 'GoPay (E-Wallet)', 'DANA (E-Wallet)', 'Tunai di Kasir'];
   const randomTable = tables[Math.floor(Math.random() * tables.length)];
   const randomName = names[Math.floor(Math.random() * names.length)];
   const randomMethod = methods[Math.floor(Math.random() * methods.length)];

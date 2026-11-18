@@ -11,7 +11,7 @@
 
 const BRAND_NAME = "Ayam Geprek Centeng";
 
-// Konfigurasi Payment Gateway (QRIS Resmi: kiki ramadhani)
+// Konfigurasi Pembayaran Non-Tunai (QRIS Resmi: kiki ramadhani)
 const PAYMENT_GATEWAY_CONFIG = {
   enabled: true,
   merchantName: "kiki ramadhani",
@@ -19,12 +19,6 @@ const PAYMENT_GATEWAY_CONFIG = {
   qrisNmid: "ID1026545206900",
   qrisTerminal: "A01",
   qrisImage: "assets/qris-kiki-ramadhani.jpg",
-  vaNumbers: {
-    bca: "8801281234567890",
-    mandiri: "8901281234567890",
-    bri: "1201281234567890",
-    bni: "9801281234567890"
-  },
   ewalletNumbers: {
     gopay: "0812-3456-7890",
     dana: "0812-3456-7890",

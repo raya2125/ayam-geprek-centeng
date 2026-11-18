@@ -2308,74 +2308,7 @@ h1, h2, h3, h4, .brand-name {
   color: var(--text-secondary);
 }
 
-/* Virtual Account Styles */
-.va-bank-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.va-bank-item {
-  border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 10px 4px;
-  text-align: center;
-  cursor: pointer;
-  transition: var(--transition);
-  background: #fff;
-}
-.va-bank-item strong {
-  display: block;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-.va-bank-item span {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.va-bank-item:hover {
-  border-color: var(--primary-brand);
-  background: var(--accent-cream);
-}
-.va-bank-item.active {
-  border-color: var(--primary-brand);
-  background: var(--accent-cream);
-  box-shadow: 0 2px 10px rgba(200, 70, 38, 0.15);
-}
-.va-bank-item.active strong {
-  color: var(--primary-brand);
-}
-
-.va-details-box {
-  background: #FFFDF9;
-  border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.va-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px dashed var(--border-light);
-}
-.va-info-row:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-.va-num-text {
-  font-family: monospace;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: var(--primary-brand);
-  letter-spacing: 0.05em;
-}
+/* Copy Amount Button */
 .btn-copy {
   background: #fff;
   border: 1.5px solid var(--border-subtle);
@@ -2393,20 +2326,6 @@ h1, h2, h3, h4, .brand-name {
 .btn-copy:hover {
   border-color: var(--primary-brand);
   color: var(--primary-brand);
-}
-
-.va-instructions {
-  background: #F8F9FA;
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  text-align: left;
-}
-.va-instructions ol {
-  padding-left: 18px;
-  margin-top: 6px;
 }
 
 /* E-Wallet Grid */
@@ -2606,9 +2525,9 @@ h1, h2, h3, h4, .brand-name {
   border: 1px solid rgba(240, 140, 0, 0.4);
 }
 
-/* Buyer Gateway 3-Tab Layout & Cash Redirect Note */
-.pg-tabs-bar-3 {
-  grid-template-columns: repeat(3, 1fr);
+/* Buyer Gateway 2-Tab Layout & Cash Redirect Note */
+.pg-tabs-bar-2 {
+  grid-template-columns: repeat(2, 1fr);
 }
 .pg-cash-redirect-note {
   margin-top: 16px;

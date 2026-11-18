@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_5">
+  <link rel="stylesheet" href="style.css?v=20261118_6">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -89,7 +89,7 @@
   <!-- Top Announcement Bar -->
   <div class="announcement-bar">
     <div class="container announcement-inner">
-      <span>💳 <strong>Portal Pembeli (Non-Tunai):</strong> Pesan mandiri &amp; bayar instan via QRIS, Virtual Account, atau E-Wallet!</span>
+      <span>💳 <strong>Portal Pembeli (Non-Tunai):</strong> Pesan mandiri &amp; bayar instan via QRIS atau E-Wallet!</span>
       <a href="kasir.html" class="announcement-link"><i class="fas fa-cash-register"></i> Buka Halaman Penjual (Kasir Cash) &rarr;</a>
     </div>
   </div>
@@ -512,8 +512,8 @@
           <h3>Menerima Pembayaran:</h3>
           <div class="payment-tags">
             <span class="pay-tag"><i class="fas fa-qrcode"></i> QRIS</span>
-            <span class="pay-tag"><i class="fas fa-money-bill-wave"></i> Tunai (Cash)</span>
-            <span class="pay-tag"><i class="fas fa-university"></i> Transfer Bank</span>
+            <span class="pay-tag"><i class="fas fa-wallet"></i> E-Wallet</span>
+            <span class="pay-tag"><i class="fas fa-money-bill-wave"></i> Tunai (Cash di Kasir)</span>
           </div>
           <p class="delivery-partner-note">Praktis pesan Dine-In atau Take Away langsung lewat website &amp; kasir kedai.</p>
         </div>
@@ -727,15 +727,11 @@
           </div>
         </div>
 
-        <!-- Payment Method Navigation Tabs (Cashless Only untuk Pembeli) -->
-        <div class="pg-tabs-bar pg-tabs-bar-3">
+        <!-- Payment Method Navigation Tabs (QRIS & E-Wallet) -->
+        <div class="pg-tabs-bar pg-tabs-bar-2">
           <button class="pg-tab-btn active" data-pg-tab="qris" onclick="switchPaymentTab('qris')">
             <i class="fas fa-qrcode"></i>
             <span>QRIS</span>
-          </button>
-          <button class="pg-tab-btn" data-pg-tab="va" onclick="switchPaymentTab('va')">
-            <i class="fas fa-university"></i>
-            <span>Virtual Account</span>
           </button>
           <button class="pg-tab-btn" data-pg-tab="ewallet" onclick="switchPaymentTab('ewallet')">
             <i class="fas fa-wallet"></i>
@@ -764,7 +760,7 @@
                 <span>Total yang harus dibayar:</span>
                 <div class="qris-amount-row">
                   <strong id="qrisAmountText">Rp 0</strong>
-                  <button type="button" class="btn-copy" onclick="copyVaAmount()" title="Salin nominal exact">
+                  <button type="button" class="btn-copy" onclick="copyPaymentAmount()" title="Salin nominal">
                     <i class="fas fa-copy"></i> Salin
                   </button>
                 </div>
@@ -795,73 +791,7 @@
           </div>
         </div>
 
-        <!-- Tab 2: Virtual Account -->
-        <div class="pg-tab-panel" id="pgPanelVa">
-          <div class="va-bank-grid">
-            <div class="va-bank-item active" data-bank="bca" onclick="selectVaBank('bca')">
-              <strong>BCA</strong>
-              <span>Virtual Account</span>
-            </div>
-            <div class="va-bank-item" data-bank="mandiri" onclick="selectVaBank('mandiri')">
-              <strong>Mandiri</strong>
-              <span>Virtual Account</span>
-            </div>
-            <div class="va-bank-item" data-bank="bri" onclick="selectVaBank('bri')">
-              <strong>BRI</strong>
-              <span>BRIVA</span>
-            </div>
-            <div class="va-bank-item" data-bank="bni" onclick="selectVaBank('bni')">
-              <strong>BNI</strong>
-              <span>Virtual Account</span>
-            </div>
-          </div>
-
-          <div class="va-details-box">
-            <div class="va-info-row">
-              <div>
-                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700; display: block;">BANK TUJUAN</span>
-                <strong id="vaBankNameText" style="font-size: 1.1rem; color: var(--text-primary);">Bank BCA (BCA Virtual Account)</strong>
-              </div>
-              <span class="badge-status ready">Online 24 Jam</span>
-            </div>
-
-            <div class="va-info-row">
-              <div>
-                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700; display: block;">NOMOR VIRTUAL ACCOUNT</span>
-                <div class="va-num-text" id="vaNumberDisplay">8801 2812 3456 7890</div>
-              </div>
-              <button class="btn-copy" onclick="copyVaNumber()">
-                <i class="fas fa-copy"></i> Salin
-              </button>
-            </div>
-
-            <div class="va-info-row">
-              <div>
-                <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 700; display: block;">TOTAL PEMBAYARAN</span>
-                <strong id="vaAmountDisplay" style="font-size: 1.2rem; color: var(--primary-brand); font-family: var(--font-display);">Rp 0</strong>
-              </div>
-              <button class="btn-copy" onclick="copyVaAmount()">
-                <i class="fas fa-copy"></i> Salin
-              </button>
-            </div>
-          </div>
-
-          <div class="va-instructions">
-            <strong>Cara Transfer Virtual Account:</strong>
-            <ol>
-              <li>Buka Mobile Banking atau ATM bank pilihan Anda.</li>
-              <li>Pilih menu <strong>Transfer &gt; Virtual Account</strong>.</li>
-              <li>Masukkan Nomor VA di atas dan pastikan penerima adalah <strong>Ayam Geprek Centeng</strong>.</li>
-              <li>Konfirmasi pembayaran sesuai nominal tepat.</li>
-            </ol>
-          </div>
-
-          <button class="btn btn-primary btn-block" style="margin-top: 14px;" onclick="executePaymentProcess('Virtual Account', true)">
-            <i class="fas fa-check-circle"></i> Sudah Transfer (Konfirmasi Lunas)
-          </button>
-        </div>
-
-        <!-- Tab 3: E-Wallet -->
+        <!-- Tab 2: E-Wallet -->
         <div class="pg-tab-panel" id="pgPanelEwallet">
           <div class="ewallet-grid">
             <div class="ewallet-item active" data-wallet="gopay" onclick="selectEwallet('gopay')">
@@ -1021,7 +951,7 @@
             <strong id="statTotalRevenue">Rp 0</strong>
           </div>
           <div class="stat-box" style="border-left: 3px solid #107C41;">
-            <span>Lunas (QRIS/VA)</span>
+            <span>Lunas (QRIS / E-Wallet)</span>
             <strong id="statPaidOrders" style="color: #107C41;">0</strong>
           </div>
           <div class="stat-box" style="border-left: 3px solid #D9480F;">
@@ -1091,8 +1021,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261118_5"></script>
-  <script src="shared-store.js?v=20261118_5"></script>
-  <script src="app.js?v=20261118_5"></script>
+  <script src="menu-data.js?v=20261118_6"></script>
+  <script src="shared-store.js?v=20261118_6"></script>
+  <script src="app.js?v=20261118_6"></script>
 </body>
 </html>
