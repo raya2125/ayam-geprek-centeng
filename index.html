@@ -21,7 +21,7 @@
   <script src="assets/qrcode.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_2">
+  <link rel="stylesheet" href="style.css?v=20261118_3">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -469,7 +469,7 @@
         <div class="outlet-info">
           <span class="tag-label"><i class="fas fa-store"></i> Kunjungi Kami</span>
           <h2>Kedai <span class="highlight-text">Ayam Geprek Centeng</span></h2>
-          <p>Makan di tempat lebih seru dengan aroma sambal ulek hangat, atau pesan antar ke rumah/kantor kamu!</p>
+          <p>Makan di tempat lebih seru dengan aroma sambal ulek hangat, atau pesan Take Away (bawa pulang) tanpa antre lama!</p>
 
           <div class="outlet-details">
             <div class="detail-row">
@@ -489,17 +489,17 @@
             </div>
 
             <div class="detail-row">
-              <i class="fab fa-whatsapp"></i>
+              <i class="fas fa-bag-shopping"></i>
               <div>
-                <strong>WhatsApp Pemesanan:</strong>
-                <p>+62 812-3456-7890 (Fast Response)</p>
+                <strong>Layanan Pesanan Kedai:</strong>
+                <p>Makan di Tempat (Dine-In Meja) &amp; Bawa Pulang (Take Away)</p>
               </div>
             </div>
           </div>
 
           <div class="outlet-cta-row">
-            <button class="btn btn-whatsapp" onclick="openDirectOrderModal()">
-              <i class="fab fa-whatsapp"></i> Chat WhatsApp Sekarang
+            <button class="btn btn-primary" onclick="startTakeAwayOrder()">
+              <i class="fas fa-bag-shopping"></i> Pesan Take Away Sekarang
             </button>
             <a href="https://maps.google.com" target="_blank" class="btn btn-outline">
               <i class="fas fa-directions"></i> Buka di Google Maps
@@ -518,7 +518,7 @@
             <span class="pay-tag"><i class="fas fa-money-bill-wave"></i> Tunai (Cash)</span>
             <span class="pay-tag"><i class="fas fa-university"></i> Transfer Bank</span>
           </div>
-          <p class="delivery-partner-note">Juga bisa dipesan melalui GoFood, GrabFood & ShopeeFood</p>
+          <p class="delivery-partner-note">Praktis pesan Dine-In atau Take Away langsung lewat website &amp; kasir kedai.</p>
         </div>
       </div>
     </div>
@@ -541,7 +541,6 @@
         <div class="social-icons">
           <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-          <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         </div>
       </div>
 
@@ -622,7 +621,7 @@
 
       <div class="modal-body">
         <form id="checkoutForm" onsubmit="handleProcessOrder(event)">
-          <!-- Tipe Pesanan Selector -->
+          <!-- Tipe Pesanan Selector (Dine-In & Take Away) -->
           <div class="form-group">
             <label>Pilih Tipe Pesanan *</label>
             <div class="order-type-picker">
@@ -638,13 +637,6 @@
                 <span class="order-type-label">
                   <i class="fas fa-bag-shopping"></i>
                   <span>Take Away</span>
-                </span>
-              </label>
-              <label>
-                <input type="radio" name="orderTypeChoice" value="Pesan Antar" onchange="toggleTableInput(false)">
-                <span class="order-type-label">
-                  <i class="fas fa-motorcycle"></i>
-                  <span>Delivery</span>
                 </span>
               </label>
             </div>
@@ -702,12 +694,8 @@
             <strong id="modalTotalPrice">Rp 0</strong>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 10px;">
+          <button type="submit" class="btn btn-primary btn-block btn-lg">
             <i class="fas fa-credit-card"></i> Lanjut ke Pembayaran (Payment Gateway) &rarr;
-          </button>
-          
-          <button type="button" class="btn btn-whatsapp btn-block" onclick="submitToWhatsAppDirectly()">
-            <i class="fab fa-whatsapp"></i> Atau Langsung Kirim ke WhatsApp Kasir
           </button>
         </form>
       </div>
@@ -995,9 +983,6 @@
           <button class="btn btn-excel btn-block" onclick="downloadCurrentOrderExcel()">
             <i class="fas fa-file-excel"></i> Download Excel (.xlsx) Pesanan Ini
           </button>
-          <button class="btn btn-whatsapp btn-block" onclick="forwardCurrentOrderWhatsApp()">
-            <i class="fab fa-whatsapp"></i> Teruskan Struk ke WhatsApp Kasir
-          </button>
           <button class="btn btn-outline btn-block" onclick="closeTicketModal(); location.href='#layar-antrean';">
             <i class="fas fa-tv"></i> Pantau di Layar Antrean
           </button>
@@ -1099,14 +1084,11 @@
     <button class="floating-btn-excel" onclick="openExcelModal()" title="Buka Rekap Excel Kasir">
       <i class="fas fa-file-excel"></i>
     </button>
-    <a href="javascript:void(0)" onclick="openDirectOrderModal()" class="floating-wa" title="Hubungi WhatsApp">
-      <i class="fab fa-whatsapp"></i>
-    </a>
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261118_2"></script>
-  <script src="shared-store.js?v=20261118_2"></script>
-  <script src="app.js?v=20261118_2"></script>
+  <script src="menu-data.js?v=20261118_3"></script>
+  <script src="shared-store.js?v=20261118_3"></script>
+  <script src="app.js?v=20261118_3"></script>
 </body>
 </html>

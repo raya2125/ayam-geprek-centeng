@@ -9,7 +9,6 @@
  * ============================================================
  */
 
-const WA_PHONE_NUMBER = "6281234567890"; // Ganti dengan nomor WhatsApp aktif (awali 62)
 const BRAND_NAME = "Ayam Geprek Centeng";
 
 // Konfigurasi Payment Gateway

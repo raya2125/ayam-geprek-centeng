@@ -1,6 +1,6 @@
 # 🍗 Ayam Geprek Centeng - Digital Kiosk, Live Queue & Payment Gateway System
 
-Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam Geprek Centeng**. Dirancang dengan tampilan hangat & humanis (*warm humanist dining aesthetic*), sistem **Pesan di Tempat (Dine-In)** dengan nomor meja, **Layar Antrean Real-Time**, **Gerbang Pembayaran Multi-Metode (Payment Gateway: QRIS, VA Bank, E-Wallet)**, serta integrasi pencatatan otomatis ke **Microsoft Excel (.xlsx)** dan **WhatsApp**.
+Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam Geprek Centeng**. Dirancang dengan tampilan hangat & humanis (*warm humanist dining aesthetic*), sistem **Pesan di Tempat (Dine-In)** dengan nomor meja & **Take Away (Bawa Pulang)**, **Layar Antrean Real-Time**, **Gerbang Pembayaran Multi-Metode (Payment Gateway: QRIS, VA Bank, E-Wallet)**, portal kasir tunai, serta pencatatan otomatis ke **Microsoft Excel (.xlsx)**.
 
 ---
 
@@ -29,7 +29,7 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 5. **🍽️ Pesan di Tempat (Dine-In Kiosk) & Pemilih Meja Interaktif**
    - Pelanggan yang datang ke kedai dapat langsung memilih nomor meja mereka (Meja 01 s/d Meja 12).
    - Pesanan langsung terhubung dengan nomor meja pelanggan tanpa perlu berdesakan di depan kasir.
-   - Pilihan fleksibel antara: **Makan di Tempat (Dine-In)**, **Bawa Pulang (Takeaway)**, atau **Pesan Antar (Delivery)**.
+   - Pilihan praktis antara: **Makan di Tempat (Dine-In)** dengan nomor meja atau **Bawa Pulang (Take Away)**.
 
 6. **📟 Layar Monitor Antrean (*Live Order Board*)**
    - Tampilan monitor antrean pesanan digital dengan 2 kolom terpisah:
@@ -40,7 +40,7 @@ Website resmi dan sistem pemesanan mandiri (*self-ordering kiosk*) untuk **Ayam 
 
 7. **🧾 Struk Digital Antrean & Stempel LUNAS**
    - Menerbitkan struk digital instan setelah pembayaran dengan nomor antrean besar (contoh: `#001`), stempel **LUNAS • PAID**, ID Transaksi resmi (`TRX-YYYYMMDD-XXXX`), rincian menu, nomor meja, dan total harga.
-   - Tombol instan untuk download struk ke Excel maupun kirim ke WhatsApp kasir.
+   - Tombol instan untuk download struk ke Excel dan memantau status pesanan di layar antrean.
 
 8. **📊 Rekap Kasir & Database Excel Otomatis (.xlsx)**
    - **Pencatatan Otomatis**: Setiap pesanan yang masuk otomatis tersimpan ke database browser (`localStorage`).

@@ -12,8 +12,6 @@
   --accent-cream: #FFF4E6;
   --accent-warm-tint: #FBEBDD;
   
-  --whatsapp-green: #1FA653;
-  --whatsapp-hover: #178340;
   --excel-green: #107C41;
   --excel-green-hover: #0b5c30;
   
@@ -151,16 +149,6 @@ h1, h2, h3, h4, .brand-name {
   background: var(--primary-brand-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(200, 70, 38, 0.35);
-}
-.btn-whatsapp {
-  background: var(--whatsapp-green);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(31, 166, 83, 0.25);
-}
-.btn-whatsapp:hover {
-  background: var(--whatsapp-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(31, 166, 83, 0.35);
 }
 .btn-excel {
   background: var(--excel-green);
@@ -1673,11 +1661,11 @@ h1, h2, h3, h4, .brand-name {
   overflow-y: auto;
 }
 
-/* Order Type Selector Pills in Modal */
+/* Order Type Selector Pills in Modal (Dine-In & Take Away) */
 .order-type-picker {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
   margin-bottom: 16px;
 }
 .order-type-label {
@@ -1968,23 +1956,6 @@ h1, h2, h3, h4, .brand-name {
 .floating-btn-excel:hover {
   transform: scale(1.08);
   background: var(--excel-green-hover);
-}
-.floating-wa {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: var(--whatsapp-green);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.7rem;
-  box-shadow: 0 6px 20px rgba(31, 166, 83, 0.35);
-  text-decoration: none;
-  transition: var(--transition);
-}
-.floating-wa:hover {
-  transform: scale(1.08);
 }
 
 /* Toast Notification */

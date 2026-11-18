@@ -283,6 +283,15 @@ function setupTablePicker() {
   }
 }
 
+/** Memilih opsi tipe pesanan pada form checkout (Dine-In / Take Away). */
+function selectOrderTypeOption(typeValue) {
+  const typeRadios = document.getElementsByName('orderTypeChoice');
+  for (let r of typeRadios) {
+    r.checked = (r.value === typeValue);
+  }
+  toggleTableInput(typeValue === 'Makan di Tempat');
+}
+
 function startDineInOrder() {
   if (cart.length === 0) {
     addToCart(1);
@@ -294,7 +303,17 @@ function startDineInOrder() {
     modalTableSelect.value = selectedTableNumber;
   }
 
-  toggleTableInput(true);
+  selectOrderTypeOption('Makan di Tempat');
+  openCheckoutModal();
+}
+
+/** Membuka form checkout dengan mode Take Away (Bawa Pulang) aktif. */
+function startTakeAwayOrder() {
+  if (cart.length === 0) {
+    addToCart(1);
+  }
+
+  selectOrderTypeOption('Bawa Pulang');
   openCheckoutModal();
 }
 
@@ -349,13 +368,6 @@ function closeCheckoutModal() {
     modal.classList.remove('active');
     document.body.style.overflow = '';
   }
-}
-
-function openDirectOrderModal(defaultMenu = '') {
-  if (cart.length === 0) {
-    addToCart(1);
-  }
-  openCheckoutModal();
 }
 
 // Global modal backdrop close listener
@@ -734,84 +746,15 @@ function executePaymentProcess(methodType, isInstantPaid) {
         }, 500);
       }
 
-      // Tampilkan Struk Digital Kiosk (Burger King Style) berstempel LUNAS
+      // Tampilkan Struk Digital Kiosk berstempel LUNAS
       showDigitalTicketModal(finalizedOrder);
     }, 1000);
   }, 1300);
 }
 
 /**
- * Langsung kirim ke WhatsApp Kasir sekaligus catat ke Excel & Antrean
- */
-function submitToWhatsAppDirectly() {
-  const name = document.getElementById('custName').value.trim() || 'Pelanggan';
-  const spicy = document.getElementById('custSpicyLevel').value;
-  const notes = document.getElementById('custNotes').value.trim();
-
-  const typeRadios = document.getElementsByName('orderTypeChoice');
-  let orderType = 'Makan di Tempat';
-  for (let r of typeRadios) {
-    if (r.checked) orderType = r.value;
-  }
-
-  let tableNum = '-';
-  if (orderType === 'Makan di Tempat') {
-    tableNum = document.getElementById('custTableNumber').value || selectedTableNumber;
-  }
-
-  let grandTotal = 0;
-  let itemsList = [];
-  cart.forEach(item => {
-    grandTotal += (item.price * item.qty);
-    itemsList.push({
-      name: item.name,
-      qty: item.qty,
-      price: item.price,
-      subtotal: item.price * item.qty
-    });
-  });
-
-  const queueNum = getNextQueueNumber();
-  const now = new Date();
-  const timeFormatted = formatOrderTimestamp(now);
-  const txId = generateTransactionId('TRX', now);
-
-  const menuSummary = itemsList.map(i => `${i.qty}x ${i.name}`).join(', ');
-
-  const newOrder = {
-    id: Date.now(),
-    queueNumber: queueNum,
-    timestamp: timeFormatted,
-    customerName: name,
-    orderType: orderType,
-    tableNumber: tableNum,
-    items: itemsList,
-    menuSummary: menuSummary,
-    spicyLevel: spicy,
-    notes: notes,
-    totalPrice: grandTotal,
-    status: 'Sedang Disiapkan',
-    paymentMethod: 'Transfer / QRIS via WhatsApp',
-    paymentStatus: 'Menunggu Konfirmasi WA',
-    transactionId: txId
-  };
-
-  saveOrderToStorage(newOrder);
-  currentActiveOrder = newOrder;
-
-  cart = [];
-  updateCartUI();
-  closeCheckoutModal();
-  renderQueueBoard();
-  updateExcelOrderBadge();
-
-  // Buka WhatsApp
-  forwardOrderToWhatsApp(newOrder);
-}
-
-/**
  * ============================================================
- * 6. BURGER KING STYLE QUEUE SYSTEM (LAYAR ANTREAN MONITOR)
+ * 6. LIVE QUEUE SYSTEM (LAYAR ANTREAN MONITOR)
  * ============================================================
  */
 function initQueueSystem() {
@@ -1055,41 +998,6 @@ function downloadCurrentOrderExcel() {
   }
   if (!currentActiveOrder) return;
   exportSingleOrderToExcel(currentActiveOrder);
-}
-
-function forwardCurrentOrderWhatsApp() {
-  if (!currentActiveOrder) {
-    const orders = getStoredOrders();
-    currentActiveOrder = orders[orders.length - 1];
-  }
-  if (!currentActiveOrder) return;
-  forwardOrderToWhatsApp(currentActiveOrder);
-}
-
-function forwardOrderToWhatsApp(order) {
-  let msg = `Halo Admin *Ayam Geprek Centeng*, pesanan baru masuk nih:\n\n`;
-  msg += `🎫 *NOMOR ANTREAN: ${order.queueNumber}*\n`;
-  msg += `🍽️ *Tipe Pesanan:* ${order.orderType} ${order.tableNumber !== '-' ? `(${order.tableNumber})` : ''}\n`;
-  msg += `👤 *Nama Pemesan:* ${order.customerName}\n`;
-  msg += `🕒 *Waktu Pesan:* ${order.timestamp} WIB\n`;
-  msg += `💳 *Pembayaran:* ${order.paymentMethod || 'QRIS'} (Status: *${order.paymentStatus || 'LUNAS'}*)\n`;
-  if (order.transactionId) {
-    msg += `🔖 *ID Transaksi:* ${order.transactionId}\n`;
-  }
-  msg += `\n📋 *RINCIAN MENU:*\n`;
-  order.items.forEach((it, idx) => {
-    msg += `   ${idx + 1}. ${it.qty}x ${it.name} = Rp ${it.subtotal.toLocaleString('id-ID')}\n`;
-  });
-  msg += `\n🌶️ *Level Pedas:* ${order.spicyLevel}\n`;
-  if (order.notes && order.notes !== '-') {
-    msg += `📝 *Catatan:* ${order.notes}\n`;
-  }
-  msg += `\n💰 *TOTAL BAYAR:* Rp ${order.totalPrice.toLocaleString('id-ID')}\n`;
-  msg += `\nStatus Dapur: *${order.status}*\nMohon segera diproses ya min, terima kasih! 🙏`;
-
-  const waNum = (typeof WA_PHONE_NUMBER !== 'undefined' && WA_PHONE_NUMBER) ? WA_PHONE_NUMBER : '6281234567890';
-  const url = `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
 }
 
 /**
