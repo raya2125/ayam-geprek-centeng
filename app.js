@@ -94,7 +94,6 @@ function renderMenu() {
 
     card.innerHTML = `
       <div class="menu-card-img-wrap">
-        <span class="card-badge-top">${escapeHtml(item.badge || 'Pilihan')}</span>
         <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="menu-card-img" loading="lazy">
       </div>
       <div class="menu-card-body">
