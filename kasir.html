@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261125_12">
+  <link rel="stylesheet" href="style.css?v=20261125_14">
 
   <style>
     :root {
@@ -150,6 +150,40 @@
                 </button>
                 <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(2, 2)">+2</button>
                 <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(2, 5)">+5</button>
+              </div>
+            </div>
+
+            <div class="pos-menu-item">
+              <div class="pos-menu-top">
+                <img src="assets/hati-ayam.jpg" alt="Hati Ayam" class="pos-menu-thumb">
+                <div class="pos-menu-info">
+                  <h3>Hati Ayam</h3>
+                  <div class="pos-menu-price">Rp 4.000</div>
+                </div>
+              </div>
+              <div class="pos-menu-actions">
+                <button type="button" class="pos-btn-add" onclick="posAddItem(3, 1)">
+                  <i class="fas fa-plus"></i> Tambah 1
+                </button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(3, 2)">+2</button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(3, 5)">+5</button>
+              </div>
+            </div>
+
+            <div class="pos-menu-item">
+              <div class="pos-menu-top">
+                <img src="assets/jamur-goreng.jpg" alt="Jamur Goreng" class="pos-menu-thumb">
+                <div class="pos-menu-info">
+                  <h3>Jamur Goreng</h3>
+                  <div class="pos-menu-price">Rp 2.000</div>
+                </div>
+              </div>
+              <div class="pos-menu-actions">
+                <button type="button" class="pos-btn-add" onclick="posAddItem(4, 1)">
+                  <i class="fas fa-plus"></i> Tambah 1
+                </button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(4, 2)">+2</button>
+                <button type="button" class="pos-btn-quick-qty" onclick="posAddItem(4, 5)">+5</button>
               </div>
             </div>
           </div>
@@ -411,8 +445,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="menu-data.js?v=20261125_12"></script>
-  <script src="shared-store.js?v=20261125_12"></script>
-  <script src="kasir.js?v=20261125_12"></script>
+  <script src="menu-data.js?v=20261125_14"></script>
+  <script src="shared-store.js?v=20261125_14"></script>
+  <script src="kasir.js?v=20261125_14"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261125_13">
+  <link rel="stylesheet" href="style.css?v=20261125_14">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -73,8 +73,8 @@
     }
     .menu-cards-grid {
       display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-      max-width: 760px !important;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+      max-width: 1120px !important;
       margin: 0 auto 48px auto !important;
       gap: 24px !important;
     }
@@ -201,13 +201,16 @@
           <button class="cat-btn" data-cat="geprek">
             <i class="fas fa-drumstick-bite"></i> Ayam Geprek
           </button>
+          <button class="cat-btn" data-cat="lauk">
+            <i class="fas fa-utensils"></i> Lauk Tambahan
+          </button>
           <button class="cat-btn" data-cat="minuman">
             <i class="fas fa-glass-water"></i> Minuman Segar
           </button>
         </div>
       </div>
 
-      <!-- Menu Grid Cards Container (Direct 2 items) -->
+      <!-- Menu Grid Cards Container -->
       <div class="menu-cards-grid" id="menuCardsGrid">
         <!-- Item 1: Ayam Geprek -->
         <div class="menu-card" data-item-id="1">
@@ -237,6 +240,40 @@
             <div class="menu-card-bottom">
               <span class="menu-item-price">Rp 5.000</span>
               <button class="btn-add-cart" onclick="addToCart(2)">
+                <i class="fas fa-plus"></i> Tambah
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 3: Hati Ayam -->
+        <div class="menu-card" data-item-id="3">
+          <div class="menu-card-img-wrap">
+            <img src="assets/hati-ayam.jpg" alt="Hati Ayam" class="menu-card-img" loading="lazy">
+          </div>
+          <div class="menu-card-body">
+            <h3 class="menu-item-title">Hati Ayam</h3>
+            <p class="menu-item-desc">Hati ampela ayam goreng bumbu rempah gurih renyah, cocok sebagai lauk pendamping ayam geprek.</p>
+            <div class="menu-card-bottom">
+              <span class="menu-item-price">Rp 4.000</span>
+              <button class="btn-add-cart" onclick="addToCart(3)">
+                <i class="fas fa-plus"></i> Tambah
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 4: Jamur Goreng -->
+        <div class="menu-card" data-item-id="4">
+          <div class="menu-card-img-wrap">
+            <img src="assets/jamur-goreng.jpg" alt="Jamur Goreng" class="menu-card-img" loading="lazy">
+          </div>
+          <div class="menu-card-body">
+            <h3 class="menu-item-title">Jamur Goreng</h3>
+            <p class="menu-item-desc">Jamur tiram goreng tepung krispi satuan porsi kecil yang renyah dan gurih.</p>
+            <div class="menu-card-bottom">
+              <span class="menu-item-price">Rp 2.000</span>
+              <button class="btn-add-cart" onclick="addToCart(4)">
                 <i class="fas fa-plus"></i> Tambah
               </button>
             </div>
@@ -686,8 +723,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261125_13"></script>
-  <script src="shared-store.js?v=20261125_13"></script>
-  <script src="app.js?v=20261125_13"></script>
+  <script src="menu-data.js?v=20261125_14"></script>
+  <script src="shared-store.js?v=20261125_14"></script>
+  <script src="app.js?v=20261125_14"></script>
 </body>
 </html>

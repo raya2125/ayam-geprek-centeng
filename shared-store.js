@@ -32,6 +32,28 @@ const OFFICIAL_MENUS = [
     description: "Es teh manis segar dingin racikan daun teh melati pilihan khas nusantara, penuntas dahaga & pereda pedas terbaik.",
     image: "assets/es-teh.jpg",
     isSpicySelectable: false
+  },
+  {
+    id: 3,
+    name: "Hati Ayam",
+    category: "lauk",
+    price: 4000,
+    formattedPrice: "Rp 4.000",
+    badge: "Lauk",
+    description: "Hati ampela ayam goreng bumbu rempah gurih renyah, cocok sebagai lauk pendamping ayam geprek.",
+    image: "assets/hati-ayam.jpg",
+    isSpicySelectable: false
+  },
+  {
+    id: 4,
+    name: "Jamur Goreng",
+    category: "lauk",
+    price: 2000,
+    formattedPrice: "Rp 2.000",
+    badge: "Lauk",
+    description: "Jamur tiram goreng tepung krispi satuan porsi kecil yang renyah dan gurih.",
+    image: "assets/jamur-goreng.jpg",
+    isSpicySelectable: false
   }
 ];
 window.MENU_LIST = OFFICIAL_MENUS;
