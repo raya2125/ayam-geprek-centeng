@@ -459,8 +459,9 @@ function openPaymentGateway(order) {
   // Set default tab ke QRIS
   switchPaymentTab('qris');
 
-  // Render dynamic QR code untuk QRIS
+  // Render dynamic QR code untuk QRIS & preview QR Cash
   renderQrisCode(order);
+  renderCashQrPreview(order);
 
   // Mulai hitung mundur 5 menit
   startPaymentCountdown(5 * 60);
@@ -545,6 +546,31 @@ function renderQrisCode(order) {
   `;
 }
 
+function renderOrderQrToElement(containerId, payload) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '';
+  if (typeof QRCode !== 'undefined') {
+    new QRCode(container, {
+      text: payload,
+      width: 170,
+      height: 170,
+      colorDark: '#2C1A10',
+      colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.M : 1
+    });
+  } else {
+    container.innerText = payload;
+  }
+}
+
+function renderCashQrPreview(order) {
+  if (!order) return;
+  const payload = `CENTENG|${order.queueNumber}|${order.totalPrice}|CASH`;
+  renderOrderQrToElement('cashPreviewQrCode', payload);
+}
+
 function downloadQrisImage() {
   const qrImg = document.querySelector('#qrisQrCodeElement img');
   const cfg = typeof PAYMENT_GATEWAY_CONFIG !== 'undefined' ? PAYMENT_GATEWAY_CONFIG : {};
@@ -602,11 +628,11 @@ function executePaymentProcess(methodType, isInstantPaid) {
 
     if (spinner) spinner.style.display = 'none';
     if (successIcon) successIcon.style.display = 'flex';
-    if (title) title.innerText = isInstantPaid ? 'Pembayaran Berhasil! (LUNAS)' : 'Antrean & Kode Bayar Terbit!';
+    if (title) title.innerText = isInstantPaid ? 'Pembayaran Berhasil! (LUNAS)' : 'Nomor Antrean & QR Kasir Siap!';
     if (desc) {
-      desc.innerText = isInstantPaid 
+      desc.innerText = isInstantPaid
         ? `Pembayaran ${txId} via ${methodType} berhasil dicatat. Pesanan Anda segera diproses!`
-        : `Tunjukkan Antrean ${finalizedOrder.queueNumber} & Kode Bayar ${paymentCode} ke kasir untuk pembayaran tunai.`;
+        : `Antrean ${finalizedOrder.queueNumber} • Scan ke kasir`;
     }
 
     setTimeout(() => {
@@ -703,18 +729,47 @@ function initQueueSystem() {
 
 function renderQueueBoard() {
   const orders = getStoredOrders();
+  const activeOrders = orders.filter(o => o.status !== 'Selesai');
   const pendingCashOrders = orders.filter(o => o.status === 'Menunggu Pembayaran');
+
+  const publicList = document.getElementById('publicQueueList');
+  const publicCount = document.getElementById('publicQueueCountText');
+  if (publicList) {
+    if (publicCount) publicCount.innerText = `${activeOrders.length} antrean aktif`;
+    if (activeOrders.length === 0) {
+      publicList.innerHTML = `<span style="color: var(--text-muted); font-size: 0.88rem;">Belum ada antrean aktif.</span>`;
+    } else {
+      publicList.innerHTML = activeOrders.map(o => {
+        let statusCls = 'is-prep';
+        let statusTxt = 'Diproses';
+        if (o.status === 'Siap Diambil') {
+          statusCls = 'is-ready';
+          statusTxt = 'Siap';
+        } else if (o.status === 'Menunggu Pembayaran') {
+          statusCls = 'is-unpaid';
+          statusTxt = 'Kasir';
+        }
+        return `
+          <div class="public-queue-pill ${statusCls}">
+            <span class="pq-num">${escapeHtml(o.queueNumber)}</span>
+            <span>${escapeHtml(o.orderType || 'Makan di Tempat')}</span>
+            <span class="pq-status">${statusTxt}</span>
+          </div>
+        `;
+      }).join('');
+    }
+  }
 
   const pendingBar = document.getElementById('bkPendingCashBar');
   if (pendingBar) {
     if (pendingCashOrders.length > 0) {
       const summary = pendingCashOrders
-        .map(o => `<strong>${escapeHtml(o.queueNumber)}</strong> (Kode: ${escapeHtml(o.paymentCode || '-')})`)
+        .map(o => `<strong>${escapeHtml(o.queueNumber)}</strong>`)
         .join(' • ');
       pendingBar.style.display = 'flex';
       pendingBar.innerHTML = `
-        <i class="fas fa-clock"></i>
-        <span>Menunggu Bayar di Kasir sebelum dimasak: ${summary}</span>
+        <i class="fas fa-qrcode"></i>
+        <span>Scan ke kasir: ${summary}</span>
       `;
     } else {
       pendingBar.style.display = 'none';
@@ -754,14 +809,15 @@ function showDigitalTicketModal(order) {
     } else {
       stampContainer.innerHTML = `
         <div class="stamp-cash-badge">
-          <i class="fas fa-clock"></i> BELUM BAYAR • BAYAR DI KASIR
+          <i class="fas fa-clock"></i> BAYAR CASH DI KASIR
         </div>
-        <div class="ticket-cash-code-box">
-          <span>KODE VALIDASI KASIR:</span>
-          <strong>${escapeHtml(order.paymentCode || '-')}</strong>
-          <small>Tunjukkan antrean &amp; kode ini ke kasir untuk membayar tunai. Pesanan langsung dimasak setelah divalidasi lunas oleh penjual.</small>
+        <div class="cash-qr-wrap">
+          <div id="ticketCashQrCode"></div>
+          <span class="cash-qr-label">Scan ke kasir</span>
         </div>
       `;
+      const qrPayload = `CENTENG|${order.queueNumber}|${order.paymentCode || ''}|${order.totalPrice}|CASH`;
+      renderOrderQrToElement('ticketCashQrCode', qrPayload);
     }
   }
 

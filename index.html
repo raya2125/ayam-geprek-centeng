@@ -14,8 +14,11 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261125_15">
+  <link rel="stylesheet" href="style.css?v=20261125_16">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -284,8 +287,21 @@
   </section>
 
   <!-- BANNER NOMOR ANTREAN AKTIF PELANGGAN -->
-  <section class="queue-status-strip" style="padding: 12px 0;">
+  <section class="queue-status-strip" id="antrean-sekarang" style="padding: 16px 0;">
     <div class="container">
+      <div class="public-queue-box" id="publicQueueBox">
+        <div class="public-queue-head">
+          <div class="public-queue-title">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Antrean Saat Ini</span>
+          </div>
+          <small style="color: var(--text-muted);" id="publicQueueCountText">0 antrean aktif</small>
+        </div>
+        <div class="public-queue-list" id="publicQueueList">
+          <!-- Diisi otomatis oleh app.js -->
+        </div>
+      </div>
+
       <div class="bk-pending-cash-bar" id="bkPendingCashBar" style="display: none;"></div>
       <div class="bk-customer-active-bar" id="bkCustomerActiveBar" style="display: none;">
         <div class="bk-active-info">
@@ -578,23 +594,15 @@
         <!-- Tab 2: Bayar di Tempat (Validasi Kasir) -->
         <div class="pg-tab-panel" id="pgPanelCash">
           <div class="cash-card-box">
-            <div class="cash-icon-circle">
-              <i class="fas fa-store"></i>
-            </div>
-            <h4>Bayar Tunai di Tempat (Kasir)</h4>
-            <p>
-              Anda akan menerima <strong>Nomor Antrean</strong> &amp; <strong>Kode Bayar 4-digit</strong>.
-              Tunjukkan ke kasir untuk membayar tunai &mdash; pesanan langsung masuk antrean masak setelah divalidasi oleh penjual.
-            </p>
-            <div class="cash-validation-steps">
-              <span><strong>1. Ambil Kode</strong> &rarr;</span>
-              <span><strong>2. Bayar ke Kasir</strong> &rarr;</span>
-              <span><strong>3. Kasir Validasi Lunas</strong></span>
+            <h4>Bayar Cash di Tempat</h4>
+            <div class="cash-qr-wrap">
+              <div id="cashPreviewQrCode"></div>
+              <span class="cash-qr-label">Scan ke kasir</span>
             </div>
           </div>
 
           <button class="btn btn-primary btn-block btn-lg" onclick="executePaymentProcess('Bayar di Tempat (Kasir)', false)">
-            <i class="fas fa-ticket-alt"></i> Ambil Antrean &amp; Kode Bayar di Tempat
+            <i class="fas fa-qrcode"></i> Tampilkan QR &amp; Nomor Antrean
           </button>
         </div>
 
@@ -718,8 +726,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261125_15"></script>
-  <script src="shared-store.js?v=20261125_15"></script>
-  <script src="app.js?v=20261125_15"></script>
+  <script src="menu-data.js?v=20261125_16"></script>
+  <script src="shared-store.js?v=20261125_16"></script>
+  <script src="app.js?v=20261125_16"></script>
 </body>
 </html>

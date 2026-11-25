@@ -3325,3 +3325,95 @@ h1, h2, h3, h4, .brand-name {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   COMPACT PUBLIC QUEUE STRIP & CASH QR TICKET
+   ============================================================ */
+.public-queue-box {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 20px rgba(44, 26, 16, 0.05);
+}
+.public-queue-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.public-queue-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.02rem;
+  color: var(--text-primary);
+}
+.public-queue-title i {
+  color: var(--primary-brand);
+}
+.public-queue-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.public-queue-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-main);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.public-queue-pill .pq-num {
+  font-weight: 900;
+  color: var(--primary-brand);
+}
+.public-queue-pill .pq-status {
+  font-size: 0.74rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+}
+.public-queue-pill.is-ready .pq-status {
+  background: #E6F7EE;
+  color: #107C41;
+}
+.public-queue-pill.is-prep .pq-status {
+  background: #FFF4E6;
+  color: #C86400;
+}
+.public-queue-pill.is-unpaid .pq-status {
+  background: #FDECEA;
+  color: #C84626;
+}
+.cash-qr-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin: 10px auto 12px;
+}
+.cash-qr-wrap img,
+.cash-qr-wrap canvas {
+  display: block;
+  margin: 0 auto;
+}
+.cash-qr-label {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--primary-brand);
+}
