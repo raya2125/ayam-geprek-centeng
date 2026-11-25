@@ -479,8 +479,9 @@ function posRenderOrdersTable() {
       <td>
         <div class="pos-action-group">
           ${!isPaid ? `<button type="button" class="pos-mini-btn pay" onclick="posValidateCashOrder(${o.id})" title="Terima uang cash dan validasi masuk dapur"><i class="fas fa-money-bill-wave"></i> Lunas Cash</button>` : ''}
+          ${!isPaid ? `<button type="button" class="pos-mini-btn done" onclick="posValidateAndCompleteOrder(${o.id})" title="Validasi cash &amp; selesaikan antrean"><i class="fas fa-check-double"></i> Validasi Selesai</button>` : ''}
           ${isPaid && o.status === 'Sedang Disiapkan' ? `<button type="button" class="pos-mini-btn ready" onclick="posUpdateOrderStatus(${o.id}, 'Siap Diambil')"><i class="fas fa-bell"></i> Siap</button>` : ''}
-          ${o.status === 'Siap Diambil' ? `<button type="button" class="pos-mini-btn done" onclick="posUpdateOrderStatus(${o.id}, 'Selesai')"><i class="fas fa-check"></i> Selesai</button>` : ''}
+          ${isPaid && o.status !== 'Selesai' ? `<button type="button" class="pos-mini-btn done" onclick="posUpdateOrderStatus(${o.id}, 'Selesai')" title="Validasi antrean selesai"><i class="fas fa-check"></i> Validasi Selesai</button>` : ''}
           <button type="button" class="pos-mini-btn" onclick="posViewOrderReceipt(${o.id})" title="Lihat & Cetak Struk"><i class="fas fa-receipt"></i></button>
           <button type="button" class="pos-mini-btn danger" onclick="posDeleteOrder(${o.id})" title="Hapus pesanan"><i class="fas fa-trash"></i></button>
         </div>
@@ -530,11 +531,85 @@ function posMarkOrderPaidCash(orderId) {
   posValidateCashOrder(orderId);
 }
 
+/** Memvalidasi pembayaran cash (jika belum lunas) sekaligus menandai antrean Selesai. */
+function posValidateAndCompleteOrder(orderId) {
+  const orders = getStoredOrders();
+  const target = orders.find((o) => o.id === orderId);
+  if (!target) return;
+
+  if (target.paymentStatus !== 'LUNAS') {
+    const total = target.totalPrice || 0;
+    const cashInput = document.getElementById(`pendingCashInput_${orderId}`);
+    const rawVal = cashInput && cashInput.value !== undefined && cashInput.value !== null ? String(cashInput.value).trim() : '';
+
+    let cashReceived = total;
+    if (rawVal !== '') {
+      cashReceived = Math.max(0, parseInt(rawVal, 10) || 0);
+      if (cashReceived < total) {
+        alert(`Uang tunai kurang! Total tagihan Rp ${total.toLocaleString('id-ID')}.`);
+        return;
+      }
+    }
+    target.paymentMethod = 'Bayar di Tempat (Cash Kasir)';
+    target.paymentStatus = 'LUNAS';
+    target.cashReceived = cashReceived;
+    target.cashChange = cashReceived - total;
+  }
+
+  target.status = 'Selesai';
+  setStoredOrders(orders);
+  posRenderOrdersTable();
+  showToast(`Antrean ${target.queueNumber} tervalidasi LUNAS & Selesai!`);
+}
+
+/** Memvalidasi antrean melalui scan QR kasir, nomor antrean (#003), atau kode bayar 4-digit. */
+function posValidateByCodeOrQr() {
+  const input = document.getElementById('posValidateCodeInput');
+  const raw = input ? String(input.value || '').trim() : '';
+  if (!raw) {
+    alert('Masukkan atau scan QR / nomor antrean / kode bayar terlebih dahulu.');
+    return;
+  }
+
+  let queueToken = raw;
+  let codeToken = raw;
+  if (raw.includes('|')) {
+    const parts = raw.split('|').map((s) => s.trim());
+    queueToken = parts[1] || '';
+    codeToken = parts[2] || '';
+  }
+
+  const normalizedQueue = /^\d+$/.test(queueToken.replace(/^#/, ''))
+    ? `#${queueToken.replace(/^#/, '').padStart(3, '0')}`
+    : queueToken.toUpperCase();
+
+  const orders = getStoredOrders();
+  const target = orders.find((o) => {
+    if (o.status === 'Selesai') return false;
+    const matchQueue = o.queueNumber && o.queueNumber.toUpperCase() === normalizedQueue;
+    const matchCode = o.paymentCode && String(o.paymentCode).trim() === codeToken;
+    return matchQueue || matchCode;
+  });
+
+  if (!target) {
+    alert(`Antrean aktif dengan QR/kode "${raw}" tidak ditemukan.`);
+    return;
+  }
+
+  if (input) input.value = '';
+  posValidateAndCompleteOrder(target.id);
+}
+
 /** Memperbarui status dapur pesanan (Siap Diambil / Selesai). */
 function posUpdateOrderStatus(orderId, newStatus) {
   const orders = getStoredOrders();
   const target = orders.find((o) => o.id === orderId);
   if (!target) return;
+
+  if (newStatus === 'Selesai' && target.paymentStatus !== 'LUNAS') {
+    alert('Pesanan belum lunas! Validasi pembayaran cash di kasir terlebih dahulu.');
+    return;
+  }
 
   target.status = newStatus;
   setStoredOrders(orders);

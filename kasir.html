@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261125_17">
+  <link rel="stylesheet" href="style.css?v=20261125_18">
 
   <style>
     :root {
@@ -292,6 +292,20 @@
           </div>
         </div>
 
+        <!-- Validasi Antrean / Scan QR Kasir -->
+        <div class="pos-quick-validate-bar">
+          <div class="pos-qv-label">
+            <i class="fas fa-qrcode"></i>
+            <span>Validasi Antrean / Scan QR Kasir:</span>
+          </div>
+          <div class="pos-qv-controls">
+            <input type="text" id="posValidateCodeInput" class="form-control" placeholder="Scan QR atau ketik #003 / kode bayar..." onkeydown="if(event.key==='Enter'){event.preventDefault();posValidateByCodeOrQr();}">
+            <button type="button" class="pos-mini-btn done" onclick="posValidateByCodeOrQr()">
+              <i class="fas fa-check-double"></i> Validasi &amp; Selesai
+            </button>
+          </div>
+        </div>
+
         <!-- Kotak Validasi Pesanan Bayar di Tempat dari Pembeli -->
         <div class="pos-pending-cash-box" id="posPendingCashBox" style="display: none;">
           <div class="pos-pending-header">
@@ -445,8 +459,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="menu-data.js?v=20261125_17"></script>
-  <script src="shared-store.js?v=20261125_17"></script>
-  <script src="kasir.js?v=20261125_17"></script>
+  <script src="menu-data.js?v=20261125_18"></script>
+  <script src="shared-store.js?v=20261125_18"></script>
+  <script src="kasir.js?v=20261125_18"></script>
 </body>
 </html>
