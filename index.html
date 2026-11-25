@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261118_10">
+  <link rel="stylesheet" href="style.css?v=20261125_11">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -112,6 +112,11 @@
       </nav>
 
       <div class="nav-right">
+        <button type="button" class="order-mode-trigger" id="activeOrderModeBtn" onclick="openOrderModeModal()" title="Ubah mode pesanan">
+          <span id="activeOrderModeText">🍽️ Makan di Tempat</span>
+          <small>Ubah</small>
+        </button>
+
         <!-- Floating Cart Trigger Button -->
         <button class="cart-trigger-btn" id="openCartBtn" onclick="toggleCartDrawer()">
           <i class="fas fa-shopping-bag"></i>
@@ -786,6 +791,41 @@
     </div>
   </div>
 
+  <!-- Welcome / Entry Order Mode Modal (Makan di Tempat vs Take Away) -->
+  <div class="modal-backdrop" id="orderModeModal">
+    <div class="modal-dialog order-mode-dialog">
+      <div class="order-mode-top">
+        <div class="order-mode-logo-wrap">
+          <img src="assets/logo-chicken.jpg" alt="Ayam Geprek Centeng">
+        </div>
+        <h3>Selamat Datang di Ayam Geprek Centeng</h3>
+        <p>Pilih cara pemesananmu terlebih dahulu:</p>
+      </div>
+
+      <div class="modal-body" style="padding: 0 24px 24px;">
+        <div class="order-mode-grid">
+          <button type="button" class="order-mode-card" onclick="chooseEntryOrderMode('Makan di Tempat')">
+            <div class="order-mode-icon"><i class="fas fa-utensils"></i></div>
+            <strong>Makan di Tempat</strong>
+            <span>Dine-In • Pilih nomor meja &amp; diantar ke meja</span>
+          </button>
+
+          <button type="button" class="order-mode-card" onclick="chooseEntryOrderMode('Bawa Pulang')">
+            <div class="order-mode-icon"><i class="fas fa-shopping-bag"></i></div>
+            <strong>Take Away</strong>
+            <span>Bawa Pulang • Praktis langsung ambil saat siap</span>
+          </button>
+        </div>
+
+        <div class="order-mode-footer">
+          <button type="button" class="order-mode-skip-btn" onclick="closeOrderModeModal()">
+            Lihat-lihat menu dulu &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div class="toast-notice" id="toastNotice">
     <i class="fas fa-bell"></i>
@@ -793,8 +833,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261118_10"></script>
-  <script src="shared-store.js?v=20261118_10"></script>
-  <script src="app.js?v=20261118_10"></script>
+  <script src="menu-data.js?v=20261125_11"></script>
+  <script src="shared-store.js?v=20261125_11"></script>
+  <script src="app.js?v=20261125_11"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@
 let cart = [];
 let currentCategory = 'all';
 let searchQuery = '';
+let selectedOrderMode = 'Makan di Tempat';
 let selectedTableNumber = 'Meja 01';
 let currentActiveOrder = null;
 let currentDraftOrder = null;
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initQueueSystem();
   startLiveClock();
   loadOrdersFromBackend(refreshBuyerOrderViews);
+  openOrderModeModal();
 
   // Sinkronisasi otomatis lintas tab maupun antar perangkat (via server.js)
   window.addEventListener('storage', (event) => {
@@ -289,11 +291,49 @@ function setupTablePicker() {
 
 /** Memilih opsi tipe pesanan pada form checkout (Dine-In / Take Away). */
 function selectOrderTypeOption(typeValue) {
+  selectedOrderMode = typeValue;
   const typeRadios = document.getElementsByName('orderTypeChoice');
   for (let r of typeRadios) {
     r.checked = (r.value === typeValue);
   }
   toggleTableInput(typeValue === 'Makan di Tempat');
+
+  const modeTextEl = document.getElementById('activeOrderModeText');
+  if (modeTextEl) {
+    modeTextEl.innerText = typeValue === 'Bawa Pulang' ? '🛍️ Take Away' : '🍽️ Makan di Tempat';
+  }
+}
+
+/** Membuka modal pilihan awal Makan di Tempat atau Take Away saat web dibuka. */
+function openOrderModeModal() {
+  const modal = document.getElementById('orderModeModal');
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+/** Menutup modal pilihan awal mode pesanan. */
+function closeOrderModeModal() {
+  const modal = document.getElementById('orderModeModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+/** Menyimpan pilihan Makan di Tempat atau Take Away dari modal awal. */
+function chooseEntryOrderMode(modeValue) {
+  selectOrderTypeOption(modeValue);
+  closeOrderModeModal();
+
+  const label = modeValue === 'Bawa Pulang' ? 'Take Away (Bawa Pulang)' : 'Makan di Tempat (Dine-In)';
+  showToast(`Mode pesanan: ${label}`);
+
+  const menuEl = document.getElementById('menu-katalog');
+  if (menuEl && typeof menuEl.scrollIntoView === 'function') {
+    menuEl.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 function startDineInOrder() {
@@ -376,10 +416,12 @@ function closeCheckoutModal() {
 
 // Global modal backdrop close listener
 window.addEventListener('click', (e) => {
+  const orderModeModal = document.getElementById('orderModeModal');
   const checkoutModal = document.getElementById('checkoutModal');
   const ticketModal = document.getElementById('ticketModal');
   const paymentModal = document.getElementById('paymentGatewayModal');
 
+  if (e.target === orderModeModal) closeOrderModeModal();
   if (e.target === checkoutModal) closeCheckoutModal();
   if (e.target === ticketModal) closeTicketModal();
   if (e.target === paymentModal) closePaymentGateway();
