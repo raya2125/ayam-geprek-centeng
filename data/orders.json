@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-18T03:41:24.300Z",
+  "updatedAt": "2026-11-25T04:05:54.373Z",
   "queueCounter": 2,
   "orders": [
     {
@@ -8,7 +8,7 @@
       "timestamp": "Hari ini 12:15",
       "customerName": "Budi Santoso",
       "orderType": "Makan di Tempat",
-      "tableNumber": "Meja 03",
+      "tableNumber": "-",
       "items": [
         {
           "name": "Ayam Geprek",

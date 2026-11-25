@@ -8,13 +8,11 @@
 
 let posCart = [];
 let posOrderType = 'Makan di Tempat';
-let posSelectedTable = 'Meja 01';
 let posActiveFilter = 'all';
 let posCurrentReceiptOrder = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   posRenderMenu();
-  posSetupTables();
   posRenderCart();
   posRenderOrdersTable();
   posStartClock();
@@ -167,41 +165,6 @@ function posSelectOrderType(type) {
   document.querySelectorAll('#posOrderTypeRow .pos-choice-pill').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.type === type);
   });
-
-  const tableGroup = document.getElementById('posTableGroup');
-  if (tableGroup) {
-    tableGroup.style.display = type === 'Makan di Tempat' ? 'block' : 'none';
-  }
-}
-
-/** Membangun grid tombol meja cepat 01 s/d 12. */
-function posSetupTables() {
-  const grid = document.getElementById('posTablesGrid');
-  if (!grid) return;
-
-  grid.innerHTML = '';
-  for (let i = 1; i <= 12; i++) {
-    const numStr = i < 10 ? `0${i}` : `${i}`;
-    const tableName = `Meja ${numStr}`;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = `pos-table-pill ${tableName === posSelectedTable ? 'active' : ''}`;
-    btn.dataset.table = tableName;
-    btn.innerText = numStr;
-    btn.title = tableName;
-    btn.onclick = () => posSelectTable(tableName);
-    grid.appendChild(btn);
-  }
-}
-
-/** Memilih nomor meja aktif untuk pesanan dine-in. */
-function posSelectTable(tableName) {
-  posSelectedTable = tableName;
-  document.querySelectorAll('.pos-table-pill').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.table === tableName);
-  });
-  const labelEl = document.getElementById('posSelectedTableText');
-  if (labelEl) labelEl.innerText = tableName;
 }
 
 /** Menambahkan catatan cepat ke kolom input catatan kasir. */
@@ -333,7 +296,7 @@ function posSubmitCashOrder() {
     timestamp: formatOrderTimestamp(now),
     customerName: customerName,
     orderType: posOrderType,
-    tableNumber: posOrderType === 'Makan di Tempat' ? posSelectedTable : '-',
+    tableNumber: '-',
     items: itemsList,
     menuSummary: itemsList.map((i) => `${i.qty}x ${i.name}`).join(', '),
     spicyLevel: '-',
@@ -415,7 +378,7 @@ function posRenderPendingCashBox(orders) {
   pendingOrders.forEach((o) => {
     const card = document.createElement('div');
     card.className = 'pos-pending-card';
-    const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Take Away';
+    const dest = o.orderType || 'Makan di Tempat';
     card.innerHTML = `
       <div class="pos-pending-card-top">
         <div>
@@ -493,7 +456,7 @@ function posRenderOrdersTable() {
   filtered.forEach((o) => {
     const tr = document.createElement('tr');
     const isPaid = o.paymentStatus === 'LUNAS';
-    const dest = o.orderType === 'Makan di Tempat' ? `${o.orderType} (${o.tableNumber})` : o.orderType;
+    const dest = o.orderType || 'Makan di Tempat';
     const cashDetail = o.cashReceived !== undefined && o.cashReceived !== null
       ? `<br><small style="color: #107C41;">Bayar Rp ${o.cashReceived.toLocaleString('id-ID')} • Kembali Rp ${(o.cashChange || 0).toLocaleString('id-ID')}</small>`
       : '';
@@ -624,9 +587,7 @@ function posOpenReceiptModal(order) {
 
   if (queueEl) queueEl.innerText = order.queueNumber;
   if (typeEl) {
-    typeEl.innerText = order.orderType === 'Makan di Tempat'
-      ? `Makan di Tempat - ${order.tableNumber}`
-      : order.orderType;
+    typeEl.innerText = order.orderType || 'Makan di Tempat';
   }
   if (stampEl) {
     const isPaid = order.paymentStatus === 'LUNAS';

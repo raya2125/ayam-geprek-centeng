@@ -11,7 +11,6 @@ let cart = [];
 let currentCategory = 'all';
 let searchQuery = '';
 let selectedOrderMode = 'Makan di Tempat';
-let selectedTableNumber = 'Meja 01';
 let currentActiveOrder = null;
 let currentDraftOrder = null;
 let selectedPaymentTab = 'qris';
@@ -38,9 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
   setupCategoryTabs();
   setupMobileNav();
-  setupTablePicker();
   initQueueSystem();
-  startLiveClock();
   loadOrdersFromBackend(refreshBuyerOrderViews);
   openOrderModeModal();
 
@@ -252,42 +249,9 @@ function toggleCartDrawer() {
 
 /**
  * ============================================================
- * 3. PESAN DI TEMPAT (TABLE PICKER & DINE-IN FLOW)
+ * 3. MODE PESANAN (DINE-IN / TAKE AWAY & NOMOR ANTREAN)
  * ============================================================
  */
-function setupTablePicker() {
-  const grid = document.getElementById('tablesGrid');
-  if (!grid) return;
-
-  grid.innerHTML = '';
-  for (let i = 1; i <= 12; i++) {
-    const tableNumStr = i < 10 ? `0${i}` : `${i}`;
-    const btn = document.createElement('div');
-    btn.className = `table-btn ${i === 1 ? 'selected' : ''}`;
-    btn.dataset.table = `Meja ${tableNumStr}`;
-    btn.innerHTML = `
-      <span class="table-label">Meja</span>
-      <strong class="table-num">${tableNumStr}</strong>
-    `;
-
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedTableNumber = `Meja ${tableNumStr}`;
-      
-      const banner = document.getElementById('activeTableBanner');
-      if (banner) banner.innerText = `${selectedTableNumber} (Terpilih)`;
-
-      const text = document.getElementById('selectedTableText');
-      if (text) text.innerText = `Terpilih: ${selectedTableNumber}`;
-
-      const modalTableSelect = document.getElementById('custTableNumber');
-      if (modalTableSelect) modalTableSelect.value = selectedTableNumber;
-    });
-
-    grid.appendChild(btn);
-  }
-}
 
 /** Memilih opsi tipe pesanan pada form checkout (Dine-In / Take Away). */
 function selectOrderTypeOption(typeValue) {
@@ -296,7 +260,6 @@ function selectOrderTypeOption(typeValue) {
   for (let r of typeRadios) {
     r.checked = (r.value === typeValue);
   }
-  toggleTableInput(typeValue === 'Makan di Tempat');
 
   const modeTextEl = document.getElementById('activeOrderModeText');
   if (modeTextEl) {
@@ -342,11 +305,6 @@ function startDineInOrder() {
     addToCart(2);
   }
 
-  const modalTableSelect = document.getElementById('custTableNumber');
-  if (modalTableSelect) {
-    modalTableSelect.value = selectedTableNumber;
-  }
-
   selectOrderTypeOption('Makan di Tempat');
   openCheckoutModal();
 }
@@ -359,13 +317,6 @@ function startTakeAwayOrder() {
 
   selectOrderTypeOption('Bawa Pulang');
   openCheckoutModal();
-}
-
-function toggleTableInput(isDineIn) {
-  const group = document.getElementById('tableInputGroup');
-  if (group) {
-    group.style.display = isDineIn ? 'block' : 'none';
-  }
 }
 
 /**
@@ -444,10 +395,7 @@ function handleProcessOrder(e) {
     if (r.checked) orderType = r.value;
   }
 
-  let tableNum = '-';
-  if (orderType === 'Makan di Tempat') {
-    tableNum = document.getElementById('custTableNumber').value || selectedTableNumber;
-  }
+  const tableNum = '-';
 
   // Hitung total
   let grandTotal = 0;
@@ -702,9 +650,8 @@ function updateActiveOrderBanner(order) {
   activeBar.style.display = 'flex';
   myQueueNumText.innerText = order.queueNumber;
 
-  const dest = order.tableNumber !== '-' ? order.tableNumber : 'Take Away';
   if (order.paymentStatus === 'LUNAS') {
-    myQueueStatusText.innerText = `Pesanan ${order.orderType} (${dest}) • Pembayaran: LUNAS (${order.status})`;
+    myQueueStatusText.innerText = `Pesanan ${order.orderType} • Pembayaran: LUNAS (${order.status})`;
   } else {
     myQueueStatusText.innerText = `Menunggu pembayaran tunai di kasir • Kode Validasi: ${order.paymentCode || '-'}`;
   }
@@ -724,7 +671,7 @@ function initQueueSystem() {
         timestamp: 'Hari ini 12:15',
         customerName: 'Budi Santoso',
         orderType: 'Makan di Tempat',
-        tableNumber: 'Meja 03',
+        tableNumber: '-',
         items: [{ name: 'Ayam Geprek', qty: 2, price: 10000, subtotal: 20000 }, { name: 'Es Teh', qty: 2, price: 5000, subtotal: 10000 }],
         menuSummary: '2x Ayam Geprek, 2x Es Teh',
         spicyLevel: '-',
@@ -761,17 +708,8 @@ function initQueueSystem() {
 }
 
 function renderQueueBoard() {
-  const prepList = document.getElementById('queuePreparingList');
-  const readyList = document.getElementById('queueReadyList');
-  if (!prepList || !readyList) return;
-
-  prepList.innerHTML = '';
-  readyList.innerHTML = '';
-
   const orders = getStoredOrders();
   const pendingCashOrders = orders.filter(o => o.status === 'Menunggu Pembayaran');
-  const preparingOrders = orders.filter(o => o.status === 'Sedang Disiapkan');
-  const readyOrders = orders.filter(o => o.status === 'Siap Diambil');
 
   const pendingBar = document.getElementById('bkPendingCashBar');
   if (pendingBar) {
@@ -789,99 +727,11 @@ function renderQueueBoard() {
       pendingBar.innerHTML = '';
     }
   }
-
-  if (preparingOrders.length === 0) {
-    prepList.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
-        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 8px;"></i>
-        <p>Semua pesanan selesai disiapkan!</p>
-      </div>
-    `;
-  } else {
-    preparingOrders.forEach(o => {
-      const card = document.createElement('div');
-      card.className = 'bk-queue-card';
-      const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Takeaway';
-      const isPaid = o.paymentStatus === 'LUNAS';
-      card.innerHTML = `
-        <div class="bk-card-num">${o.queueNumber}</div>
-        <div class="bk-card-type">${dest}</div>
-        <div style="margin: 4px 0;">
-          <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}" style="font-size: 0.65rem;">
-            ${isPaid ? '✓ LUNAS' : 'KASIR'}
-          </span>
-        </div>
-        <div class="bk-card-time">${o.timestamp.split(' ')[1] || ''}</div>
-        <div class="bk-card-action">
-          <button class="btn-kiosk-action" onclick="updateOrderStatus(${o.id}, 'Siap Diambil')" title="Klik untuk tandai pesanan siap">
-            ✓ Siap
-          </button>
-        </div>
-      `;
-      prepList.appendChild(card);
-    });
-  }
-
-  if (readyOrders.length === 0) {
-    readyList.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.4); padding: 30px;">
-        <i class="fas fa-bell" style="font-size: 2rem; margin-bottom: 8px;"></i>
-        <p>Belum ada nomor yang siap diambil.</p>
-      </div>
-    `;
-  } else {
-    readyOrders.forEach(o => {
-      const card = document.createElement('div');
-      card.className = 'bk-queue-card';
-      const dest = o.orderType === 'Makan di Tempat' ? o.tableNumber : 'Siap Diambil';
-      const isPaid = o.paymentStatus === 'LUNAS';
-      card.innerHTML = `
-        <div class="bk-card-num">${o.queueNumber}</div>
-        <div class="bk-card-type">${dest}</div>
-        <div style="margin: 4px 0;">
-          <span class="badge-pay-status ${isPaid ? 'paid' : 'cash'}" style="font-size: 0.65rem;">
-            ${isPaid ? '✓ LUNAS' : 'KASIR'}
-          </span>
-        </div>
-        <div class="bk-card-time">Siap di Kasir / Diantar</div>
-        <div class="bk-card-action">
-          <button class="btn-kiosk-action" onclick="updateOrderStatus(${o.id}, 'Selesai')" title="Selesai & diserahkan ke pelanggan">
-            ✓ Selesai
-          </button>
-        </div>
-      `;
-      readyList.appendChild(card);
-    });
-  }
-}
-
-function updateOrderStatus(orderId, newStatus) {
-  let orders = getStoredOrders();
-  const target = orders.find(o => o.id === orderId);
-  if (target) {
-    target.status = newStatus;
-    setStoredOrders(orders);
-    renderQueueBoard();
-    showToast(`Pesanan ${target.queueNumber} diubah ke: ${newStatus}`);
-  }
-}
-
-function startLiveClock() {
-  const clockEl = document.getElementById('bkLiveClock');
-  if (!clockEl) return;
-
-  function update() {
-    const now = new Date();
-    const str = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
-    clockEl.innerText = `${str} WIB`;
-  }
-  update();
-  setInterval(update, 1000);
 }
 
 /**
  * ============================================================
- * 7. DIGITAL STRUK / RECEIPT MODAL (BURGER KING STYLE)
+ * 7. DIGITAL STRUK / RECEIPT MODAL
  * ============================================================
  */
 function showDigitalTicketModal(order) {
@@ -896,9 +746,7 @@ function showDigitalTicketModal(order) {
 
   if (qNum) qNum.innerText = order.queueNumber;
   if (oType) {
-    oType.innerText = order.orderType === 'Makan di Tempat' 
-      ? `Makan di Tempat - ${order.tableNumber}` 
-      : order.orderType;
+    oType.innerText = order.orderType || 'Makan di Tempat';
   }
   if (tTime) tTime.innerText = `${order.timestamp} WIB | Pemesan: ${order.customerName}`;
 

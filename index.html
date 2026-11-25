@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- External Stylesheet with Cache Busting -->
-  <link rel="stylesheet" href="style.css?v=20261125_11">
+  <link rel="stylesheet" href="style.css?v=20261125_12">
 
   <style>
     /* Anti-cache humanist override & logo constraints */
@@ -87,7 +87,7 @@
   <div class="announcement-bar">
     <div class="container announcement-inner">
       <span>🍗 <strong>Ayam Geprek Centeng:</strong> Pesan makan di tempat (Dine-In) atau Take Away &mdash; bayar pakai QRIS atau Bayar di Tempat!</span>
-      <a href="#layar-antrean" class="announcement-link">Lihat Status Antrean &rarr;</a>
+      <a href="#menu-katalog" class="announcement-link">Pesan Pakai Nomor Antrean &rarr;</a>
     </div>
   </div>
 
@@ -107,8 +107,7 @@
       <nav class="nav-menu" id="navMenu">
         <a href="#beranda" class="nav-item active">Beranda</a>
         <a href="#menu-katalog" class="nav-item">Menu & Harga</a>
-        <a href="#pesan-tempat" class="nav-item">🍽️ Pesan di Tempat</a>
-        <a href="#layar-antrean" class="nav-item">📟 Layar Antrean</a>
+        <a href="#lokasi-outlet" class="nav-item">Lokasi Kedai</a>
       </nav>
 
       <div class="nav-right">
@@ -140,20 +139,17 @@
           Pesan Nyaman Tanpa Ribet!
         </h1>
         <p class="hero-desc">
-          Nikmati racikan ayam goreng krispi dengan sambal cabai rawit asli. Pilih makan di tempat dengan nomor mejamu
-          atau pesan Take Away, lalu pantau nomor antreanmu secara langsung!
+          Nikmati racikan ayam goreng krispi dengan sambal cabai rawit asli. Pilih makan di tempat
+          atau Take Away, langsung dapat Nomor Antrean tanpa ribet!
         </p>
 
         <div class="hero-buttons">
           <a href="#menu-katalog" class="btn btn-primary btn-lg">
             <i class="fas fa-drumstick-bite"></i> Pesan Sekarang
           </a>
-          <a href="#pesan-tempat" class="btn btn-outline btn-lg">
-            <i class="fas fa-chair"></i> Pilih Nomor Meja
-          </a>
-          <a href="#layar-antrean" class="btn btn-outline btn-lg">
-            <i class="fas fa-tv"></i> Layar Antrean
-          </a>
+          <button type="button" class="btn btn-outline btn-lg" onclick="openOrderModeModal()">
+            <i class="fas fa-utensils"></i> Makan di Tempat / Take Away
+          </button>
         </div>
       </div>
 
@@ -252,125 +248,19 @@
     </div>
   </section>
 
-  <!-- PESAN DI TEMPAT (DINE-IN KIOSK & TABLE PICKER) -->
-  <section class="dinein-section" id="pesan-tempat">
+  <!-- BANNER NOMOR ANTREAN AKTIF PELANGGAN -->
+  <section class="queue-status-strip" style="padding: 12px 0;">
     <div class="container">
-      <div class="section-title-wrap text-center">
-        <span class="tag-label"><i class="fas fa-chair"></i> Dine-In Experience</span>
-        <h2 class="main-heading">Pesan di Tempat <span class="highlight-text">(Makan di Meja)</span></h2>
-        <p class="sub-heading">
-          Duduk santai di meja restoran Anda, tentukan nomor meja, dan pesan tanpa perlu antre berdesakan di kasir.
-        </p>
-      </div>
-
-      <div class="dinein-card">
-        <div class="dinein-grid">
-          <div class="dinein-info">
-            <h3>Cara Mudah Pesan Dari Meja:</h3>
-            <p>
-              Pilih nomor meja langsung dari website untuk mendapatkan <strong>Nomor Antrean</strong> dan pesanan Anda segera disiapkan setelah pembayaran terkonfirmasi.
-            </p>
-
-            <div class="dinein-steps">
-              <div class="dinein-step-item">
-                <div class="step-num">1</div>
-                <div>Pilih nomor meja tempat Anda duduk di samping.</div>
-              </div>
-              <div class="dinein-step-item">
-                <div class="step-num">2</div>
-                <div>Tambahkan <strong>Ayam Geprek</strong> & <strong>Es Teh</strong> ke pesanan.</div>
-              </div>
-              <div class="dinein-step-item">
-                <div class="step-num">3</div>
-                <div>Tekan tombol pesan untuk mendapatkan nomor antrean digital Anda!</div>
-              </div>
-            </div>
-
-            <button class="btn btn-primary btn-lg" onclick="startDineInOrder()">
-              <i class="fas fa-utensils"></i> Mulai Pesan ke Meja Saya
-            </button>
-          </div>
-
-          <!-- Table Picker Box -->
-          <div class="table-picker-box">
-            <div class="table-picker-title">
-              <strong>Pilih Meja Restoran:</strong>
-              <span id="selectedTableText">Meja belum dipilih</span>
-            </div>
-
-            <div class="tables-grid" id="tablesGrid">
-              <!-- Injected by app.js (Tables 1-12) -->
-            </div>
-
-            <div class="selected-table-banner">
-              <span>Status Pilihan:</span>
-              <strong id="activeTableBanner">Meja 01 (Terpilih)</strong>
-            </div>
+      <div class="bk-pending-cash-bar" id="bkPendingCashBar" style="display: none;"></div>
+      <div class="bk-customer-active-bar" id="bkCustomerActiveBar" style="display: none;">
+        <div class="bk-active-info">
+          <i class="fas fa-ticket-alt"></i>
+          <div>
+            <strong>Nomor Antrean Anda: <span id="myQueueNumberText">#---</span></strong>
+            <p id="myQueueStatusText">Pesanan Anda sedang dipersiapkan di dapur.</p>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- LAYAR MONITOR ANTREAN LIVE -->
-  <section class="queue-monitor-section" id="layar-antrean">
-    <div class="container">
-      <div class="section-title-wrap text-center">
-        <span class="tag-label"><i class="fas fa-tv"></i> Monitor Antrean Live</span>
-        <h2 class="main-heading">Layar Antrean <span class="highlight-text">Pesanan Dapur</span></h2>
-        <p class="sub-heading">Pantau status pesananmu secara langsung. Ambil pesanan di kasir / tunggu di meja saat nomormu dipanggil!</p>
-      </div>
-
-      <!-- Kiosk Monitor Board -->
-      <div class="bk-queue-board">
-        <div class="bk-board-header">
-          <div class="bk-brand-indicator">
-            <img src="assets/logo-chicken.jpg" alt="Logo" class="bk-mini-logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid #FFD43B;">
-            <span>LIVE ORDER STATUS MONITOR</span>
-          </div>
-          <div class="bk-live-clock" id="bkLiveClock">21:45:00 WIB</div>
-        </div>
-
-        <div class="bk-columns-wrap">
-          <!-- Kolom Sedang Disiapkan -->
-          <div class="bk-column bk-col-preparing">
-            <div class="bk-col-title">
-              <span class="status-pulse yellow-pulse"></span>
-              <h3>SEDANG DISIAPKAN</h3>
-              <small>PREPARING IN KITCHEN</small>
-            </div>
-            <div class="bk-number-list" id="queuePreparingList">
-              <!-- Injected by app.js -->
-            </div>
-          </div>
-
-          <!-- Kolom Siap Diambil -->
-          <div class="bk-column bk-col-ready">
-            <div class="bk-col-title">
-              <span class="status-pulse green-pulse"></span>
-              <h3>SIAP DIAMBIL / DIANTAR</h3>
-              <small>READY FOR COLLECTION</small>
-            </div>
-            <div class="bk-number-list" id="queueReadyList">
-              <!-- Injected by app.js -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Waiting Payment Banner if any Pay-at-Counter orders pending -->
-        <div class="bk-pending-cash-bar" id="bkPendingCashBar" style="display: none;"></div>
-
-        <!-- Notification Banner if user has placed an order -->
-        <div class="bk-customer-active-bar" id="bkCustomerActiveBar" style="display: none;">
-          <div class="bk-active-info">
-            <i class="fas fa-ticket-alt"></i>
-            <div>
-              <strong>Nomor Antrean Anda: <span id="myQueueNumberText">#---</span></strong>
-              <p id="myQueueStatusText">Pesanan Anda sedang dipersiapkan di dapur.</p>
-            </div>
-          </div>
-          <button class="btn btn-sm btn-outline-white" onclick="viewMyTicket()">Lihat Struk Digital</button>
-        </div>
+        <button class="btn btn-sm btn-outline-white" onclick="viewMyTicket()">Lihat Struk Digital</button>
       </div>
     </div>
   </section>
@@ -378,7 +268,7 @@
   <!-- LOKASI & KONTAK OUTLET -->
   <section class="outlet-section" id="lokasi-outlet">
     <div class="container">
-      <div class="outlet-box">
+      <div class="outlet-box" style="grid-template-columns: 1fr;">
         <div class="outlet-info">
           <span class="tag-label"><i class="fas fa-store"></i> Kunjungi Kami</span>
           <h2>Kedai <span class="highlight-text">Ayam Geprek Centeng</span></h2>
@@ -405,7 +295,7 @@
               <i class="fas fa-bag-shopping"></i>
               <div>
                 <strong>Layanan Pesanan Kedai:</strong>
-                <p>Makan di Tempat (Dine-In Meja) &amp; Bawa Pulang (Take Away)</p>
+                <p>Makan di Tempat (Dine-In dengan Nomor Antrean) &amp; Bawa Pulang (Take Away)</p>
               </div>
             </div>
           </div>
@@ -418,19 +308,6 @@
               <i class="fas fa-directions"></i> Buka di Google Maps
             </a>
           </div>
-        </div>
-
-        <div class="outlet-badge-side">
-          <div class="circle-stamp">
-            <i class="fas fa-award"></i>
-            <span>100% HALAL</span>
-          </div>
-          <h3>Menerima Pembayaran:</h3>
-          <div class="payment-tags">
-            <span class="pay-tag"><i class="fas fa-qrcode"></i> QRIS (Semua Bank &amp; E-Wallet)</span>
-            <span class="pay-tag"><i class="fas fa-money-bill-wave"></i> Bayar di Tempat (Kasir)</span>
-          </div>
-          <p class="delivery-partner-note">Praktis pesan Dine-In atau Take Away langsung lewat website &amp; kasir kedai.</p>
         </div>
       </div>
     </div>
@@ -465,11 +342,11 @@
       </div>
 
       <div class="footer-col">
-        <h4>Layanan Restoran</h4>
+        <h4>Layanan Kedai</h4>
         <ul>
-          <li><a href="#pesan-tempat">Pesan di Tempat (Dine-In)</a></li>
-          <li><a href="#layar-antrean">Layar Antrean Live</a></li>
-          <li><a href="#lokasi-outlet">Lokasi & Jam Buka</a></li>
+          <li><a href="#menu-katalog" onclick="openOrderModeModal()">Pesan di Tempat / Take Away</a></li>
+          <li><a href="#menu-katalog">Menu &amp; Harga</a></li>
+          <li><a href="#lokasi-outlet">Lokasi &amp; Jam Buka</a></li>
         </ul>
       </div>
 
@@ -536,39 +413,20 @@
             <label>Pilih Tipe Pesanan *</label>
             <div class="order-type-picker">
               <label>
-                <input type="radio" name="orderTypeChoice" value="Makan di Tempat" checked onchange="toggleTableInput(true)">
+                <input type="radio" name="orderTypeChoice" value="Makan di Tempat" checked onchange="selectOrderTypeOption('Makan di Tempat')">
                 <span class="order-type-label">
-                  <i class="fas fa-chair"></i>
-                  <span>Dine-In (Meja)</span>
+                  <i class="fas fa-utensils"></i>
+                  <span>Makan di Tempat</span>
                 </span>
               </label>
               <label>
-                <input type="radio" name="orderTypeChoice" value="Bawa Pulang" onchange="toggleTableInput(false)">
+                <input type="radio" name="orderTypeChoice" value="Bawa Pulang" onchange="selectOrderTypeOption('Bawa Pulang')">
                 <span class="order-type-label">
                   <i class="fas fa-bag-shopping"></i>
                   <span>Take Away</span>
                 </span>
               </label>
             </div>
-          </div>
-
-          <!-- Nomor Meja (muncul jika Makan di Tempat) -->
-          <div class="form-group" id="tableInputGroup">
-            <label for="custTableNumber">Nomor Meja Restoran *</label>
-            <select id="custTableNumber" class="form-control">
-              <option value="Meja 01">Meja 01</option>
-              <option value="Meja 02">Meja 02</option>
-              <option value="Meja 03">Meja 03</option>
-              <option value="Meja 04">Meja 04</option>
-              <option value="Meja 05">Meja 05</option>
-              <option value="Meja 06">Meja 06</option>
-              <option value="Meja 07">Meja 07</option>
-              <option value="Meja 08">Meja 08</option>
-              <option value="Meja 09">Meja 09</option>
-              <option value="Meja 10">Meja 10</option>
-              <option value="Meja 11">Meja 11</option>
-              <option value="Meja 12">Meja 12</option>
-            </select>
           </div>
 
           <div class="form-group">
@@ -748,7 +606,7 @@
           <div class="receipt-queue-box">
             <div class="receipt-queue-label">NOMOR ANTREAN ANDA</div>
             <div class="receipt-queue-number" id="ticketQueueNumber">#001</div>
-            <div class="receipt-order-type" id="ticketOrderType">Makan di Tempat - Meja 01</div>
+            <div class="receipt-order-type" id="ticketOrderType">Makan di Tempat</div>
           </div>
 
           <!-- Stempel Status Pembayaran -->
@@ -780,11 +638,8 @@
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button class="btn btn-primary btn-block" onclick="closeTicketModal(); location.href='#layar-antrean';">
-            <i class="fas fa-tv"></i> Pantau di Layar Antrean
-          </button>
-          <button class="btn btn-outline btn-block" onclick="closeTicketModal()">
-            Tutup
+          <button class="btn btn-primary btn-block" onclick="closeTicketModal()">
+            <i class="fas fa-check"></i> Tutup Struk
           </button>
         </div>
       </div>
@@ -807,7 +662,7 @@
           <button type="button" class="order-mode-card" onclick="chooseEntryOrderMode('Makan di Tempat')">
             <div class="order-mode-icon"><i class="fas fa-utensils"></i></div>
             <strong>Makan di Tempat</strong>
-            <span>Dine-In • Pilih nomor meja &amp; diantar ke meja</span>
+            <span>Dine-In • Pesan &amp; tunggu sesuai nomor antrean</span>
           </button>
 
           <button type="button" class="order-mode-card" onclick="chooseEntryOrderMode('Bawa Pulang')">
@@ -833,8 +688,8 @@
   </div>
 
   <!-- Scripts with cache buster -->
-  <script src="menu-data.js?v=20261125_11"></script>
-  <script src="shared-store.js?v=20261125_11"></script>
-  <script src="app.js?v=20261125_11"></script>
+  <script src="menu-data.js?v=20261125_12"></script>
+  <script src="shared-store.js?v=20261125_12"></script>
+  <script src="app.js?v=20261125_12"></script>
 </body>
 </html>

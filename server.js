@@ -41,7 +41,7 @@ const DEFAULT_SEED_DB = {
       timestamp: 'Hari ini 12:15',
       customerName: 'Budi Santoso',
       orderType: 'Makan di Tempat',
-      tableNumber: 'Meja 03',
+      tableNumber: '-',
       items: [
         { name: 'Ayam Geprek', qty: 2, price: 10000, subtotal: 20000 },
         { name: 'Es Teh', qty: 2, price: 5000, subtotal: 10000 }
