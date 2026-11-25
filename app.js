@@ -335,19 +335,14 @@ function openCheckoutModal() {
   }
 
   const modal = document.getElementById('checkoutModal');
-  const summaryInput = document.getElementById('custOrderSummary');
   const totalModalEl = document.getElementById('modalTotalPrice');
 
-  let summaryText = '';
   let grandTotal = 0;
 
-  cart.forEach((item, idx) => {
-    const subtotal = item.price * item.qty;
-    grandTotal += subtotal;
-    summaryText += `${idx + 1}. ${item.qty}x ${item.name} = Rp ${subtotal.toLocaleString('id-ID')}\n`;
+  cart.forEach((item) => {
+    grandTotal += (item.price * item.qty);
   });
 
-  if (summaryInput) summaryInput.value = summaryText.trim();
   if (totalModalEl) totalModalEl.innerText = 'Rp ' + grandTotal.toLocaleString('id-ID');
 
   if (modal) {
