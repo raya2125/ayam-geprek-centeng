@@ -41,13 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadOrdersFromBackend(refreshBuyerOrderViews);
   openOrderModeModal();
 
-  // Sinkronisasi otomatis lintas tab maupun antar perangkat (via server.js)
-  window.addEventListener('storage', (event) => {
-    if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
-      refreshBuyerOrderViews();
-    }
-  });
-  window.addEventListener('focus', () => loadOrdersFromBackend(refreshBuyerOrderViews));
+  // Sinkronisasi otomatis real-time lintas tab maupun antar perangkat (via server.js)
+  subscribeOrderSync(refreshBuyerOrderViews);
 });
 
 /**

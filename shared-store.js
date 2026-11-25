@@ -68,6 +68,19 @@ function getStoredOrders() {
   }
 }
 
+const ordersSyncChannel = typeof BroadcastChannel !== 'undefined'
+  ? new BroadcastChannel('centeng_orders_sync')
+  : null;
+
+/** Mengirim sinyal sinkronisasi instan ke tab lain dalam browser yang sama. */
+function notifyOrderSyncChannel() {
+  if (ordersSyncChannel) {
+    try {
+      ordersSyncChannel.postMessage({ type: 'orders_updated', at: Date.now() });
+    } catch (e) {}
+  }
+}
+
 /** Menyimpan seluruh daftar pesanan ke localStorage & menyinkronkan ke server Excel/Sheets. */
 function setStoredOrders(orders, queueCounterOverride = null) {
   localStorage.setItem(STORAGE_ORDERS_KEY, JSON.stringify(orders));
@@ -75,6 +88,7 @@ function setStoredOrders(orders, queueCounterOverride = null) {
     ? queueCounterOverride
     : (parseInt(localStorage.getItem(STORAGE_QUEUE_COUNTER_KEY) || '0', 10) || 0);
   syncLedgerToBackend(orders, counter);
+  notifyOrderSyncChannel();
 }
 
 /** Menghapus seluruh pesanan di localStorage & mereset catatan server/Excel. */
@@ -82,6 +96,7 @@ function clearStoredOrders() {
   localStorage.setItem(STORAGE_ORDERS_KEY, '[]');
   localStorage.setItem(STORAGE_QUEUE_COUNTER_KEY, '0');
   syncLedgerToBackend([], 0);
+  notifyOrderSyncChannel();
 }
 
 /** Menambahkan satu pesanan baru ke database localStorage & catatan otomatis. */
@@ -132,6 +147,38 @@ function loadOrdersFromBackend(onSynced) {
       }
     })
     .catch(() => {});
+}
+
+/** Mendaftarkan listener sinkronisasi otomatis real-time (BroadcastChannel, storage, focus, polling 2.5 detik). */
+function subscribeOrderSync(onChange) {
+  if (typeof onChange !== 'function') return;
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
+        onChange();
+      }
+    });
+    window.addEventListener('focus', () => loadOrdersFromBackend(onChange));
+  }
+
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) loadOrdersFromBackend(onChange);
+    });
+  }
+
+  if (ordersSyncChannel && typeof ordersSyncChannel.addEventListener === 'function') {
+    ordersSyncChannel.addEventListener('message', () => onChange());
+  }
+
+  if (typeof setInterval === 'function') {
+    setInterval(() => {
+      if (typeof document === 'undefined' || !document.hidden) {
+        loadOrdersFromBackend(onChange);
+      }
+    }, 2500);
+  }
 }
 
 /** Menghasilkan nomor antrean berurutan format #001. */

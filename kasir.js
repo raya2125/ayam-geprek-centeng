@@ -18,13 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
   posStartClock();
   loadOrdersFromBackend(posRenderOrdersTable);
 
-  // Sinkronisasi otomatis lintas tab maupun antar perangkat (via server.js)
-  window.addEventListener('storage', (event) => {
-    if (event.key === STORAGE_ORDERS_KEY || event.key === STORAGE_QUEUE_COUNTER_KEY) {
-      posRenderOrdersTable();
-    }
-  });
-  window.addEventListener('focus', () => loadOrdersFromBackend(posRenderOrdersTable));
+  // Sinkronisasi otomatis real-time lintas tab maupun antar perangkat (via server.js)
+  subscribeOrderSync(posRenderOrdersTable);
 
   window.addEventListener('click', (e) => {
     const receiptModal = document.getElementById('posReceiptModal');
